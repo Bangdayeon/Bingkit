@@ -9,6 +9,16 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig([
   {
+    ignores: [
+      '.expo/**',
+      'node_modules/**',
+      'ios/**',
+      'android/**',
+      'package-lock.json',
+      'global.css',
+    ],
+  },
+  {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     plugins: { js },
     extends: ['js/recommended'],
@@ -19,6 +29,7 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   {
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     ...pluginReact.configs.flat.recommended,
     settings: {
       react: { version: 'detect' },
@@ -26,6 +37,7 @@ export default defineConfig([
     rules: {
       ...pluginReact.configs.flat.recommended.rules,
       'react/react-in-jsx-scope': 'off',
+      'react/display-name': 'off',
     },
   },
   {
@@ -41,7 +53,7 @@ export default defineConfig([
     extends: ['css/recommended'],
   },
   {
-    files: ['*.config.{js,cjs}', 'babel.config.cjs'],
+    files: ['*.config.{js,cjs}', 'babel.config.cjs', '**/*.{js,jsx,ts,tsx}'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
     },

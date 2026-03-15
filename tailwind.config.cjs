@@ -82,6 +82,7 @@ module.exports = {
           800: '#6C2608',
           900: '#3E1202',
         },
+        kakao: '#FEE500',
       },
       fontFamily: {
         pretendard: ['Pretendard Variable'],
