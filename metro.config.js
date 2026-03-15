@@ -6,7 +6,19 @@ const { withNativeWind } = require('nativewind/metro');
 
 const config = getDefaultConfig(import.meta.dirname);
 
-export default withNativeWind(config, {
+const nativeWindConfig = withNativeWind(config, {
   input: './global.css',
   configPath: './tailwind.config.cjs',
 });
+
+nativeWindConfig.transformer = {
+  ...nativeWindConfig.transformer,
+  babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
+};
+nativeWindConfig.resolver = {
+  ...nativeWindConfig.resolver,
+  assetExts: nativeWindConfig.resolver.assetExts.filter((ext) => ext !== 'svg'),
+  sourceExts: [...nativeWindConfig.resolver.sourceExts, 'svg'],
+};
+
+export default nativeWindConfig;

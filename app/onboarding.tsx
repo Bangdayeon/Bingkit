@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Dimensions, FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Button from '../components/common/Button';
-import { Dot } from '../components/page/onboarding/Dot';
+import Button from '@/components/common/Button';
+import { Dot } from '@/components/page/onboarding/Dot';
 
 const { width } = Dimensions.get('window');
 

@@ -1,10 +1,3 @@
-declare namespace NodeJS {
-  interface ProcessEnv {
-    EXPO_PUBLIC_API_URL: string;
-    EXPO_PUBLIC_API_KEY: string;
-  }
-}
-
 declare module '*.svg' {
   import React from 'react';
   import { SvgProps } from 'react-native-svg';
