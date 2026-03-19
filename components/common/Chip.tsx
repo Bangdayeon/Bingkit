@@ -1,4 +1,5 @@
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
+import Text from '@/components/common/Text';
 
 interface ChipProps {
   label: string;
@@ -11,14 +12,12 @@ export default function Chip({ label, selected, onPress }: ChipProps) {
     <Pressable
       onPress={onPress}
       className={`h-7 px-3 rounded-full items-center justify-center border ${
-        selected ? 'bg-green-400 border-green-500' : 'bg-white border-gray-300'
+        selected
+          ? 'bg-green-400 border-green-500'
+          : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700'
       }`}
     >
-      <Text
-        className={`text-caption-md ${selected ? 'font-semibold text-gray-900' : 'text-gray-900'}`}
-      >
-        {label}
-      </Text>
+      <Text className={`text-caption-md ${selected ? 'font-semibold' : ''}`}>{label}</Text>
     </Pressable>
   );
 }

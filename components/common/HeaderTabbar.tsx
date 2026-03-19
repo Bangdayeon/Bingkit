@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { Animated, Pressable, View } from 'react-native';
+import Text from '@/components/common/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface HeaderTabBarProps {
@@ -33,7 +34,7 @@ export default function HeaderTabBar({ menus, defaultIndex = 0, onTabChange }: H
 
   return (
     <View
-      className="border-b border-gray-300 w-full absolute top-0"
+      className="border-b border-gray-300 dark:border-gray-700 w-full absolute top-0"
       style={{ paddingTop: insets.top }}
     >
       <View className="flex-row">
@@ -57,7 +58,7 @@ export default function HeaderTabBar({ menus, defaultIndex = 0, onTabChange }: H
             }}
           >
             <Text
-              className={`text-title-lg ${selectedIndex === index ? 'text-gray-900' : 'text-gray-500'}`}
+              className={`text-title-lg ${selectedIndex === index ? '' : 'text-gray-500 dark:text-gray-400'}`}
             >
               {menu}
             </Text>
@@ -68,7 +69,7 @@ export default function HeaderTabBar({ menus, defaultIndex = 0, onTabChange }: H
       {tabOffsets.length === menus.length && (
         <Animated.View
           style={{ transform: [{ translateX: slideAnim }], bottom: -0.5 }}
-          className="absolute w-10 h-[3px] bg-gray-900 rounded-full"
+          className="absolute w-10 h-[3px] bg-gray-900 dark:bg-gray-100 rounded-full"
         />
       )}
     </View>

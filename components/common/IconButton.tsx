@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { TouchableOpacity, TouchableOpacityProps, View } from 'react-native';
+import React from 'react';
+import { TouchableOpacity, TouchableOpacityProps, View, useColorScheme } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
@@ -20,8 +21,8 @@ const variantStyles: Record<Variant, { default: string; active: string }> = {
     active: 'bg-green-500',
   },
   secondary: {
-    default: 'bg-white border border-gray-200',
-    active: 'bg-gray-100 border border-gray-200',
+    default: 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700',
+    active: 'bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
   },
   ghost: {
     default: 'bg-transparent',
@@ -40,6 +41,11 @@ export default function IconButton({
   ...rest
 }: IconButtonProps) {
   const { default: defaultStyle, active: activeStyle } = variantStyles[variant];
+  const colorScheme = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#F6F7F7' : '#181C1C';
+  const coloredIcon = React.isValidElement(icon)
+    ? React.cloneElement(icon as React.ReactElement<{ color?: string }>, { color: iconColor })
+    : icon;
 
   const scale = useSharedValue(active ? 1 : 0);
 
@@ -78,7 +84,7 @@ export default function IconButton({
           ]}
         />
       )}
-      <View style={{ alignItems: 'center', justifyContent: 'center' }}>{icon}</View>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>{coloredIcon}</View>
     </TouchableOpacity>
   );
 }

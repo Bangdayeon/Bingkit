@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+import Text from '@/components/common/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type NotificationType = 'bingo' | 'comment' | 'popular';
@@ -58,12 +59,12 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
       {/* Header */}
-      <View className="h-[60px] flex-row items-center justify-between px-4 border-b border-gray-300">
+      <View className="h-[60px] flex-row items-center justify-between px-4 border-b border-gray-300 dark:border-gray-700">
         <View className="w-20" />
         <Pressable onPress={markAllRead} className="items-end">
-          <Text className="text-body-md text-gray-900">모두 읽음 처리</Text>
+          <Text className="text-body-md">모두 읽음 처리</Text>
         </Pressable>
       </View>
 
@@ -71,7 +72,7 @@ export default function NotificationsScreen() {
         {notifications.map((item) => (
           <Pressable
             key={item.id}
-            className={`border-t border-gray-300 px-4 justify-center ${item.read ? 'bg-gray-100' : 'bg-sky-100'}`}
+            className={`border-t border-gray-300 dark:border-gray-700 px-4 justify-center ${item.read ? 'bg-gray-100 dark:bg-gray-800' : 'bg-sky-100 dark:bg-sky-900'}`}
             style={{ minHeight: 115 }}
             onPress={() =>
               setNotifications((prev) =>
@@ -79,8 +80,8 @@ export default function NotificationsScreen() {
               )
             }
           >
-            <Text className="text-title-sm text-gray-900 mb-3">{item.title}</Text>
-            <Text className="text-body-lg text-gray-900">{item.body}</Text>
+            <Text className="text-title-sm mb-3">{item.title}</Text>
+            <Text className="text-body-lg">{item.body}</Text>
           </Pressable>
         ))}
       </ScrollView>

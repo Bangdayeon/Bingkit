@@ -1,5 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import Text from '@/components/common/Text';
 
 interface DatePickerProps {
   target: 'start' | 'end';
@@ -57,7 +58,7 @@ export default function DatePicker({
             marginBottom: 8,
           }}
         >
-          <Text className="text-body-sm text-gray-500">
+          <Text className="text-body-sm text-gray-500 dark:text-gray-400">
             {target === 'start' ? '시작일' : '종료일'} 선택
           </Text>
           <Pressable onPress={onConfirm}>

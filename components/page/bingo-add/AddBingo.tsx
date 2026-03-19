@@ -1,6 +1,7 @@
 import Modal from '@/components/common/Modal';
 import { useState } from 'react';
-import { Dimensions, TextInput, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, TextInput, TouchableOpacity, View } from 'react-native';
+import Text from '@/components/common/Text';
 
 interface AddBingoProps {
   selectedGrid: string;
@@ -55,7 +56,7 @@ export default function AddBingo({ selectedGrid, cells, onCellsChange }: AddBing
               padding: 4,
             }}
           >
-            <Text className={`${textStyle} text-gray-900 text-center`} numberOfLines={3}>
+            <Text className={`${textStyle} text-center`} numberOfLines={3}>
               {cells[i] ?? ''}
             </Text>
           </TouchableOpacity>
@@ -72,7 +73,7 @@ export default function AddBingo({ selectedGrid, cells, onCellsChange }: AddBing
             placeholder="내용을 입력하세요."
             placeholderTextColor="#929898"
             multiline
-            className="text-body-sm text-gray-900 bg-gray-100 rounded-2xl p-3 min-h-[80px]"
+            className="text-body-sm text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 rounded-2xl p-3 min-h-[80px]"
             style={{ textAlignVertical: 'top' }}
           />
         }

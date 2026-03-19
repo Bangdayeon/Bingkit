@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Dimensions, FlatList, Text, View } from 'react-native';
+import { Dimensions, FlatList, View } from 'react-native';
+import Text from '@/components/common/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '@/components/common/Button';
 import { Dot } from '@/components/page/onboarding/Dot';
@@ -32,7 +33,7 @@ export default function OnboardingScreen() {
   const isLast = currentIndex === slides.length - 1;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
       <FlatList
         ref={flatListRef}
         data={slides}
@@ -44,7 +45,9 @@ export default function OnboardingScreen() {
         renderItem={({ item }) => (
           <View style={{ width }} className="flex-1 items-center justify-center px-5">
             <Text className="text-2xl font-medium ">{item.title}</Text>
-            <Text className="mt-4 text-center text-base text-gray-500">{item.description}</Text>
+            <Text className="mt-4 text-center text-base text-gray-500 dark:text-gray-400">
+              {item.description}
+            </Text>
           </View>
         )}
       />

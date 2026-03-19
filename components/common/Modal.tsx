@@ -1,4 +1,5 @@
-import { Modal as RNModal, Pressable, Text, View } from 'react-native';
+import { Modal as RNModal, Pressable, View } from 'react-native';
+import Text from '@/components/common/Text';
 import Button from './Button';
 import { ReactNode } from 'react';
 
@@ -38,15 +39,11 @@ export default function Modal({
         className="flex-1 bg-black/40 items-center justify-center px-5"
         onPress={onDismiss}
       >
-        <Pressable className="w-full bg-white rounded-[30px] px-5 pt-6 pb-5">
-          <Text className="text-title-md text-gray-900 mb-2">{title}</Text>
+        <Pressable className="w-full bg-white dark:bg-gray-900 rounded-[30px] px-5 pt-6 pb-5">
+          <Text className="text-title-md mb-2">{title}</Text>
           {body ? (
             <View className="mb-6">
-              {typeof body === 'string' ? (
-                <Text className="text-body-lg text-gray-900">{body}</Text>
-              ) : (
-                body
-              )}
+              {typeof body === 'string' ? <Text className="text-body-lg">{body}</Text> : body}
             </View>
           ) : (
             <View className="mb-6" />

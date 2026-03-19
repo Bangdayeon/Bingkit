@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBingo } from '@/lib/bingo';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import Text from '@/components/common/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function BingoAddScreen() {
@@ -142,12 +143,12 @@ export default function BingoAddScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
       <BingoAddHeader onBack={handleBack} />
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
         <View className="px-5 pt-5 pb-8">
-          <Text className="text-title-md text-gray-900 mb-2">제목</Text>
+          <Text className="text-title-md mb-2">제목</Text>
           <TextInput
             value={title}
             onChangeText={(v) => {
@@ -233,7 +234,7 @@ export default function BingoAddScreen() {
       )}
 
       <View
-        className="absolute bottom-0 left-0 right-0 flex-row gap-3 px-5 bg-white pt-3 border-t border-gray-100"
+        className="absolute bottom-0 left-0 right-0 flex-row gap-3 px-5 bg-white dark:bg-gray-900 pt-3 border-t border-gray-100 dark:border-gray-800"
         style={{ paddingBottom: insets.bottom + 8 }}
       >
         <Button label="임시 저장" variant="secondary" onClick={handleTempSave} className="flex-1" />

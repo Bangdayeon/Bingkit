@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import Text from '@/components/common/Text';
 
 describe('Example', () => {
   it('renders text correctly', () => {

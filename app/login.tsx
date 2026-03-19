@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
+import Text from '@/components/common/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
       <View className="flex-1 items-center justify-center">
         <Image
           source={require('../assets/logoWithText_300.png')}
@@ -21,7 +22,7 @@ export default function LoginScreen() {
             className="absolute left-4"
             resizeMode="contain"
           />
-          <Text className="text-gray-900 text-base font-semibold">카카오로 시작하기</Text>
+          <Text className="text-base font-semibold">카카오로 시작하기</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="w-full h-14 rounded-xl bg-black items-center justify-center">
@@ -34,7 +35,7 @@ export default function LoginScreen() {
           <Text className="text-white text-base font-semibold">Apple로 시작하기</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="w-full h-14 rounded-xl border border-gray-200 bg-white items-center justify-center">
+        <TouchableOpacity className="w-full h-14 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 items-center justify-center">
           <Image
             source={require('../assets/icons/google_logo.png')}
             style={{ width: 18, height: 18 }}
@@ -48,7 +49,7 @@ export default function LoginScreen() {
           className="w-full h-14 items-center justify-center"
           onPress={() => router.push('/onboarding')}
         >
-          <Text className="text-gray-500 text-sm">로그인없이 시작하기</Text>
+          <Text className="text-gray-500 dark:text-gray-400 text-sm">로그인없이 시작하기</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

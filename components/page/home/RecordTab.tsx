@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+import Text from '@/components/common/Text';
 import DoneIcon from '@/assets/icons/ic_done.svg';
 import DraftIcon from '@/assets/icons/ic_draft.svg';
 import ProgressIcon from '@/assets/icons/ic_progress.svg';
@@ -30,7 +31,7 @@ const SECTION_ICONS = {
 function BingoRow({ title, onPress }: { title: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} className="flex-row items-center justify-between px-5 py-3">
-      <Text className="text-title-sm text-gray-900">{title}</Text>
+      <Text className="text-title-sm">{title}</Text>
       <Text style={{ fontSize: 18, color: '#4C5252' }}>{'›'}</Text>
     </Pressable>
   );
@@ -51,7 +52,7 @@ function Section({
     <View className="mb-4">
       <View className="flex-row items-center gap-2 px-5 py-3">
         {SECTION_ICONS[type]}
-        <Text className="text-title-md text-gray-900">{label}</Text>
+        <Text className="text-title-md">{label}</Text>
       </View>
       {items.map((item) => (
         <BingoRow key={item.id} title={item.title} onPress={() => onItemPress(item)} />

@@ -7,8 +7,8 @@ interface Props extends TextInputProps {
 }
 
 const variantStyles: Record<Variant, string> = {
-  default: 'bg-gray-100',
-  community: 'bg-sky-100',
+  default: 'bg-gray-100 dark:bg-gray-800',
+  community: 'bg-sky-100 dark:bg-sky-900',
 };
 
 export default function TextInput({ variant = 'default', className = '', ...rest }: Props) {

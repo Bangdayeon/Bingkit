@@ -1,4 +1,5 @@
-import { ActivityIndicator, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import Text from '@/components/common/Text';
 
 type Variant = 'primary' | 'secondary' | 'dangerous';
 
@@ -14,11 +15,11 @@ interface ButtonProps extends Omit<TouchableOpacityProps, 'onPress'> {
 const variantStyles: Record<Variant, { container: string; text: string }> = {
   primary: {
     container: 'bg-green-400',
-    text: 'text-gray-900',
+    text: '',
   },
   secondary: {
-    container: 'bg-white border border-gray-200',
-    text: 'text-gray-900',
+    container: 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700',
+    text: '',
   },
   dangerous: {
     container: 'bg-red-500',

@@ -1,5 +1,5 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Platform, View } from 'react-native';
+import { Platform, useColorScheme, View } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 
 import HomeOff from '@/assets/icons/home_off.svg';
@@ -21,6 +21,9 @@ const TAB_ICONS: Record<string, { on: React.FC<SvgProps>; off: React.FC<SvgProps
 };
 
 export default function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   return (
     <View
       style={{
@@ -29,7 +32,7 @@ export default function FloatingTabBar({ state, descriptors, navigation }: Botto
         left: 24,
         right: 24,
         height: 64,
-        backgroundColor: '#ffffff',
+        backgroundColor: isDark ? '#4C5252' : '#ffffff',
         borderRadius: 32,
         flexDirection: 'row',
         alignItems: 'center',

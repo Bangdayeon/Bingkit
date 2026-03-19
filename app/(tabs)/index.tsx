@@ -2,7 +2,8 @@ import HeaderTabBar from '@/components/common/HeaderTabbar';
 import RecordTab from '@/components/page/home/RecordTab';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import Text from '@/components/common/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AddIcon from '@/assets/icons/ic_add.svg';
 
@@ -11,10 +12,10 @@ export default function HomeScreen() {
   const [tabIndex, setTabIndex] = useState(0);
 
   return (
-    <SafeAreaView className="relative flex-1 bg-white">
+    <SafeAreaView className="relative flex-1 bg-white dark:bg-gray-900">
       <HeaderTabBar menus={['전체', '기록']} onTabChange={setTabIndex} />
       {tabIndex === 0 ? (
-        <View className="p-5 h-full pt-[60px]">
+        <View className="p-5 h-full pt-[80px]">
           <Pressable
             onPress={() => router.push('/bingo-add')}
             className="items-center flex flex-col gap-3 bg-green-100 w-full h-[230px] justify-center rounded-[30px]"

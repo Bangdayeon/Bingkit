@@ -1,7 +1,8 @@
 import Chip from '@/components/common/Chip';
 import IconButton from '@/components/common/IconButton';
 import Calendar from '@/assets/icons/ic_calendar.svg';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import Text from '@/components/common/Text';
 
 const DURATION_OPTIONS = ['1개월', '3개월', '6개월', '1년', '직접 지정'];
 const ALERT_TEXT = '*처음 지정 후 수정이 불가능해요.';
@@ -33,7 +34,7 @@ export default function BingoGoal({
   return (
     <View className="px-5 pt-6 pb-5">
       <View className="flex-row items-center gap-2 mb-3">
-        <Text className="text-title-md text-gray-900">목표 기간</Text>
+        <Text className="text-title-md">목표 기간</Text>
         <Text className="text-caption-sm text-red-500">{ALERT_TEXT}</Text>
       </View>
       <View className="flex-row flex-wrap gap-2">
@@ -54,8 +55,10 @@ export default function BingoGoal({
             size={28}
             onClick={onOpenStartPicker}
           />
-          <Text className="text-body-lg text-gray-900">시작일</Text>
-          <Text className="text-body-sm text-gray-700 pl-1">{formatDate(startDate)}</Text>
+          <Text className="text-body-lg">시작일</Text>
+          <Text className="text-body-sm text-gray-700 dark:text-gray-300 pl-1">
+            {formatDate(startDate)}
+          </Text>
         </View>
         <View className="flex-1 flex-row items-center">
           <IconButton
@@ -65,8 +68,10 @@ export default function BingoGoal({
             disabled={isEndDateDisabled}
             onClick={onOpenEndPicker}
           />
-          <Text className="text-body-lg text-gray-900">종료일</Text>
-          <Text className="text-body-sm text-gray-700 pl-1">{formatDate(endDate)}</Text>
+          <Text className="text-body-lg">종료일</Text>
+          <Text className="text-body-sm text-gray-700 dark:text-gray-300 pl-1">
+            {formatDate(endDate)}
+          </Text>
         </View>
       </View>
     </View>
