@@ -7,9 +7,9 @@ export default function ProfilePage() {
   const router = useRouter();
 
   return (
-    <ScrollView className="flex-1 bg-white px-5 dark:bg-gray-900">
+    <ScrollView className="flex-1 mt-[80px] bg-white px-5 dark:bg-gray-900">
       {/* 프로필 영역 */}
-      <View className="flex-row items-start my-5 gap-4 h-[100px]">
+      <View className="flex-row items-start mb-5 gap-4 h-[100px]">
         <View className="w-[98px] h-[98px] rounded-xl bg-green-400 border border-gray-300 dark:border-gray-700" />
         <View className="flex-1 pt-1 flex flex-col justify-between h-full">
           <View>

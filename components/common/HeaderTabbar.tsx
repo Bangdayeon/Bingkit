@@ -34,8 +34,8 @@ export default function HeaderTabBar({ menus, defaultIndex = 0, onTabChange }: H
 
   return (
     <View
-      className="border-b border-gray-300 dark:border-gray-700 w-full absolute top-0"
-      style={{ paddingTop: insets.top }}
+      className="bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 w-full absolute top-0"
+      style={{ paddingTop: insets.top, zIndex: 50 }}
     >
       <View className="flex-row">
         {menus.map((menu, index) => (
@@ -58,7 +58,8 @@ export default function HeaderTabBar({ menus, defaultIndex = 0, onTabChange }: H
             }}
           >
             <Text
-              className={`text-title-lg ${selectedIndex === index ? '' : 'text-gray-500 dark:text-gray-400'}`}
+              className="text-title-lg"
+              style={{ color: selectedIndex === index ? '#181C1C' : '#929898' }} // text-gray-900 : text-gray-500
             >
               {menu}
             </Text>

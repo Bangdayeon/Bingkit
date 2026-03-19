@@ -3,27 +3,47 @@ import Modal from '@/components/common/Modal';
 import TextInput from '@/components/common/TextInput';
 import AddBingo from '@/components/page/bingo-add/AddBingo';
 import BingoModifyHeader from '@/components/page/bingo-modify/Header';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import Text from '@/components/common/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BingoData } from '@/components/page/home/BingoCard';
 
-const MOCK_BINGO = {
-  title: '빙고 제목입니다. 빙고 제목',
-  grid: '3x3',
-  cells: Array(9).fill('어쩌구 저쩌구\n이런저런거 하기'),
-  maxEdits: 3,
-};
+const MOCK_BINGOS: BingoData[] = [
+  {
+    id: '1',
+    title: '2026',
+    grid: '3x3',
+    cells: Array(9).fill('어쩌구 저쩌구\n이런저런거 하기'),
+    maxEdits: 3,
+    achievedCount: 0,
+    bingoCount: 0,
+    dday: 365,
+  },
+  {
+    id: '2',
+    title: '버킷리스트',
+    grid: '3x3',
+    cells: Array(9).fill('어쩌구 저쩌구\n이런저런거 하기'),
+    maxEdits: 3,
+    achievedCount: 2,
+    bingoCount: 1,
+    dday: 180,
+  },
+];
 
 export default function BingoModifyScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { bingoId } = useLocalSearchParams<{ bingoId: string }>();
 
-  const [title, setTitle] = useState(MOCK_BINGO.title);
-  const [cells, setCells] = useState<string[]>(MOCK_BINGO.cells);
-  const [cellEdits, setCellEdits] = useState<number[]>(Array(MOCK_BINGO.cells.length).fill(0));
-  const maxEdits = MOCK_BINGO.maxEdits;
+  const bingo = MOCK_BINGOS.find((b) => b.id === bingoId) ?? MOCK_BINGOS[0];
+
+  const [title, setTitle] = useState(bingo.title);
+  const [cells, setCells] = useState<string[]>(bingo.cells);
+  const [cellEdits, setCellEdits] = useState<number[]>(Array(bingo.cells.length).fill(0));
+  const maxEdits = bingo.maxEdits;
 
   const isDirty = useRef(false);
   const markDirty = () => {
@@ -79,7 +99,7 @@ export default function BingoModifyScreen() {
           </Text>
 
           <AddBingo
-            selectedGrid={MOCK_BINGO.grid}
+            selectedGrid={bingo.grid}
             cells={cells}
             onCellsChange={(newCells) => {
               markDirty();
@@ -103,7 +123,7 @@ export default function BingoModifyScreen() {
           </View>
 
           <Pressable onPress={() => setShowDeleteModal(true)} className="mt-6">
-            <Text className="text-body-lg text-red-500">빙고 삭제하기</Text>
+            <Text className="text-body-lg text-[#E02828]">빙고 삭제하기</Text> {/* text-red-500 */}
           </Pressable>
         </View>
       </ScrollView>
