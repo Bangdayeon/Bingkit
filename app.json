@@ -6,7 +6,7 @@
     "scheme": "bingkit",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.day.bingkit"
     },
     "android": {
-      "package": "com.day.bingket",
+      "package": "com.day.bingkit",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",

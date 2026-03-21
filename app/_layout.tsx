@@ -7,7 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function RootLayout() {
   useEffect(() => {
-    AsyncStorage.getItem('app_theme').then((saved) => {
+    AsyncStorage.getItem('@bingkit/app-theme').then((saved) => {
       if (saved === 'light' || saved === 'dark') {
         Appearance.setColorScheme(saved);
       } else {
@@ -20,15 +20,16 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="bingo-add" options={{ headerShown: false }} />
-        <Stack.Screen name="bingo-modify" options={{ headerShown: false }} />
-        <Stack.Screen name="profile-edit" options={{ headerShown: false }} />
-        <Stack.Screen name="account" options={{ headerShown: false }} />
-        <Stack.Screen name="alert-setting" options={{ headerShown: false }} />
-        <Stack.Screen name="app-theme" options={{ headerShown: false }} />
+        <Stack.Screen name="bingo/add" options={{ headerShown: false }} />
+        <Stack.Screen name="bingo/modify" options={{ headerShown: false }} />
+        <Stack.Screen name="bingo/view" options={{ headerShown: false }} />
+        <Stack.Screen name="mypage/profile-edit" options={{ headerShown: false }} />
+        <Stack.Screen name="mypage/account" options={{ headerShown: false }} />
+        <Stack.Screen name="mypage/alert-setting" options={{ headerShown: false }} />
+        <Stack.Screen name="mypage/app-theme" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaProvider>
   );
