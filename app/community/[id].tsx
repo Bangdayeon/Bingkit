@@ -1,35 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
   ScrollView,
-  TextInput as RNTextInput,
   View,
   useColorScheme,
 } from 'react-native';
-import { LikeButton } from '@/features/community/components/LikeButton';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Text } from '@/components/Text';
 import { Popover } from '@/components/Popover';
-import ArrowBackIcon from '@/assets/icons/ic_arrow_back.svg';
-import MoreVertIcon from '@/assets/icons/ic_more_vert.svg';
-import SMSIcon from '@/assets/icons/ic_sms.svg';
+import { PostHeader, HEADER_H } from '@/features/community/components/PostHeader';
+import { PostBody } from '@/features/community/components/PostBody';
+import { CommentSection } from '@/features/community/components/CommentSection';
+import { CommentInput } from '@/features/community/components/CommentInput';
 import { MOCK_COMMUNITY_POSTS } from '@/mocks/community-posts';
+import { MOCK_COMMENTS } from '@/mocks/comments';
+import { Comment } from '@/types/community';
 
 // TODO: auth 연동 후 실제 사용자로 교체
 const CURRENT_USER = 'user1234';
-
-const HEADER_H = 60;
-const ICON_SIZE = 20;
-
-const TYPE_LABELS: Record<string, string> = {
-  bingo: '빙고판',
-  achievement: '빙고 달성',
-  free: '자유게시판',
-};
 
 const REPORT_REASONS = [
   '상업적 광고 및 판매',
@@ -40,42 +33,6 @@ const REPORT_REASONS = [
   '기타',
 ];
 
-function Avatar({ size = 30 }: { size?: number }) {
-  return (
-    <View
-      style={{ width: size, height: size, borderRadius: size / 2 }}
-      className="bg-gray-300 border border-gray-300"
-    />
-  );
-}
-
-function BingoGrid({ items }: { items: string[][] }) {
-  return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 12 }}>
-      {items.flat().map((text, i) => (
-        <View
-          key={i}
-          style={{
-            width: '31.3%',
-            height: 72,
-            borderRadius: 4,
-            borderWidth: 1,
-            borderColor: '#D2D6D6' /* gray-300 */,
-            backgroundColor: '#FDFDFD' /* white */,
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 4,
-          }}
-        >
-          <Text className="text-body-sm text-center" numberOfLines={2}>
-            {text}
-          </Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
 export default function CommunityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -84,9 +41,25 @@ export default function CommunityDetailScreen() {
   const iconColor = isDark ? '#F6F7F7' /* gray-100 */ : '#4C5252'; /* gray-700 */
 
   const post = MOCK_COMMUNITY_POSTS.find((p) => p.id === id);
-
+  const [localComments, setLocalComments] = useState<Comment[]>(MOCK_COMMENTS[id ?? ''] ?? []);
   const [comment, setComment] = useState('');
-  const [showMenu, setShowMenu] = useState(false);
+
+  const [keyboardShown, setKeyboardShown] = useState(false);
+
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardWillShow', () => setKeyboardShown(true));
+    const hide = Keyboard.addListener('keyboardWillHide', () => setKeyboardShown(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  const [replyTo, setReplyTo] = useState<{ id: string; author: string } | null>(null);
+
+  const [showPostMenu, setShowPostMenu] = useState(false);
+  const [commentMenuId, setCommentMenuId] = useState<string | null>(null);
+  const [commentMenuTop, setCommentMenuTop] = useState(0);
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
 
@@ -100,9 +73,9 @@ export default function CommunityDetailScreen() {
 
   const isOwnPost = post.author === CURRENT_USER;
 
-  const menuItems = isOwnPost
+  const postMenuItems = isOwnPost
     ? [
-        { label: '수정하기', onPress: () => router.push(`/community/write`) },
+        { label: '수정하기', onPress: () => router.push('/community/write') },
         { label: '삭제하기', danger: true as const, onPress: () => {} },
       ]
     : [
@@ -110,123 +83,101 @@ export default function CommunityDetailScreen() {
         { label: '차단하기', danger: true as const, onPress: () => {} },
       ];
 
+  const commentMenuAuthor =
+    localComments.find((c) => c.id === commentMenuId)?.author ??
+    localComments.flatMap((c) => c.replies ?? []).find((r) => r.id === commentMenuId)?.author;
+
+  const commentMenuItems =
+    commentMenuAuthor === CURRENT_USER
+      ? [{ label: '삭제하기', danger: true as const, onPress: () => {} }]
+      : [{ label: '신고하기', onPress: () => setShowReportModal(true) }];
+
+  const handleCommentMenuPress = (commentId: string, pageY: number) => {
+    setCommentMenuTop(pageY - insets.top + 8);
+    setCommentMenuId(commentId);
+  };
+
+  const handleAddComment = () => {
+    const trimmed = comment.trim();
+    if (!trimmed) return;
+    const now = new Date();
+    const yy = String(now.getFullYear()).slice(2);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    const newEntry = {
+      id: `c_${Date.now()}`,
+      author: CURRENT_USER,
+      body: trimmed,
+      createdAt: `${yy}/${mm}/${dd}  ${hh}:${min}`,
+      likeCount: 0,
+    };
+    if (replyTo) {
+      setLocalComments((prev) =>
+        prev.map((c) =>
+          c.id === replyTo.id ? { ...c, replies: [...(c.replies ?? []), newEntry] } : c,
+        ),
+      );
+      setReplyTo(null);
+    } else {
+      setLocalComments((prev) => [...prev, newEntry]);
+    }
+    setComment('');
+    Keyboard.dismiss();
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
-      {/* 헤더 */}
-      <View
-        className="flex-row items-center border-b border-gray-300 dark:border-gray-700"
-        style={{ height: HEADER_H }}
-      >
-        <View style={{ width: 56 }} className="pl-4">
-          <Pressable onPress={() => router.back()} hitSlop={8}>
-            <ArrowBackIcon width={20} height={20} color={iconColor} />
-          </Pressable>
-        </View>
-        <Text className="flex-1 text-title-sm text-center">{TYPE_LABELS[post.type]}</Text>
-        <View style={{ width: 56 }} className="pr-4 items-end">
-          <Pressable onPress={() => setShowMenu((v) => !v)} hitSlop={8}>
-            <MoreVertIcon width={24} height={24} color={iconColor} />
-          </Pressable>
-        </View>
-      </View>
+      <PostHeader
+        type={post.type}
+        iconColor={iconColor}
+        onBack={() => router.back()}
+        onMenuPress={() => setShowPostMenu((v) => !v)}
+      />
 
-      {/* 팝오버 메뉴 */}
+      {/* 게시글 팝오버 */}
       <Popover
-        visible={showMenu}
-        items={menuItems}
-        onDismiss={() => setShowMenu(false)}
+        visible={showPostMenu}
+        items={postMenuItems}
+        onDismiss={() => setShowPostMenu(false)}
         style={{ top: HEADER_H + 8, right: 16 }}
+      />
+      {/* 댓글 팝오버 */}
+      <Popover
+        visible={commentMenuId !== null}
+        items={commentMenuItems}
+        onDismiss={() => setCommentMenuId(null)}
+        style={{ top: commentMenuTop, right: 16 }}
       />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={insets.bottom}
+        keyboardVerticalOffset={0}
       >
-        {/* 본문 스크롤 영역 */}
         <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
-          <View className="px-5 pt-4">
-            {/* 작성자 정보 */}
-            <View className="flex-row items-center gap-2">
-              <Avatar />
-              <Text className="text-label-sm">{post.author}</Text>
-              <Text className="text-caption-sm" style={{ color: '#181C1C' /* gray-900 */ }}>
-                •
-              </Text>
-              <Text className="text-caption-sm" style={{ color: '#929898' /* gray-500 */ }}>
-                {post.timeAgo}
-              </Text>
-            </View>
+          <PostBody post={post} iconColor={iconColor} />
 
-            {/* 제목 */}
-            <Text className="text-title-md mt-3">{post.title}</Text>
-
-            {/* 빙고 그리드 */}
-            {post.bingoItems && <BingoGrid items={post.bingoItems} />}
-
-            {/* 본문 */}
-            <Text className="text-body-sm mt-3">{post.body}</Text>
-
-            {/* 좋아요 / 댓글 */}
-            <View className="flex-row items-center gap-4 mt-3">
-              <LikeButton count={post.likeCount} iconColor={iconColor} />
-
-              <View className="flex-row items-center gap-1">
-                <SMSIcon width={ICON_SIZE} height={ICON_SIZE} color={iconColor} />
-                <Text className="text-body-sm">{post.commentCount}</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* 구분선 */}
           <View className="h-px bg-gray-300 dark:bg-gray-700 mt-4" />
 
-          {/* 댓글 빈 상태 */}
-          <View className="items-center py-16 gap-3">
-            <View style={{ width: 60, height: 60, opacity: 0.25 }}>
-              <SMSIcon width={60} height={60} color={iconColor} />
-            </View>
-            <Text className="text-body-md" style={{ color: '#929898' /* gray-500 */ }}>
-              첫 댓글을 남겨주세요.
-            </Text>
-          </View>
+          <CommentSection
+            comments={localComments}
+            iconColor={iconColor}
+            onMenuPress={handleCommentMenuPress}
+            onReplyPress={(id, author) => setReplyTo({ id, author })}
+          />
         </ScrollView>
 
-        {/* 댓글 입력 바 */}
-        <View
-          className="flex-row items-center px-5 gap-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-          style={{ paddingBottom: insets.bottom + 8, paddingTop: 8 }}
-        >
-          <Avatar size={24} />
-          <View
-            className="flex-1 flex-row items-center rounded-full px-4"
-            style={{ height: 40, backgroundColor: '#E8FAFE' /* sky-100 */ }}
-          >
-            <RNTextInput
-              value={comment}
-              onChangeText={setComment}
-              placeholder="댓글을 입력하세요."
-              placeholderTextColor="#929898" /* gray-500 */
-              style={{
-                flex: 1,
-                fontSize: 14,
-                lineHeight: 18,
-                color: isDark ? '#F6F7F7' : '#181C1C' /* gray-100 : gray-900 */,
-              }}
-            />
-            <Pressable hitSlop={8} onPress={() => setComment('')}>
-              <Text
-                style={{
-                  color: comment.trim() ? '#28C8DE' /* sky-500 */ : '#929898' /* gray-500 */,
-                  fontSize: 18,
-                  lineHeight: 20,
-                }}
-              >
-                ▶
-              </Text>
-            </Pressable>
-          </View>
-        </View>
+        <CommentInput
+          value={comment}
+          onChangeText={setComment}
+          onSubmit={handleAddComment}
+          isDark={isDark}
+          paddingBottom={keyboardShown ? 8 : insets.bottom + 8}
+          replyTo={replyTo}
+          onCancelReply={() => setReplyTo(null)}
+        />
       </KeyboardAvoidingView>
 
       {/* 신고하기 모달 */}
@@ -270,7 +221,6 @@ export default function CommunityDetailScreen() {
                 onPress={() => setSelectedReason(reason)}
                 className="flex-row items-center gap-3 py-2"
               >
-                {/* 라디오 버튼 */}
                 <View
                   style={{
                     width: 16,

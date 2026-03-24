@@ -4,14 +4,16 @@ import { Text } from '@/components/Text';
 import LikeOffIcon from '@/assets/icons/ic_favorite_off.svg';
 import LikeOnIcon from '@/assets/icons/ic_favorite_on.svg';
 
-const ICON_SIZE = 20;
+const SIZES = { sm: 18, md: 20 } as const;
 
 interface LikeButtonProps {
   count: number;
   iconColor: string;
+  size?: keyof typeof SIZES;
 }
 
-export function LikeButton({ count, iconColor }: LikeButtonProps) {
+export function LikeButton({ count, iconColor, size = 'md' }: LikeButtonProps) {
+  const iconSize = SIZES[size];
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(count);
   const [showFloat, setShowFloat] = useState(false);
@@ -54,11 +56,11 @@ export function LikeButton({ count, iconColor }: LikeButtonProps) {
 
   return (
     <Pressable onPress={handlePress} className="flex-row items-center gap-1">
-      <View style={{ width: ICON_SIZE, height: ICON_SIZE }}>
+      <View style={{ width: iconSize, height: iconSize }}>
         {liked ? (
-          <LikeOnIcon width={ICON_SIZE} height={ICON_SIZE} color="#E02828" /* red-500 */ />
+          <LikeOnIcon width={iconSize} height={iconSize} color="#E02828" /* red-500 */ />
         ) : (
-          <LikeOffIcon width={ICON_SIZE} height={ICON_SIZE} color={iconColor} />
+          <LikeOffIcon width={iconSize} height={iconSize} color={iconColor} />
         )}
         {showFloat && (
           <Animated.View
@@ -69,7 +71,7 @@ export function LikeButton({ count, iconColor }: LikeButtonProps) {
               opacity: floatOpacity,
             }}
           >
-            <LikeOnIcon width={ICON_SIZE} height={ICON_SIZE} color="#E02828" /* red-500 */ />
+            <LikeOnIcon width={iconSize} height={iconSize} color="#E02828" /* red-500 */ />
           </Animated.View>
         )}
       </View>
