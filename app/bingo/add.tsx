@@ -41,7 +41,7 @@ export default function BingoAddScreen() {
   // 드래프트 불러오기
   useEffect(() => {
     if (!loadDraft) return;
-    AsyncStorage.getItem('@bingkit/draft-bingo').then((raw) => {
+    AsyncStorage.getItem('@bingket/draft-bingo').then((raw) => {
       if (!raw) return;
       const d = JSON.parse(raw);
       if (d.title) setTitle(d.title);
@@ -121,7 +121,7 @@ export default function BingoAddScreen() {
         theme: selectedTheme,
         cells,
       });
-      await AsyncStorage.removeItem('@bingkit/draft-bingo');
+      await AsyncStorage.removeItem('@bingket/draft-bingo');
       router.replace('/(tabs)');
     } catch {
       showAlert('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
@@ -140,7 +140,7 @@ export default function BingoAddScreen() {
       endDate: endDate?.toISOString() ?? null,
       cells,
     };
-    await AsyncStorage.setItem('@bingkit/draft-bingo', JSON.stringify(data));
+    await AsyncStorage.setItem('@bingket/draft-bingo', JSON.stringify(data));
     showAlert('임시 저장되었습니다.\n홈 화면의 기록 탭에서 확인할 수 있어요.', () =>
       router.replace('/(tabs)'),
     );

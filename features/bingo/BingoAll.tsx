@@ -37,7 +37,7 @@ export function BingoAll() {
   );
 
   const loadDraft = useCallback(() => {
-    AsyncStorage.getItem('@bingkit/draft-bingo').then((raw) => {
+    AsyncStorage.getItem('@bingket/draft-bingo').then((raw) => {
       if (!raw) {
         setDraftBingo(null);
         return;

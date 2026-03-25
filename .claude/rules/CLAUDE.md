@@ -78,8 +78,8 @@ iOS, Android를 동시 지원합니다.
 
 ### AsyncStorage 키 네이밍
 
-- `@bingkit/key-name` 형태 사용
-- 예: `@bingkit/draft-bingo`, `@bingkit/app-theme`
+- `@bingket/key-name` 형태 사용
+- 예: `@bingket/draft-bingo`, `@bingket/app-theme`
 
 ## Project Structure
 

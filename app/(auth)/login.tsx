@@ -1,3 +1,4 @@
+import { GoogleButton } from '@/features/auth/components/GoogleButton';
 import { router } from 'expo-router';
 import { Image, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Text';
@@ -35,15 +36,7 @@ export default function LoginScreen() {
           <Text className="text-white text-base font-semibold">Apple로 시작하기</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="w-full h-14 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 items-center justify-center">
-          <Image
-            source={require('../../assets/icons/google_logo.png')}
-            style={{ width: 18, height: 18 }}
-            className="absolute left-4"
-            resizeMode="contain"
-          />
-          <Text className="text-black text-base font-semibold">Google로 시작하기</Text>
-        </TouchableOpacity>
+        <GoogleButton />
 
         <TouchableOpacity
           className="w-full h-14 items-center justify-center"

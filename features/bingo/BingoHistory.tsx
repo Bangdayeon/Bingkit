@@ -68,7 +68,7 @@ export function BingoHistory() {
   const [drafts, setDrafts] = useState<BingoItem[]>([]);
 
   const loadDraft = useCallback(() => {
-    AsyncStorage.getItem('@bingkit/draft-bingo').then((raw) => {
+    AsyncStorage.getItem('@bingket/draft-bingo').then((raw) => {
       if (!raw) {
         setDrafts([]);
         return;

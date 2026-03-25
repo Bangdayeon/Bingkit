@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, View } from 'react-native';
@@ -12,8 +13,11 @@ export default function SplashScreen() {
       useNativeDriver: true,
     }).start();
 
-    const timer = setTimeout(() => {
-      router.replace('/login');
+    const timer = setTimeout(async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      router.replace(session ? '/(tabs)' : '/(auth)/login');
     }, 2000);
 
     return () => clearTimeout(timer);

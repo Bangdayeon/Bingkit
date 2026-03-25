@@ -1,9 +1,9 @@
 {
   "expo": {
     "name": "Bingket",
-    "slug": "bingkit",
+    "slug": "bingket",
     "version": "1.0.0",
-    "scheme": "bingkit",
+    "scheme": "bingket",
     "orientation": "portrait",
     "icon": "./assets/logo_300.png",
     "userInterfaceStyle": "automatic",
@@ -14,10 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.day.bingkit"
+      "bundleIdentifier": "com.day.bingket"
     },
     "android": {
-      "package": "com.day.bingkit",
+      "package": "com.day.bingket",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -60,7 +60,8 @@
           }
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "extra": {
       "router": {},

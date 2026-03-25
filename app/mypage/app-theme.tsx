@@ -41,8 +41,8 @@ const ICON_THEMES: { value: IconTheme; iconName: string; image: number }[] = [
   },
 ];
 
-const THEME_STORAGE_KEY = '@bingkit/app-theme';
-const ICON_THEME_STORAGE_KEY = '@bingkit/icon-theme';
+const THEME_STORAGE_KEY = '@bingket/app-theme';
+const ICON_THEME_STORAGE_KEY = '@bingket/icon-theme';
 
 function applyTheme(theme: AppTheme) {
   Appearance.setColorScheme(theme === 'system' ? 'unspecified' : theme);
