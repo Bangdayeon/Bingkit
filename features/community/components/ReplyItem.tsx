@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { Text } from '@/components/Text';
 import MoreVertIcon from '@/assets/icons/ic_more_vert.svg';
 import { LikeButton } from './LikeButton';
-import { Avatar } from './Avatar';
+import { AnonymousProfile } from '@/components/AnonymousProfile';
 import { CommentReply } from '@/types/community';
 import SubIcon from '@/assets/icons/ic_subdirectory.svg';
 
@@ -21,7 +21,7 @@ export function ReplyItem({ reply, iconColor, onMenuPress }: ReplyItemProps) {
         style={{ backgroundColor: '#E8FAFE' /* sky-100 */ }}
       >
         <View className="flex-row items-center">
-          <Avatar size={20} />
+          <AnonymousProfile seed={reply.author} size="sm" />
           <Text className="text-label-sm ml-2">{reply.author}</Text>
           <View style={{ flex: 1 }} />
           <View className="flex-row items-center gap-3">

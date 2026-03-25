@@ -9,6 +9,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MOCK_BINGOS } from '@/mocks/bingo';
+import { Chip } from '@/components/Chip';
 
 export default function BingoModifyScreen() {
   const insets = useSafeAreaInsets();
@@ -21,6 +22,9 @@ export default function BingoModifyScreen() {
   const [cells, setCells] = useState<string[]>(bingo.cells);
   const [cellEdits, setCellEdits] = useState<number[]>(Array(bingo.cells.length).fill(0));
   const maxEdits = bingo.maxEdits;
+
+  const THEMES = ['기본', '그린', '토끼풀', '2026', '고먐미'];
+  const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
 
   const isDirty = useRef(false);
   const markDirty = () => {
@@ -71,9 +75,16 @@ export default function BingoModifyScreen() {
             <Text className="text-body-lg">테마</Text>
             <View className="flex-1" />
           </View>
-          <Text className="text-caption-md mb-4">
-            기본 그린{'  '}토끼풀{'  '}2026{'  '}고먐미
-          </Text>
+          <View className="flex-row flex-wrap gap-2 mb-4">
+            {THEMES.map((theme) => (
+              <Chip
+                key={theme}
+                label={theme}
+                selected={selectedTheme === theme}
+                onPress={() => setSelectedTheme(theme)}
+              />
+            ))}
+          </View>
 
           <AddEachBingo
             selectedGrid={bingo.grid}

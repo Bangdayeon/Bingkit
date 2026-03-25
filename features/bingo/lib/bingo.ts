@@ -7,6 +7,7 @@ export interface CreateBingoRequest {
   endDate: string | null;
   grid: string;
   editCount: string;
+  theme: string;
   cells: string[];
 }
 

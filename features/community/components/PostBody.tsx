@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { Text } from '@/components/Text';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { LikeButton } from './LikeButton';
-import { Avatar } from './Avatar';
+import { AnonymousProfile } from '@/components/AnonymousProfile';
 import { CommunityPost } from '@/types/community';
 
 const ICON_SIZE = 20;
@@ -44,7 +44,7 @@ export function PostBody({ post, iconColor }: PostBodyProps) {
     <View className="px-5 pt-4">
       {/* 작성자 정보 */}
       <View className="flex-row items-center gap-2">
-        <Avatar />
+        <AnonymousProfile seed={post.author} size="md" />
         <Text className="text-label-sm">{post.author}</Text>
         <Text className="text-caption-sm" style={{ color: '#181C1C' /* gray-900 */ }}>
           •

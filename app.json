@@ -38,7 +38,29 @@
           "imageWidth": 200,
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      [
+        "expo-dynamic-app-icon",
+        {
+          "default": {
+            "image": "./assets/icon_themes/icon_theme_default.png",
+            "prerendered": true
+          },
+          "neon": {
+            "image": "./assets/icon_themes/icon_theme_neon.png",
+            "prerendered": true
+          },
+          "sunset": {
+            "image": "./assets/icon_themes/icon_theme_sunset.png",
+            "prerendered": true
+          },
+          "tanning": {
+            "image": "./assets/icon_themes/icon_theme_tanning.png",
+            "prerendered": true
+          }
+        }
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "router": {},

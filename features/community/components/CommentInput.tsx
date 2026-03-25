@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Pressable, TextInput as RNTextInput, View } from 'react-native';
 import { Text } from '@/components/Text';
-import { Avatar } from './Avatar';
+import { AnonymousProfile } from '@/components/AnonymousProfile';
 import SendIcon from '@/assets/icons/ic_send.svg';
 
 interface CommentInputProps {
@@ -49,7 +49,8 @@ export function CommentInput({
       )}
 
       <View className="flex-row items-center px-5 gap-3" style={{ paddingTop: 8 }}>
-        <Avatar size={24} />
+        <AnonymousProfile seed="me" size="sm" />
+        {/* TODO: auth 연동 후 실제 userId로 교체 */}
         <View
           className="flex-1 flex-row items-center rounded-full px-4"
           style={{ height: 40, backgroundColor: '#E8FAFE' /* sky-100 */ }}

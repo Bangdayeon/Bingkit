@@ -23,6 +23,7 @@ export default function BingoAddScreen() {
   const [selectedGrid, setSelectedGrid] = useState<string>('3x3');
   const [cells, setCells] = useState<string[]>([]);
   const [selectedEditCount, setSelectedEditCount] = useState<string>('0');
+  const [selectedTheme, setSelectedTheme] = useState<string>('기본');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [pickerTarget, setPickerTarget] = useState<'start' | 'end' | null>(null);
@@ -47,6 +48,7 @@ export default function BingoAddScreen() {
       if (d.selectedDuration) setSelectedDuration(d.selectedDuration);
       if (d.selectedGrid) setSelectedGrid(d.selectedGrid);
       if (d.selectedEditCount) setSelectedEditCount(d.selectedEditCount);
+      if (d.selectedTheme) setSelectedTheme(d.selectedTheme);
       if (d.startDate) setStartDate(new Date(d.startDate));
       if (d.endDate) setEndDate(new Date(d.endDate));
       if (d.cells) setCells(d.cells);
@@ -116,6 +118,7 @@ export default function BingoAddScreen() {
         endDate: endDate.toISOString(),
         grid: selectedGrid,
         editCount: selectedEditCount,
+        theme: selectedTheme,
         cells,
       });
       await AsyncStorage.removeItem('@bingkit/draft-bingo');
@@ -132,6 +135,7 @@ export default function BingoAddScreen() {
       selectedDuration,
       selectedGrid,
       selectedEditCount,
+      selectedTheme,
       startDate: startDate?.toISOString() ?? null,
       endDate: endDate?.toISOString() ?? null,
       cells,
@@ -185,6 +189,11 @@ export default function BingoAddScreen() {
           onEditCountSelect={(v) => {
             markDirty();
             setSelectedEditCount(v);
+          }}
+          selectedTheme={selectedTheme}
+          onThemeSelect={(v) => {
+            markDirty();
+            setSelectedTheme(v);
           }}
           cells={cells}
           onCellsChange={(v) => {

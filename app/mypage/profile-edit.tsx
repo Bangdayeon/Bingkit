@@ -1,8 +1,7 @@
 import { IconButton } from '@/components/IconButton';
 import { TextInput } from '@/components/TextInput';
-import { Toggle } from '@/components/Toggle';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
-import CameraIcon from '@/assets/icons/ic_add.svg';
+import CameraIcon from '@/assets/icons/ic_camera.svg';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActionSheetIOS, Alert, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -15,7 +14,6 @@ export default function ProfileEditPage() {
   const [name, setName] = useState('');
   const [userId, setUserId] = useState('');
   const [bio, setBio] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false);
 
   const handleCameraPress = () => {
     if (Platform.OS === 'ios') {
@@ -74,8 +72,8 @@ export default function ProfileEditPage() {
         {/* 폼 */}
         <View className="px-5 gap-5">
           <View className="gap-2">
-            <Text className="text-title-sm">이름</Text>
-            <TextInput value={name} onChangeText={setName} placeholder="이름을 입력해주세요." />
+            <Text className="text-title-sm">닉네임</Text>
+            <TextInput value={name} onChangeText={setName} placeholder="닉네임을 입력해주세요." />
           </View>
           <View className="gap-2">
             <Text className="text-title-sm">아이디</Text>
@@ -90,7 +88,7 @@ export default function ProfileEditPage() {
             <TextInput value={bio} onChangeText={setBio} placeholder="한 줄 다짐을 입력해주세요." />
           </View>
 
-          <View className="gap-1 pt-2">
+          {/* <View className="gap-1 pt-2">
             <View className="flex-row items-center justify-between">
               <Text className="text-title-sm">계정 비공개</Text>
               <Toggle value={isPrivate} onValueChange={setIsPrivate} />
@@ -99,7 +97,7 @@ export default function ProfileEditPage() {
               내가 작성한 모든 글과 댓글들이 숨겨져요.{'\n'}다른 사람들이 내 아이디를 검색해서 찾을
               수 없어요.
             </Text>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
     </View>

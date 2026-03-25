@@ -5,12 +5,15 @@ import { Text } from '@/components/Text';
 
 const GRID_OPTIONS = ['3x3', '4x3', '4x4'];
 const EDIT_COUNT_OPTIONS = ['0', '1', '2', '3', '무제한'];
+const THEME_OPTIONS = ['기본', '그린', '토끼풀', '2026', '고먐미'];
 
 interface WriteBingoProps {
   selectedGrid: string;
   onGridSelect: (opt: string) => void;
   selectedEditCount: string;
   onEditCountSelect: (opt: string) => void;
+  selectedTheme: string;
+  onThemeSelect: (opt: string) => void;
   cells: string[];
   onCellsChange: (cells: string[]) => void;
 }
@@ -20,12 +23,27 @@ export function WriteBingo({
   onGridSelect,
   selectedEditCount,
   onEditCountSelect,
+  selectedTheme,
+  onThemeSelect,
   cells,
   onCellsChange,
 }: WriteBingoProps) {
   return (
     <View className="px-5 pt-6 pb-5">
       <Text className="text-title-md mb-4">빙고 작성</Text>
+
+      {/* 테마 */}
+      <Text className="text-body-lg mb-3">테마</Text>
+      <View className="flex-row flex-wrap gap-2 mb-5">
+        {THEME_OPTIONS.map((opt) => (
+          <Chip
+            key={opt}
+            label={opt}
+            selected={selectedTheme === opt}
+            onPress={() => onThemeSelect(opt)}
+          />
+        ))}
+      </View>
 
       {/* 칸 개수 */}
       <View className="flex-row items-center gap-2 mb-3">

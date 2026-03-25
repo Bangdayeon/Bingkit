@@ -3,15 +3,12 @@ import { Text } from '@/components/Text';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { CommunityPost } from '@/types/community';
 import { LikeButton } from './LikeButton';
+import { AnonymousProfile } from '@/components/AnonymousProfile';
 
 const ICON_SIZE = 20;
 
 interface PostCardProps {
   post: CommunityPost;
-}
-
-function Avatar() {
-  return <View className="w-[30px] h-[30px] rounded-full bg-gray-300 border border-gray-300" />;
 }
 
 function BingoGridPreview({ items }: { items: string[][] }) {
@@ -48,7 +45,7 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <View className="px-5 pt-4 pb-4">
       <View className="flex-row items-center gap-2">
-        <Avatar />
+        <AnonymousProfile seed={post.author} size="md" />
         <Text className="text-label-sm">{post.author}</Text>
         <Text className="text-caption-sm" style={{ color: '#181C1C' /* gray-900 */ }}>
           •

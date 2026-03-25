@@ -3,7 +3,7 @@ import { Text } from '@/components/Text';
 import MoreVertIcon from '@/assets/icons/ic_more_vert.svg';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { LikeButton } from './LikeButton';
-import { Avatar } from './Avatar';
+import { AnonymousProfile } from '@/components/AnonymousProfile';
 import { ReplyItem } from './ReplyItem';
 import { Comment } from '@/types/community';
 
@@ -18,7 +18,7 @@ export function CommentItem({ comment, iconColor, onMenuPress, onReplyPress }: C
   return (
     <View>
       <View className="flex-row items-center">
-        <Avatar size={20} />
+        <AnonymousProfile seed={comment.author} size="sm" />
         <Text className="text-label-sm ml-2">{comment.author}</Text>
         <View style={{ flex: 1 }} />
         <View className="flex-row items-center gap-3">
