@@ -1,25 +1,37 @@
-import { useRouter } from 'expo-router';
-import { ScrollView, View, Platform, Linking } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import Constants from 'expo-constants';
+import { ActivityIndicator, Pressable, ScrollView, View, Platform, Linking } from 'react-native';
 import { Text } from '@/components/Text';
 import { MenuItem } from './MenuItem';
+import { Modal } from '@/components/Modal';
+import { supabase } from '@/lib/supabase';
+import { fetchMyProfile, MyProfile } from '@/features/mypage/lib/mypage';
 import * as WebBrowser from 'expo-web-browser';
 
 export function SettingPage() {
   const router = useRouter();
+  const [profile, setProfile] = useState<MyProfile | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const ANDROID_PACKAGE_NAME = 'com.my.app';
+  const IOS_APP_ID = '1234567890';
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyProfile().then(setProfile);
+    }, []),
+  );
+
   const openUrl = async (url: string) => {
     await WebBrowser.openBrowserAsync(url);
   };
-
-  // TODO: 이거 추가해야댐
-  const ANDROID_PACKAGE_NAME = 'com.my.app';
-  const IOS_APP_ID = '1234567890';
 
   const openReviewPage = async () => {
     try {
       if (Platform.OS === 'android') {
         const url = `market://details?id=${ANDROID_PACKAGE_NAME}`;
         const fallback = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE_NAME}`;
-
         const supported = await Linking.canOpenURL(url);
         await Linking.openURL(supported ? url : fallback);
       } else {
@@ -31,6 +43,11 @@ export function SettingPage() {
     }
   };
 
+  const handleLogout = async () => {
+    setShowLogoutModal(false);
+    await supabase.auth.signOut();
+  };
+
   return (
     <ScrollView className="flex-1 mt-[80px] bg-white px-5 dark:bg-gray-900">
       {/* 프로필 영역 */}
@@ -38,24 +55,29 @@ export function SettingPage() {
         <View className="w-[98px] h-[98px] rounded-xl bg-green-400 border border-gray-300 dark:border-gray-700" />
         <View className="flex-1 pt-1 flex flex-col justify-between h-full">
           <View>
-            <Text className="text-title-sm text-gray900 mb-1">유저닉네임</Text>
-            <Text className="text-body-md">user1028</Text>
+            {profile ? (
+              <>
+                <Text className="text-title-sm text-gray900 mb-1">{profile.displayName}</Text>
+                <Text className="text-body-md">{profile.username}</Text>
+              </>
+            ) : (
+              <ActivityIndicator size="small" />
+            )}
           </View>
           <View className="flex-row gap-3 mb-2">
-            <Text className="text-caption-md">피드 nn</Text>
-            <Text className="text-caption-md">팔로워 nn</Text>
-            <Text className="text-caption-md">팔로잉 nn</Text>
+            <Pressable onPress={() => router.push('/mypage/my-posts')}>
+              <Text className="text-caption-md">게시글 {profile?.feedCount ?? 0}</Text>
+            </Pressable>
           </View>
         </View>
       </View>
       <View className="mb-3">
         <Text className="text-label-sm">한 줄 다짐</Text>
-        <Text className="text-caption-md">한줄다짐 한줄다짐 한줄다짐 한줄다짐</Text>
+        <Text className="text-caption-md">{profile?.bio || '아직 한 줄 다짐이 없어요.'}</Text>
       </View>
 
       <View className="h-px bg-gray-200 dark:bg-gray-700" />
 
-      {/* 메뉴 - 화살표 있는 항목 */}
       <MenuItem
         label="👤 프로필 편집"
         onPress={() => router.push('/mypage/profile-edit')}
@@ -75,7 +97,6 @@ export function SettingPage() {
 
       <View className="h-px bg-gray-200 dark:bg-gray-700" />
 
-      {/* 메뉴 - 화살표 없는 항목 */}
       <MenuItem label="👍 앱 리뷰하러 하기" onPress={openReviewPage} />
       <MenuItem
         label="❓ 자주 묻는 질문"
@@ -109,12 +130,27 @@ export function SettingPage() {
           )
         }
       />
-      <MenuItem label="버전 정보" onPress={() => {}} rightText="v 1.0.0" />
+      <MenuItem
+        label="버전 정보"
+        onPress={() => {}}
+        rightText={`v ${Constants.expoConfig?.version ?? '1.0.0'}`}
+      />
 
       <View className="h-px bg-gray-200 dark:bg-gray-700" />
 
-      <MenuItem label="로그아웃" onPress={() => {}} />
+      <MenuItem label="로그아웃" onPress={() => setShowLogoutModal(true)} />
       <View className="h-40 bg-white" />
+
+      <Modal
+        visible={showLogoutModal}
+        title="로그아웃 하시겠어요?"
+        variant="warning"
+        cancelLabel="취소"
+        confirmLabel="로그아웃"
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        onDismiss={() => setShowLogoutModal(false)}
+      />
     </ScrollView>
   );
 }

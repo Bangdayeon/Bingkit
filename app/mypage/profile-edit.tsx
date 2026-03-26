@@ -1,12 +1,29 @@
 import { IconButton } from '@/components/IconButton';
 import { TextInput } from '@/components/TextInput';
+import { Toast } from '@/components/Toast';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import CameraIcon from '@/assets/icons/ic_camera.svg';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ActionSheetIOS, Alert, Platform, Pressable, ScrollView, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  ActionSheetIOS,
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+} from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { fetchMyProfile, updateMyProfile } from '@/features/mypage/lib/mypage';
+
+const NAME_MAX = 20;
+const USER_ID_MAX = 20;
+const BIO_MAX = 50;
+
+const NAME_INVALID = /[^\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318Fa-zA-Z0-9]/g;
+const USER_ID_INVALID = /[^a-zA-Z0-9_-]/g;
 
 export default function ProfileEditPage() {
   const router = useRouter();
@@ -14,6 +31,39 @@ export default function ProfileEditPage() {
   const [name, setName] = useState('');
   const [userId, setUserId] = useState('');
   const [bio, setBio] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
+
+  useEffect(() => {
+    fetchMyProfile().then((profile) => {
+      if (!profile) return;
+      setName(profile.displayName);
+      setUserId(profile.username);
+      setBio(profile.bio);
+    });
+  }, []);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setToastVisible(true);
+  };
+
+  const handleNameChange = (v: string) => {
+    const stripped = v.replace(NAME_INVALID, '');
+    if (stripped.length < v.length) {
+      showToast('한글/영어/숫자 조합으로만 입력할 수 있어요.');
+    }
+    setName(stripped.slice(0, NAME_MAX));
+  };
+
+  const handleUserIdChange = (v: string) => {
+    const stripped = v.replace(USER_ID_INVALID, '');
+    if (stripped.length < v.length) {
+      showToast('영어/숫자/_ - 조합으로만 입력할 수 있어요.');
+    }
+    setUserId(stripped.slice(0, USER_ID_MAX));
+  };
 
   const handleCameraPress = () => {
     if (Platform.OS === 'ios') {
@@ -37,6 +87,26 @@ export default function ProfileEditPage() {
     }
   };
 
+  const handleSave = async () => {
+    if (name.trim().length === 0) {
+      Alert.alert('닉네임을 입력해주세요.');
+      return;
+    }
+    if (userId.trim().length === 0) {
+      Alert.alert('아이디를 입력해주세요.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await updateMyProfile({ displayName: name, username: userId, bio });
+      router.back();
+    } catch (e) {
+      Alert.alert('저장 실패', e instanceof Error ? e.message : '다시 시도해주세요.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
       {/* Header */}
@@ -48,8 +118,12 @@ export default function ProfileEditPage() {
           onClick={() => router.back()}
         />
         <Text className="flex-1 text-center text-title-sm">프로필 편집</Text>
-        <Pressable onPress={() => router.back()}>
-          <Text className="text-title-sm">저장</Text>
+        <Pressable onPress={handleSave} disabled={saving}>
+          {saving ? (
+            <ActivityIndicator size="small" />
+          ) : (
+            <Text className="text-title-sm">저장</Text>
+          )}
         </Pressable>
       </View>
 
@@ -73,33 +147,55 @@ export default function ProfileEditPage() {
         <View className="px-5 gap-5">
           <View className="gap-2">
             <Text className="text-title-sm">닉네임</Text>
-            <TextInput value={name} onChangeText={setName} placeholder="닉네임을 입력해주세요." />
+            <TextInput
+              value={name}
+              onChangeText={handleNameChange}
+              placeholder="한글/영어/숫자, 20자 이내"
+            />
+            <Text
+              className="text-caption-md text-right"
+              style={{ color: '#4C5252' /* gray-700 */ }}
+            >
+              {name.length}/{NAME_MAX}
+            </Text>
           </View>
+
           <View className="gap-2">
             <Text className="text-title-sm">아이디</Text>
             <TextInput
               value={userId}
-              onChangeText={setUserId}
-              placeholder="아이디를 입력해주세요."
+              onChangeText={handleUserIdChange}
+              placeholder="영어/숫자/_ - 조합, 20자 이내"
+              autoCapitalize="none"
             />
-          </View>
-          <View className="gap-2">
-            <Text className="text-title-sm">한 줄 다짐</Text>
-            <TextInput value={bio} onChangeText={setBio} placeholder="한 줄 다짐을 입력해주세요." />
+            <Text
+              className="text-caption-md text-right"
+              style={{ color: '#4C5252' /* gray-700 */ }}
+            >
+              {userId.length}/{USER_ID_MAX}
+            </Text>
           </View>
 
-          {/* <View className="gap-1 pt-2">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-title-sm">계정 비공개</Text>
-              <Toggle value={isPrivate} onValueChange={setIsPrivate} />
-            </View>
-            <Text className="text-body-sm">
-              내가 작성한 모든 글과 댓글들이 숨겨져요.{'\n'}다른 사람들이 내 아이디를 검색해서 찾을
-              수 없어요.
+          <View className="gap-2">
+            <Text className="text-title-sm">한 줄 다짐</Text>
+            <TextInput
+              value={bio}
+              onChangeText={(v) => setBio(v.slice(0, BIO_MAX))}
+              placeholder="50자 이내로 입력해주세요."
+              maxLength={BIO_MAX}
+              maxHeight={64}
+            />
+            <Text
+              className="text-caption-md text-right"
+              style={{ color: '#4C5252' /* gray-700 */ }}
+            >
+              {bio.length}/{BIO_MAX}
             </Text>
-          </View> */}
+          </View>
         </View>
       </ScrollView>
+
+      <Toast message={toast} visible={toastVisible} onDismiss={() => setToastVisible(false)} />
     </View>
   );
 }

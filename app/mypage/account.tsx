@@ -1,11 +1,39 @@
 import { IconButton } from '@/components/IconButton';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import { useRouter } from 'expo-router';
-import { Image, Pressable, View } from 'react-native';
+import { ActivityIndicator, ImageSourcePropType, Image, Pressable, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Modal } from '@/components/Modal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  fetchLinkedAccounts,
+  LinkedAccount,
+  resetMyBingos,
+  deleteAccount,
+} from '@/features/mypage/lib/mypage';
+
+const PROVIDER_CONFIG: Record<
+  string,
+  { label: string; bgColor: string; logo: ImageSourcePropType }
+> = {
+  google: {
+    label: 'Google',
+    bgColor: '#FFFFFF',
+    logo: require('@/assets/icons/google_logo.png'),
+  },
+  apple: {
+    label: 'Apple',
+    bgColor: '#000000',
+    logo: require('@/assets/icons/apple_logo.png'),
+  },
+  kakao: {
+    label: '카카오톡',
+    bgColor: '#FEE500',
+    logo: require('@/assets/icons/kakao_logo.png'),
+  },
+};
 
 interface RowItemProps {
   label: string;
@@ -26,8 +54,45 @@ function RowItem({ label, onPress }: RowItemProps) {
 export default function AccountScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [accounts, setAccounts] = useState<LinkedAccount[]>([]);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showSecessionModal, setShowSecessionModal] = useState(false);
+  const [showResetDoneModal, setShowResetDoneModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchLinkedAccounts().then(setAccounts);
+  }, []);
+
+  const handleResetBingos = async () => {
+    setShowResetModal(false);
+    setLoading(true);
+    try {
+      await resetMyBingos();
+      await AsyncStorage.removeItem('@bingket/draft-bingo');
+      setShowResetDoneModal(true);
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : '다시 시도해주세요.');
+      setShowErrorModal(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setShowSecessionModal(false);
+    setLoading(true);
+    try {
+      await deleteAccount();
+      // _layout.tsx의 onAuthStateChange가 SIGNED_OUT 이벤트를 받아 login으로 이동
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : '다시 시도해주세요.');
+      setShowErrorModal(true);
+      setLoading(false);
+    }
+  };
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
@@ -46,37 +111,49 @@ export default function AccountScreen() {
       {/* 연동 계정 정보 */}
       <View className="px-5 pt-6 pb-4">
         <Text className="text-title-sm mb-4">연동 계정 정보</Text>
-        <View className="flex-row items-center gap-3">
-          <View className="w-6 h-6 rounded-md bg-[#FEE500] items-center justify-center">
-            <Image
-              source={require('@/assets/icons/kakao_logo.png')}
-              style={{ width: 14, height: 14 }}
-              resizeMode="contain"
-            />
-          </View>
-          <Text className="text-title-sm">카카오톡</Text>
-          <Text className="text-title-sm text-gray-500 dark:text-gray-400 ml-auto">
-            dfdsfdf@kakao.com
-          </Text>
-        </View>
+        {accounts.length === 0 ? (
+          <ActivityIndicator size="small" />
+        ) : (
+          accounts.map((account) => {
+            const cfg = PROVIDER_CONFIG[account.provider];
+            return (
+              <View key={account.provider} className="flex-row items-center gap-3 mb-3">
+                <View
+                  className="w-6 h-6 rounded-md items-center justify-center border border-gray-200 dark:border-gray-700"
+                  style={{ backgroundColor: cfg?.bgColor ?? '#EEEEEE' }}
+                >
+                  {cfg?.logo && (
+                    <Image
+                      source={cfg.logo}
+                      style={{ width: 14, height: 14 }}
+                      resizeMode="contain"
+                    />
+                  )}
+                </View>
+                <Text className="text-title-sm">{cfg?.label ?? account.provider}</Text>
+                <Text className="text-title-sm text-gray-500 dark:text-gray-400 ml-auto">
+                  {account.email ?? ''}
+                </Text>
+              </View>
+            );
+          })
+        )}
       </View>
 
       <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
 
-      <RowItem
-        label="빙고 초기화"
-        onPress={() => {
-          setShowResetModal(true);
-        }}
-      />
-      <RowItem
-        label="회원 탈퇴"
-        onPress={() => {
-          setShowSecessionModal(true);
-        }}
-      />
+      {loading ? (
+        <View className="py-6 items-center">
+          <ActivityIndicator size="large" />
+        </View>
+      ) : (
+        <>
+          <RowItem label="빙고 초기화" onPress={() => setShowResetModal(true)} />
+          <RowItem label="회원 탈퇴" onPress={() => setShowSecessionModal(true)} />
+        </>
+      )}
 
-      {/* 계정 초기화 모달 */}
+      {/* 빙고 초기화 확인 모달 */}
       <Modal
         visible={showResetModal}
         title="정말로 빙고를 초기화 하시겠어요?"
@@ -85,11 +162,25 @@ export default function AccountScreen() {
         cancelLabel="취소하기"
         confirmLabel="빙고 초기화 하기"
         onCancel={() => setShowResetModal(false)}
+        onConfirm={handleResetBingos}
+        onDismiss={() => setShowResetModal(false)}
+      />
+
+      {/* 빙고 초기화 완료 모달 */}
+      <Modal
+        visible={showResetDoneModal}
+        title="초기화 완료"
+        body="모든 빙고가 삭제되었어요."
+        variant="single"
+        confirmLabel="확인"
         onConfirm={() => {
-          setShowResetModal(false);
+          setShowResetDoneModal(false);
           router.back();
         }}
-        onDismiss={() => setShowResetModal(false)}
+        onDismiss={() => {
+          setShowResetDoneModal(false);
+          router.back();
+        }}
       />
 
       {/* 회원 탈퇴 모달 */}
@@ -101,11 +192,19 @@ export default function AccountScreen() {
         cancelLabel="취소하기"
         confirmLabel="회원 탈퇴하기"
         onCancel={() => setShowSecessionModal(false)}
-        onConfirm={() => {
-          setShowSecessionModal(false);
-          router.back();
-        }}
+        onConfirm={handleDeleteAccount}
         onDismiss={() => setShowSecessionModal(false)}
+      />
+
+      {/* 오류 모달 */}
+      <Modal
+        visible={showErrorModal}
+        title="오류가 발생했어요"
+        body={errorMessage}
+        variant="single"
+        confirmLabel="확인"
+        onConfirm={() => setShowErrorModal(false)}
+        onDismiss={() => setShowErrorModal(false)}
       />
     </View>
   );
