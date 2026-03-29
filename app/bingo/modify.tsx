@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
 import { TextInput } from '@/components/TextInput';
@@ -81,7 +82,7 @@ export default function BingoModifyScreen() {
       await updateBingo(bingoId, title, selectedTheme, changedCells);
       router.replace('/(tabs)');
     } catch (e) {
-      console.error('[updateBingo] 오류:', e);
+      Sentry.captureException(e);
       setAlertMessage('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
     }
   };
@@ -91,7 +92,7 @@ export default function BingoModifyScreen() {
       await deleteBingo(bingoId);
       router.replace('/(tabs)');
     } catch (e) {
-      console.error('[deleteBingo] 오류:', e);
+      Sentry.captureException(e);
       setShowDeleteModal(false);
       setAlertMessage('삭제에 실패했어요. 잠시 후 다시 시도해주세요.');
     }

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
 import { TextInput } from '@/components/TextInput';
@@ -130,7 +131,7 @@ export default function BingoAddScreen() {
       await AsyncStorage.removeItem('@bingket/draft-bingo');
       router.replace('/(tabs)');
     } catch (e) {
-      console.error('[createBingo] 오류:', e);
+      Sentry.captureException(e);
       showAlert('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
     }
   };
@@ -157,7 +158,12 @@ export default function BingoAddScreen() {
     <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
       <BingoAddHeader onBack={handleBack} />
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={false}
+      >
         <View className="px-5 pt-5 pb-8">
           <Text className="text-title-md mb-2">제목</Text>
           <TextInput

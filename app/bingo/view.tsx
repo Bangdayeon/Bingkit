@@ -61,10 +61,7 @@ export default function BingoViewScreen() {
         <View style={{ width: 32 }} />
       </View>
 
-      <ScrollView
-        className="flex-1 px-5"
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: insets.bottom + 40 }}
-      >
+      <ScrollView className="flex-1 pb-40">
         <BingoCard
           bingo={bingo}
           completedCells={completedCells}

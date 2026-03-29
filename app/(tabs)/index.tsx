@@ -1,21 +1,59 @@
 import { HeaderTabBar } from '@/components/HeaderTabbar';
 import { BingoHistory } from '@/features/bingo/BingoHistory';
 import { useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, View, useColorScheme } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BingoAll } from '@/features/bingo/BingoAll';
 
 export default function HomeScreen() {
   const [tabIndex, setTabIndex] = useState(0);
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const insets = useSafeAreaInsets();
+  const isDark = useColorScheme() === 'dark';
+
+  const handleTabChange = (index: number) => {
+    setTabIndex(index);
+    if (index !== 1) setIsReorderMode(false);
+  };
+
+  const reorderIconColor = isReorderMode
+    ? isDark
+      ? '#F6F7F7' /* gray-100 */
+      : '#181C1C' /* gray-900 */
+    : '#B4BBBB'; /* gray-400 */
 
   return (
     <SafeAreaView className="relative flex-1 bg-white dark:bg-gray-900">
-      <HeaderTabBar menus={['전체', '기록']} onTabChange={setTabIndex} />
-      {tabIndex === 0 ? (
-        // 전체 빙고 페이지
-        <BingoAll />
-      ) : (
-        <BingoHistory />
+      <HeaderTabBar menus={['전체', '기록']} onTabChange={handleTabChange} />
+
+      {/* 기록 탭 전용 순서 변경 버튼 (HeaderTabBar 위에 올림) */}
+      {tabIndex === 1 && (
+        <Pressable
+          onPress={() => setIsReorderMode((prev) => !prev)}
+          style={{
+            position: 'absolute',
+            top: insets.top + 10,
+            right: 16,
+            zIndex: 51,
+            padding: 6,
+          }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <View style={{ gap: 4 }}>
+            <View
+              style={{ width: 18, height: 2, borderRadius: 2, backgroundColor: reorderIconColor }}
+            />
+            <View
+              style={{ width: 14, height: 2, borderRadius: 2, backgroundColor: reorderIconColor }}
+            />
+            <View
+              style={{ width: 18, height: 2, borderRadius: 2, backgroundColor: reorderIconColor }}
+            />
+          </View>
+        </Pressable>
       )}
+
+      {tabIndex === 0 ? <BingoAll /> : <BingoHistory isReorderMode={isReorderMode} />}
     </SafeAreaView>
   );
 }

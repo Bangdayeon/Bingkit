@@ -27,7 +27,7 @@ export function Toggle({ value, onValueChange }: ToggleProps) {
     <Pressable onPress={() => onValueChange(!value)}>
       <Animated.View
         style={{
-          width: 59,
+          width: 57,
           height: 30,
           borderRadius: 999,
           backgroundColor: bgColor,

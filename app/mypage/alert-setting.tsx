@@ -1,44 +1,37 @@
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { IconButton } from '@/components/IconButton';
 import { Toggle } from '@/components/Toggle';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const STORAGE_KEY = '@bingket/alert-settings';
-
-interface AlertSettings {
-  bingoDeadline: boolean;
-  bingoDaily: boolean;
-  communityPopular: boolean;
-  communityComment: boolean;
-  communityLike: boolean;
-  eventPush: boolean;
-}
-
-const DEFAULT_SETTINGS: AlertSettings = {
-  bingoDeadline: false,
-  bingoDaily: true,
-  communityPopular: false,
-  communityComment: true,
-  communityLike: false,
-  eventPush: true,
-};
+import {
+  DEFAULT_NOTIFICATION_SETTINGS,
+  fetchNotificationSettings,
+  loadCachedNotificationSettings,
+  saveNotificationSettings,
+  type NotificationSettings,
+} from '@/features/mypage/lib/notification-settings';
 
 interface ToggleRowProps {
   label: string;
+  description?: string;
   value: boolean;
   onValueChange: (v: boolean) => void;
-  bold?: boolean;
 }
 
-function ToggleRow({ label, value, onValueChange, bold = false }: ToggleRowProps) {
+function ToggleRow({ label, description, value, onValueChange }: ToggleRowProps) {
   return (
     <View className="flex-row items-center justify-between px-5 py-3">
-      <Text className={bold ? 'text-title-md' : 'text-body-lg'}>{label}</Text>
+      <View className="flex-1 mr-4">
+        <Text className="text-body-lg">{label}</Text>
+        {description ? (
+          <Text className="text-caption-sm" style={{ color: '#929898' /* gray-500 */ }}>
+            {description}
+          </Text>
+        ) : null}
+      </View>
       <Toggle value={value} onValueChange={onValueChange} />
     </View>
   );
@@ -47,24 +40,25 @@ function ToggleRow({ label, value, onValueChange, bold = false }: ToggleRowProps
 export default function AlertSettingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [settings, setSettings] = useState<AlertSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATION_SETTINGS);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
-      if (raw) {
-        try {
-          setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(raw) });
-        } catch {
-          // 파싱 실패 시 기본값 유지
-        }
-      }
+    // 1. AsyncStorage 캐시 → 즉시 표시
+    loadCachedNotificationSettings().then((cached) => {
+      if (cached) setSettings(cached);
+    });
+    // 2. Supabase → 최신값으로 업데이트
+    fetchNotificationSettings().then((data) => {
+      setSettings(data);
+      setLoading(false);
     });
   }, []);
 
-  const update = (patch: Partial<AlertSettings>) => {
+  const update = (patch: Partial<NotificationSettings>) => {
     const next = { ...settings, ...patch };
     setSettings(next);
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    saveNotificationSettings(next);
   };
 
   const allAlert = Object.values(settings).every(Boolean);
@@ -91,7 +85,11 @@ export default function AlertSettingScreen() {
           onClick={() => router.back()}
         />
         <Text className="flex-1 text-center text-title-sm">알림 설정</Text>
-        <View className="w-8" />
+        {loading ? (
+          <ActivityIndicator size="small" color="#929898" /* gray-500 */ style={{ width: 32 }} />
+        ) : (
+          <View className="w-8" />
+        )}
       </View>
 
       <ScrollView className="flex-1">
@@ -99,48 +97,51 @@ export default function AlertSettingScreen() {
 
         <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
 
+        {/* 빙고 알림 */}
         <View className="px-5 pt-3 pb-1">
           <Text className="text-title-md">빙고 알림</Text>
         </View>
         <ToggleRow
           label="기간 임박 알림"
+          description="빙고 기간이 10일, 5일 남았을 때"
           value={settings.bingoDeadline}
           onValueChange={(v) => update({ bingoDeadline: v })}
-        />
-        <ToggleRow
-          label="데일리 알림"
-          value={settings.bingoDaily}
-          onValueChange={(v) => update({ bingoDaily: v })}
         />
 
         <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
 
+        {/* 커뮤니티 알림 */}
         <View className="px-5 pt-3 pb-1">
           <Text className="text-title-md">커뮤니티 알림</Text>
         </View>
         <ToggleRow
           label="인기글 알림"
+          description="내 게시글이 좋아요 10개를 받았을 때"
           value={settings.communityPopular}
           onValueChange={(v) => update({ communityPopular: v })}
         />
         <ToggleRow
           label="댓글 및 대댓글 알림"
+          description="내 게시글에 댓글이 달렸을 때"
           value={settings.communityComment}
           onValueChange={(v) => update({ communityComment: v })}
         />
         <ToggleRow
           label="좋아요 알림"
+          description="내 게시글에 좋아요가 달렸을 때"
           value={settings.communityLike}
           onValueChange={(v) => update({ communityLike: v })}
         />
 
         <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
 
+        {/* 이벤트 및 혜택 알림 */}
         <View className="px-5 pt-3 pb-1">
           <Text className="text-title-md">이벤트 및 혜택 알림</Text>
         </View>
         <ToggleRow
           label="앱 푸시"
+          description="새로운 이벤트 및 혜택 소식"
           value={settings.eventPush}
           onValueChange={(v) => update({ eventPush: v })}
         />

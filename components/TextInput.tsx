@@ -1,4 +1,5 @@
-import { TextInput as RNTextInput, TextInputProps, View, useColorScheme } from 'react-native';
+import { forwardRef } from 'react';
+import { TextInput as RNTextInput, TextInputProps, View } from 'react-native';
 
 type Variant = 'default' | 'community';
 
@@ -12,14 +13,10 @@ const variantStyles: Record<Variant, string> = {
   community: 'bg-sky-100 dark:bg-sky-900',
 };
 
-export function TextInput({
-  variant = 'default',
-  maxHeight,
-  className = '',
-  style,
-  ...rest
-}: Props) {
-  const isDark = useColorScheme() === 'dark';
+export const TextInput = forwardRef<RNTextInput, Props>(function TextInput(
+  { variant = 'default', maxHeight, className = '', style, ...rest },
+  ref,
+) {
   const hasMaxHeight = maxHeight !== undefined;
   return (
     <View
@@ -27,13 +24,14 @@ export function TextInput({
       style={hasMaxHeight ? { maxHeight } : undefined}
     >
       <RNTextInput
+        ref={ref}
         placeholderTextColor="#929898" /* gray-500 */
-        className="text-body-sm"
-        style={[{ color: isDark ? '#F6F7F7' : '#181C1C' /* gray-100 : gray-900 */ }, style]}
+        className="text-body-sm text-gray-900 dark:text-gray-100"
+        style={style}
         multiline={hasMaxHeight || rest.multiline}
         scrollEnabled={hasMaxHeight}
         {...rest}
       />
     </View>
   );
-}
+});

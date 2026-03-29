@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.ns", "deno.unstable", "esnext"],
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noImplicitAny": true
+  }
+}

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { supabase } from '@/lib/supabase';
 import { makeRedirectUri } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
@@ -10,8 +11,6 @@ WebBrowser.maybeCompleteAuthSession();
 const REDIRECT_URI = makeRedirectUri({ scheme: 'bingket', path: 'auth/callback' });
 
 async function signInWithGoogle(): Promise<void> {
-  console.log('[Google] REDIRECT_URI:', REDIRECT_URI);
-
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -21,14 +20,11 @@ async function signInWithGoogle(): Promise<void> {
   });
 
   if (error || !data.url) {
-    console.error('[Google] OAuth URL 오류:', error);
+    Sentry.captureException(error ?? new Error('[Google] OAuth URL 없음'));
     return;
   }
-  console.log('[Google] OAuth URL 획득 성공');
 
   const result = await WebBrowser.openAuthSessionAsync(data.url, REDIRECT_URI);
-  console.log('[Google] WebBrowser result type:', result.type);
-  if (result.type === 'success') console.log('[Google] result.url:', result.url);
 
   if (result.type !== 'success' || !result.url) return;
 
@@ -39,7 +35,7 @@ async function signInWithGoogle(): Promise<void> {
   const refreshToken = params['refresh_token'];
 
   if (!accessToken || !refreshToken) {
-    console.error('[Google] 토큰 파싱 실패');
+    Sentry.captureException(new Error('[Google] 토큰 파싱 실패'));
     return;
   }
 
@@ -48,9 +44,7 @@ async function signInWithGoogle(): Promise<void> {
     refresh_token: refreshToken,
   });
   if (sessionError) {
-    console.error('[Google] setSession 오류:', sessionError);
-  } else {
-    console.log('[Google] setSession 성공 → onAuthStateChange 대기 중');
+    Sentry.captureException(sessionError);
   }
 }
 

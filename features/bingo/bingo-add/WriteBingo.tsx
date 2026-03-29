@@ -54,7 +54,7 @@ export function WriteBingo({
         <Text className="text-caption-sm text-red-500">*처음 지정 후 수정이 불가능해요</Text>
       </View>
       <Text className="text-body-sm text-gray-500 dark:text-gray-400 mb-3">
-        빙고 저장 후 각 빙고 아이템 수정 가능 횟수를 정해주세요.
+        각 빙고 항목을 몇 번까지 수정할 수 있는지 선택해주세요.
       </Text>
       <View className="flex-row flex-wrap gap-2 mb-6">
         {EDIT_COUNT_OPTIONS.map((opt) => (

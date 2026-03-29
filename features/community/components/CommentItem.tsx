@@ -4,22 +4,66 @@ import MoreVertIcon from '@/assets/icons/ic_more_vert.svg';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { LikeButton } from './LikeButton';
 import { AnonymousProfile } from '@/components/AnonymousProfile';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
 import { ReplyItem } from './ReplyItem';
 import { Comment } from '@/types/community';
 
 interface CommentItemProps {
   comment: Comment;
+  postAuthorId: string;
   iconColor: string;
   onMenuPress: (id: string, pageY: number) => void;
   onReplyPress: (id: string, author: string) => void;
 }
 
-export function CommentItem({ comment, iconColor, onMenuPress, onReplyPress }: CommentItemProps) {
+export function CommentItem({
+  comment,
+  postAuthorId,
+  iconColor,
+  onMenuPress,
+  onReplyPress,
+}: CommentItemProps) {
+  const isPostAuthor = comment.userId === postAuthorId;
+
+  if (comment.isDeleted) {
+    return (
+      <View>
+        <Text
+          className="text-body-sm pb-6 border-b px-5 border-gray-200"
+          style={{ color: '#B4BBBB' /* gray-400 */ }}
+        >
+          (삭제된 댓글입니다.)
+        </Text>
+        {comment.replies?.map((r) => (
+          <ReplyItem
+            key={r.id}
+            reply={r}
+            postAuthorId={postAuthorId}
+            iconColor={iconColor}
+            onMenuPress={onMenuPress}
+          />
+        ))}
+      </View>
+    );
+  }
+
   return (
-    <View>
+    <View className="pb-1 border-b border-gray-200 px-5">
       <View className="flex-row items-center">
-        <AnonymousProfile seed={comment.author} size="sm" />
+        {comment.isAnonymous ? (
+          <AnonymousProfile seed={comment.userId} size="sm" />
+        ) : (
+          <ProfileAvatar avatarUrl={comment.avatarUrl ?? null} size={22} />
+        )}
         <Text className="text-label-sm ml-2">{comment.author}</Text>
+        {isPostAuthor && (
+          <View
+            className="ml-1.5 px-1.5 py-0.5 rounded-full"
+            style={{ backgroundColor: '#54DBED' /* sky-400 */ }}
+          >
+            <Text className="text-caption-sm">작성자</Text>
+          </View>
+        )}
         <View style={{ flex: 1 }} />
         <View className="flex-row items-center gap-3">
           <LikeButton size="sm" count={comment.likeCount} iconColor={iconColor} />
@@ -37,7 +81,13 @@ export function CommentItem({ comment, iconColor, onMenuPress, onReplyPress }: C
       </Text>
 
       {comment.replies?.map((r) => (
-        <ReplyItem key={r.id} reply={r} iconColor={iconColor} onMenuPress={onMenuPress} />
+        <ReplyItem
+          key={r.id}
+          reply={r}
+          postAuthorId={postAuthorId}
+          iconColor={iconColor}
+          onMenuPress={onMenuPress}
+        />
       ))}
     </View>
   );

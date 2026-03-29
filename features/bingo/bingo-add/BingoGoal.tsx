@@ -1,6 +1,6 @@
 import { Chip } from '@/components/Chip';
 import Calendar from '@/assets/icons/ic_calendar.svg';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, useColorScheme } from 'react-native';
 import { Text } from '@/components/Text';
 
 const DURATION_OPTIONS = ['1개월', '3개월', '6개월', '1년', '직접 지정'];
@@ -30,6 +30,8 @@ export function BingoGoal({
   onOpenStartPicker,
   onOpenEndPicker,
 }: BingoGoalProps) {
+  const colorScheme = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#F6F7F7' : '#181C1C'; /* gray-100 : gray-900 */
   return (
     <View className="px-5 pt-6 pb-5">
       <View className="flex-row items-center gap-2 mb-3">
@@ -61,7 +63,7 @@ export function BingoGoal({
               paddingVertical: 6,
             }}
           >
-            <Calendar width={16} height={16} />
+            <Calendar width={16} height={16} color={iconColor} />
             <Text className="text-body-sm text-gray-500">
               {formatDate(startDate) || '선택하기'}
             </Text>
@@ -82,7 +84,7 @@ export function BingoGoal({
               opacity: isEndDateDisabled ? 0.5 : 1,
             }}
           >
-            <Calendar width={16} height={16} />
+            <Calendar width={16} height={16} color={iconColor} />
             <Text className="text-body-sm text-gray-500">{formatDate(endDate) || '선택하기'}</Text>
           </Pressable>
         </View>

@@ -6,6 +6,7 @@ import { Comment } from '@/types/community';
 
 interface CommentSectionProps {
   comments: Comment[];
+  postAuthorId: string;
   iconColor: string;
   onMenuPress: (id: string, pageY: number) => void;
   onReplyPress: (id: string, author: string) => void;
@@ -13,14 +14,13 @@ interface CommentSectionProps {
 
 export function CommentSection({
   comments,
+  postAuthorId,
   iconColor,
   onMenuPress,
   onReplyPress,
 }: CommentSectionProps) {
   return (
-    <View className="px-5 pt-4 pb-4">
-      <Text className="text-title-sm mb-3">댓글 {comments.length}</Text>
-
+    <View className="pt-4 pb-4">
       {comments.length === 0 ? (
         <View className="items-center py-12 gap-3">
           <View style={{ width: 60, height: 60, opacity: 0.25 }}>
@@ -31,11 +31,12 @@ export function CommentSection({
           </Text>
         </View>
       ) : (
-        <View className="gap-8">
+        <View className="gap-5">
           {comments.map((c) => (
             <CommentItem
               key={c.id}
               comment={c}
+              postAuthorId={postAuthorId}
               iconColor={iconColor}
               onMenuPress={onMenuPress}
               onReplyPress={onReplyPress}

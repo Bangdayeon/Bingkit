@@ -1,7 +1,14 @@
 import { IconButton } from '@/components/IconButton';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, ImageSourcePropType, Image, Pressable, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ImageSourcePropType,
+  Image,
+  Pressable,
+  View,
+  useColorScheme,
+} from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Modal } from '@/components/Modal';
@@ -41,11 +48,13 @@ interface RowItemProps {
 }
 
 function RowItem({ label, onPress }: RowItemProps) {
+  const colorScheme = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#F6F7F7' : '#181C1C'; /* gray-100 : gray-900 */
   return (
     <Pressable onPress={onPress} className="flex-row items-center justify-between px-5 py-4">
       <Text className="text-title-sm">{label}</Text>
       <View style={{ transform: [{ rotate: '180deg' }] }}>
-        <BackArrowIcon width={20} height={20} />
+        <BackArrowIcon width={20} height={20} color={iconColor} />
       </View>
     </Pressable>
   );

@@ -6,8 +6,8 @@ import MoreVertIcon from '@/assets/icons/ic_more_vert.svg';
 export const HEADER_H = 60;
 
 const TYPE_LABELS: Record<string, string> = {
-  bingo: '빙고판',
-  achievement: '빙고 달성',
+  bingo_board: '빙고판',
+  bingo_achieve: '빙고 달성',
   free: '자유게시판',
 };
 

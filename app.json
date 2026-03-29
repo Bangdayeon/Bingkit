@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Bingket",
-    "slug": "bingket",
+    "slug": "bingkit",
     "version": "1.0.0",
     "scheme": "bingket",
     "orientation": "portrait",
@@ -32,6 +32,13 @@
     "plugins": [
       "expo-router",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "프로필 사진 설정 및 게시글 이미지 첨부를 위해 사진 라이브러리 접근 권한이 필요해요.",
+          "cameraPermission": "프로필 사진 촬영 및 게시글 이미지 첨부를 위해 카메라 접근 권한이 필요해요."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/splash-icon.png",
@@ -61,7 +68,16 @@
         }
       ],
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/logo_300.png",
+          "color": "#F07840",
+          "iosDisplayInForeground": true
+        }
+      ],
+      "@sentry/react-native"
     ],
     "extra": {
       "router": {},

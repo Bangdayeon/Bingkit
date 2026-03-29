@@ -1,8 +1,8 @@
 import { IconButton } from '@/components/IconButton';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View, useColorScheme } from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,12 +57,15 @@ export default function MyPostsScreen() {
   const [posts, setPosts] = useState<MyPost[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMyPosts().then((data) => {
-      setPosts(data);
-      setLoading(false);
-    });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchMyPosts().then((data) => {
+        setPosts(data);
+        setLoading(false);
+      });
+    }, []),
+  );
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>

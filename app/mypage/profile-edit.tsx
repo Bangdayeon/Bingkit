@@ -1,10 +1,11 @@
 import { IconButton } from '@/components/IconButton';
+import { Modal } from '@/components/Modal';
 import { TextInput } from '@/components/TextInput';
 import { Toast } from '@/components/Toast';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import CameraIcon from '@/assets/icons/ic_camera.svg';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActionSheetIOS,
   ActivityIndicator,
@@ -14,9 +15,16 @@ import {
   ScrollView,
   View,
 } from 'react-native';
+
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { fetchMyProfile, updateMyProfile } from '@/features/mypage/lib/mypage';
+import * as ImagePicker from 'expo-image-picker';
+import {
+  ProfileAvatar,
+  randomDefaultAvatarUrl,
+  DEFAULT_AVATAR_PREFIX,
+} from '@/components/ProfileAvatar';
+import { fetchMyProfile, updateMyProfile, uploadProfileImage } from '@/features/mypage/lib/mypage';
 
 const NAME_MAX = 20;
 const USER_ID_MAX = 20;
@@ -31,9 +39,12 @@ export default function ProfileEditPage() {
   const [name, setName] = useState('');
   const [userId, setUserId] = useState('');
   const [bio, setBio] = useState('');
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const initialValues = useRef({ name: '', userId: '', bio: '', avatarUri: null as string | null });
 
   useEffect(() => {
     fetchMyProfile().then((profile) => {
@@ -41,8 +52,29 @@ export default function ProfileEditPage() {
       setName(profile.displayName);
       setUserId(profile.username);
       setBio(profile.bio);
+      setAvatarUri(profile.avatarUrl);
+      initialValues.current = {
+        name: profile.displayName,
+        userId: profile.username,
+        bio: profile.bio,
+        avatarUri: profile.avatarUrl,
+      };
     });
   }, []);
+
+  const hasChanges = () =>
+    name !== initialValues.current.name ||
+    userId !== initialValues.current.userId ||
+    bio !== initialValues.current.bio ||
+    avatarUri !== initialValues.current.avatarUri;
+
+  const handleBack = () => {
+    if (hasChanges()) {
+      setShowLeaveModal(true);
+    } else {
+      router.back();
+    }
+  };
 
   const showToast = (message: string) => {
     setToast(message);
@@ -65,24 +97,52 @@ export default function ProfileEditPage() {
     setUserId(stripped.slice(0, USER_ID_MAX));
   };
 
+  const pickImage = async (source: 'camera' | 'library') => {
+    const permission =
+      source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      showToast(source === 'camera' ? '카메라 권한이 필요해요.' : '사진 접근 권한이 필요해요.');
+      return;
+    }
+
+    const result =
+      source === 'camera'
+        ? await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.8 })
+        : await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: 'images',
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+
+    if (!result.canceled) {
+      setAvatarUri(result.assets[0].uri);
+    }
+  };
+
+  const applyDefaultAvatar = () => {
+    setAvatarUri(randomDefaultAvatarUrl());
+  };
+
   const handleCameraPress = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
-        { options: ['취소', '카메라', '앨범에서 선택'], cancelButtonIndex: 0 },
+        { options: ['취소', '카메라', '앨범에서 선택', '기본 이미지 적용'], cancelButtonIndex: 0 },
         (index) => {
-          if (index === 1) {
-            /* TODO: 카메라 */
-          }
-          if (index === 2) {
-            /* TODO: 앨범 */
-          }
+          if (index === 1) pickImage('camera');
+          if (index === 2) pickImage('library');
+          if (index === 3) applyDefaultAvatar();
         },
       );
     } else {
       Alert.alert('프로필 사진', undefined, [
         { text: '취소', style: 'cancel' },
-        { text: '카메라', onPress: () => {} },
-        { text: '앨범에서 선택', onPress: () => {} },
+        { text: '카메라', onPress: () => pickImage('camera') },
+        { text: '앨범에서 선택', onPress: () => pickImage('library') },
+        { text: '기본 이미지 적용', onPress: applyDefaultAvatar },
       ]);
     }
   };
@@ -98,7 +158,14 @@ export default function ProfileEditPage() {
     }
     setSaving(true);
     try {
-      await updateMyProfile({ displayName: name, username: userId, bio });
+      let newAvatarUrl: string | undefined;
+      if (avatarUri && avatarUri.startsWith(DEFAULT_AVATAR_PREFIX)) {
+        newAvatarUrl = avatarUri;
+      } else if (avatarUri && !avatarUri.startsWith('http')) {
+        const filename = avatarUri.split('/').pop() ?? 'profile.jpg';
+        newAvatarUrl = await uploadProfileImage(avatarUri, filename);
+      }
+      await updateMyProfile({ displayName: name, username: userId, bio, avatarUrl: newAvatarUrl });
       router.back();
     } catch (e) {
       Alert.alert('저장 실패', e instanceof Error ? e.message : '다시 시도해주세요.');
@@ -115,7 +182,7 @@ export default function ProfileEditPage() {
           variant="ghost"
           size={32}
           icon={<BackArrowIcon width={20} height={20} />}
-          onClick={() => router.back()}
+          onClick={handleBack}
         />
         <Text className="flex-1 text-center text-title-sm">프로필 편집</Text>
         <Pressable onPress={handleSave} disabled={saving}>
@@ -131,7 +198,7 @@ export default function ProfileEditPage() {
         {/* 프로필 이미지 */}
         <View className="items-center pt-8 pb-6">
           <View className="relative">
-            <View className="w-[98px] h-[98px] rounded-xl bg-green-400 border border-gray-300 dark:border-gray-700" />
+            <ProfileAvatar avatarUrl={avatarUri} />
             <View className="absolute -bottom-3 -right-3">
               <IconButton
                 variant="secondary"
@@ -196,6 +263,20 @@ export default function ProfileEditPage() {
       </ScrollView>
 
       <Toast message={toast} visible={toastVisible} onDismiss={() => setToastVisible(false)} />
+      <Modal
+        visible={showLeaveModal}
+        title="변경사항을 저장하지 않았어요"
+        body="변경사항을 저장할까요?"
+        variant="warning"
+        cancelLabel="이어서 편집하기"
+        confirmLabel="나가기"
+        onCancel={() => setShowLeaveModal(false)}
+        onConfirm={() => {
+          setShowLeaveModal(false);
+          router.back();
+        }}
+        onDismiss={() => setShowLeaveModal(false)}
+      />
     </View>
   );
 }

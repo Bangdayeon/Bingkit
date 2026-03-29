@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, useColorScheme } from 'react-native';
 import { Text } from '@/components/Text';
 
 interface DatePickerProps {
@@ -21,6 +21,7 @@ export function DatePicker({
   onConfirm,
   onDismiss,
 }: DatePickerProps) {
+  const isDark = useColorScheme() === 'dark';
   return (
     <>
       <Pressable
@@ -41,7 +42,7 @@ export function DatePicker({
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'white',
+          backgroundColor: isDark ? '#2E3333' /* gray-800 */ : '#FDFDFD' /* white */,
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
           paddingHorizontal: 20,

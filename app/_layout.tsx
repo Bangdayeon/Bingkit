@@ -1,10 +1,19 @@
 import '@/global.css';
+import * as Sentry from '@sentry/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  enabled: !__DEV__,
+  tracesSampleRate: 0.2,
+});
 import { supabase } from '@/lib/supabase';
+import { registerForPushNotifications, savePushToken } from '@/lib/push-notifications';
 import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { BadgeCelebration } from '@/components/BadgeCelebration';
 
 export default function RootLayout() {
   useEffect(() => {
@@ -12,7 +21,7 @@ export default function RootLayout() {
       if (saved === 'light' || saved === 'dark') {
         Appearance.setColorScheme(saved);
       } else {
-        Appearance.setColorScheme('unspecified');
+        Appearance.setColorScheme(null);
       }
     });
   }, []);
@@ -21,11 +30,19 @@ export default function RootLayout() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[Auth] event:', event, '| user:', session?.user?.email ?? 'none');
       if (event === 'SIGNED_IN' && session) {
         const createdAt = new Date(session.user.created_at).getTime();
         const isNewUser = Date.now() - createdAt < 60_000;
         router.replace(isNewUser ? '/(auth)/onboarding' : '/(tabs)');
+        // 신규 로그인 시 푸시 토큰 등록
+        registerForPushNotifications().then((token) => {
+          if (token) savePushToken(token);
+        });
+      } else if (event === 'INITIAL_SESSION' && session) {
+        // 앱 재실행 시 이미 로그인된 경우에도 토큰 갱신
+        registerForPushNotifications().then((token) => {
+          if (token) savePushToken(token);
+        });
       } else if (event === 'SIGNED_OUT') {
         router.replace('/(auth)/login');
       }
@@ -35,6 +52,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
+      <BadgeCelebration />
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />

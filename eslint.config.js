@@ -16,6 +16,7 @@ export default defineConfig([
       'android/**',
       'package-lock.json',
       'global.css',
+      'supabase/functions/**', // Deno 런타임 — Node.js 규칙 적용 불가
     ],
   },
   {

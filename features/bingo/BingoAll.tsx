@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { ScrollView, Pressable, ActivityIndicator, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useState, useCallback, useRef } from 'react';
@@ -8,6 +9,7 @@ import AddIcon from '@/assets/icons/ic_add.svg';
 import { BingoData } from '@/types/bingo';
 import { BingoCellDetail } from '@/types/bingo-cell';
 import { fetchMyBingos, updateCell, calcBingoCount } from '@/features/bingo/lib/bingo';
+import { applyBingoOrder, loadBingoOrder } from '@/features/bingo/lib/bingo-order';
 
 const MAX_BINGOS = 3;
 
@@ -23,13 +25,14 @@ export function BingoAll() {
 
   const loadData = useCallback(() => {
     setLoading(true);
-    fetchMyBingos().then((fetched) => {
+    Promise.all([fetchMyBingos(), loadBingoOrder()]).then(([fetched, savedOrder]) => {
       const details: Record<string, BingoCellDetail[]> = {};
       const serverBingos = fetched.map(({ bingo, cellDetails: cd }) => {
         details[bingo.id] = cd;
         return bingo;
       });
-      setBingos(serverBingos.slice(0, MAX_BINGOS));
+      const ordered = applyBingoOrder(serverBingos, savedOrder);
+      setBingos(ordered.slice(0, MAX_BINGOS));
       setCellDetails(details);
       setLoading(false);
     });
@@ -74,12 +77,12 @@ export function BingoAll() {
     // DB 저장: memo는 디바운스, 나머지는 즉시
     const { memo, ...nonMemoUpdates } = updates;
     if (Object.keys(nonMemoUpdates).length > 0) {
-      updateCell(cellId, nonMemoUpdates).catch(console.error);
+      updateCell(cellId, nonMemoUpdates).catch(Sentry.captureException);
     }
     if (memo !== undefined) {
       clearTimeout(memoDebounceRef.current[cellId]);
       memoDebounceRef.current[cellId] = setTimeout(() => {
-        updateCell(cellId, { memo }).catch(console.error);
+        updateCell(cellId, { memo }).catch(Sentry.captureException);
       }, 500);
     }
   };
@@ -95,7 +98,7 @@ export function BingoAll() {
   }
 
   return (
-    <ScrollView className="flex-1 mt-[50px] bg-white dark:bg-gray-900 mb-20">
+    <ScrollView className="flex-1 mt-[50px] dark:bg-gray-900">
       {bingos.map((bingo) => (
         <BingoCard
           key={bingo.id}
@@ -130,6 +133,7 @@ export function BingoAll() {
           </Pressable>
         </View>
       )}
+      <View className="h-24" />
 
       <BingoCellModal
         visible={!!modalTarget}

@@ -1,7 +1,9 @@
+import * as Sentry from '@sentry/react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import Constants from 'expo-constants';
 import { ActivityIndicator, Pressable, ScrollView, View, Platform, Linking } from 'react-native';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
 import { Text } from '@/components/Text';
 import { MenuItem } from './MenuItem';
 import { Modal } from '@/components/Modal';
@@ -39,7 +41,7 @@ export function SettingPage() {
         await Linking.openURL(url);
       }
     } catch (error) {
-      console.error('리뷰 페이지 이동 실패', error);
+      Sentry.captureException(error);
     }
   };
 
@@ -49,16 +51,17 @@ export function SettingPage() {
   };
 
   return (
-    <ScrollView className="flex-1 mt-[80px] bg-white px-5 dark:bg-gray-900">
+    <ScrollView className="flex-1 mt-[52px] bg-white px-5 dark:bg-gray-900">
+      <View className="h-5" />
       {/* 프로필 영역 */}
-      <View className="flex-row items-start mb-5 gap-4 h-[100px]">
-        <View className="w-[98px] h-[98px] rounded-xl bg-green-400 border border-gray-300 dark:border-gray-700" />
+      <View className="flex-row items-start mb-5  gap-4 h-[100px]">
+        <ProfileAvatar avatarUrl={profile?.avatarUrl} />
         <View className="flex-1 pt-1 flex flex-col justify-between h-full">
           <View>
             {profile ? (
               <>
-                <Text className="text-title-sm text-gray900 mb-1">{profile.displayName}</Text>
-                <Text className="text-body-md">{profile.username}</Text>
+                <Text className="text-title-sm mb-1">{profile.displayName}</Text>
+                <Text className="text-body-sm">{profile.username}</Text>
               </>
             ) : (
               <ActivityIndicator size="small" />
@@ -89,11 +92,7 @@ export function SettingPage() {
         onPress={() => router.push('/mypage/alert-setting')}
         showArrow
       />
-      <MenuItem
-        label="🎨 앱/아이콘 테마"
-        onPress={() => router.push('/mypage/app-theme')}
-        showArrow
-      />
+      <MenuItem label="🎨 앱 테마" onPress={() => router.push('/mypage/app-theme')} showArrow />
 
       <View className="h-px bg-gray-200 dark:bg-gray-700" />
 
@@ -139,7 +138,7 @@ export function SettingPage() {
       <View className="h-px bg-gray-200 dark:bg-gray-700" />
 
       <MenuItem label="로그아웃" onPress={() => setShowLogoutModal(true)} />
-      <View className="h-40 bg-white" />
+      <View className="h-40" />
 
       <Modal
         visible={showLogoutModal}

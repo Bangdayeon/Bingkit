@@ -1,15 +1,15 @@
 import { IconButton } from '@/components/IconButton';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setAppIcon, getAppIcon } from 'expo-dynamic-app-icon';
+// import { setAppIcon, getAppIcon } from 'expo-dynamic-app-icon';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Appearance, Image, Pressable, ScrollView, View } from 'react-native';
+import { Appearance, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AppTheme = 'system' | 'light' | 'dark';
-type IconTheme = '기본' | '네온' | '노을' | '태닝';
+// type IconTheme = '기본' | '네온' | '노을' | '태닝';
 
 const APP_THEMES: { value: AppTheme; label: string; leftBg: string; rightBg: string }[] = [
   {
@@ -22,37 +22,36 @@ const APP_THEMES: { value: AppTheme; label: string; leftBg: string; rightBg: str
   { value: 'dark', label: '다크', leftBg: '#181C1C', rightBg: '#181C1C' } /* gray-900 : gray-900 */,
 ];
 
-const ICON_THEMES: { value: IconTheme; iconName: string; image: number }[] = [
-  {
-    value: '기본',
-    iconName: 'default',
-    image: require('@/assets/icon_themes/icon_theme_default.png'),
-  },
-  { value: '네온', iconName: 'neon', image: require('@/assets/icon_themes/icon_theme_neon.png') },
-  {
-    value: '노을',
-    iconName: 'sunset',
-    image: require('@/assets/icon_themes/icon_theme_sunset.png'),
-  },
-  {
-    value: '태닝',
-    iconName: 'tanning',
-    image: require('@/assets/icon_themes/icon_theme_tanning.png'),
-  },
-];
+// const ICON_THEMES: { value: IconTheme; iconName: string; image: number }[] = [
+//   {
+//     value: '기본',
+//     iconName: 'default',
+//     image: require('@/assets/icon_themes/icon_theme_default.png'),
+//   },
+//   { value: '네온', iconName: 'neon', image: require('@/assets/icon_themes/icon_theme_neon.png') },
+//   {
+//     value: '노을',
+//     iconName: 'sunset',
+//     image: require('@/assets/icon_themes/icon_theme_sunset.png'),
+//   },
+//   {
+//     value: '태닝',
+//     iconName: 'tanning',
+//     image: require('@/assets/icon_themes/icon_theme_tanning.png'),
+//   },
+// ];
 
 const THEME_STORAGE_KEY = '@bingket/app-theme';
-const ICON_THEME_STORAGE_KEY = '@bingket/icon-theme';
+// const ICON_THEME_STORAGE_KEY = '@bingket/icon-theme';
 
 function applyTheme(theme: AppTheme) {
-  Appearance.setColorScheme(theme === 'system' ? 'unspecified' : theme);
+  Appearance.setColorScheme((theme === 'system' ? null : theme) as unknown as 'light' | 'dark');
 }
 
 export default function AppThemeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [appTheme, setAppTheme] = useState<AppTheme>('system');
-  const [iconTheme, setIconTheme] = useState<IconTheme>('기본');
 
   useEffect(() => {
     AsyncStorage.getItem(THEME_STORAGE_KEY).then((saved) => {
@@ -61,9 +60,9 @@ export default function AppThemeScreen() {
       }
     });
 
-    const currentIconName: string = getAppIcon();
-    const matched = ICON_THEMES.find((t) => t.iconName === currentIconName);
-    if (matched) setIconTheme(matched.value);
+    // const currentIconName: string = getAppIcon();
+    // const matched = ICON_THEMES.find((t) => t.iconName === currentIconName);
+    // if (matched) setIconTheme(matched.value);
   }, []);
 
   const handleThemeChange = (theme: AppTheme) => {
@@ -72,14 +71,14 @@ export default function AppThemeScreen() {
     AsyncStorage.setItem(THEME_STORAGE_KEY, theme);
   };
 
-  const handleIconThemeChange = async (value: IconTheme) => {
-    setIconTheme(value);
-    const selected = ICON_THEMES.find((t) => t.value === value);
-    if (selected) {
-      await setAppIcon(selected.iconName);
-      await AsyncStorage.setItem(ICON_THEME_STORAGE_KEY, selected.iconName);
-    }
-  };
+  // const handleIconThemeChange = async (value: IconTheme) => {
+  //   setIconTheme(value);
+  //   const selected = ICON_THEMES.find((t) => t.value === value);
+  //   if (selected) {
+  //     await setAppIcon(selected.iconName);
+  //     await AsyncStorage.setItem(ICON_THEME_STORAGE_KEY, selected.iconName);
+  //   }
+  // };
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
@@ -129,10 +128,8 @@ export default function AppThemeScreen() {
           ))}
         </View>
 
-        <View className="h-px bg-gray-200 dark:bg-gray-700" />
-
         {/* 아이콘 테마 */}
-        <View className="px-5 pt-6">
+        {/* <View className="px-5 pt-6">
           <Text className="text-title-md mb-4">아이콘 테마</Text>
           {ICON_THEMES.map(({ value, image }) => (
             <Pressable
@@ -149,7 +146,7 @@ export default function AppThemeScreen() {
               )}
             </Pressable>
           ))}
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );

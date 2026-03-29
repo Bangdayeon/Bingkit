@@ -1,5 +1,5 @@
-import ProfileMd from '@/assets/profile_md.svg';
-import ProfileSm from '@/assets/profile_sm.svg';
+import ProfileMd from '@/assets/default_profiles/profile_md.svg';
+import ProfileSm from '@/assets/default_profiles/profile_sm.svg';
 
 const ANONYMOUS_COLORS = [
   '#F79A6E', // peach-400

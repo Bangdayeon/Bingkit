@@ -1,8 +1,14 @@
-import { Dimensions, Image, Pressable, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { Dimensions, Image, Pressable, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Text';
 import EditIcon from '@/assets/icons/ic_edit.svg';
 import { BingoData } from '@/types/bingo';
-import { getThemeImage, FIGMA_W, FIGMA_H, GRID_CONFIGS } from '../lib/theme-config';
+import {
+  getThemeImage,
+  getThemeForegroundColor,
+  FIGMA_W,
+  FIGMA_H,
+  GRID_CONFIGS,
+} from '../lib/theme-config';
 
 interface BingoCardProps {
   bingo: BingoData;
@@ -17,8 +23,7 @@ export function BingoCard({
   onCellPress,
   onEditPress,
 }: BingoCardProps) {
-  const isDark = useColorScheme() === 'dark';
-  const editIconColor = isDark ? '#F6F7F7' /* gray-100 */ : '#4C5252'; /* gray-700 */
+  const fgColor = getThemeForegroundColor(bingo.theme);
   const [cols, rows] = bingo.grid.split('x').map(Number);
   const textStyle = bingo.grid === '3x3' ? 'text-body-sm' : 'text-caption-md';
   const screenWidth = Dimensions.get('window').width;
@@ -48,10 +53,12 @@ export function BingoCard({
 
           {/* 제목 + 편집 아이콘 */}
           <View className="pt-5 px-5 items-center justify-between flex-row absolute w-full">
-            <Text className="text-title-md">{bingo.title}</Text>
+            <Text className="text-title-md" style={{ color: fgColor }}>
+              {bingo.title}
+            </Text>
             {onEditPress && (
               <TouchableOpacity onPress={onEditPress} hitSlop={8}>
-                <EditIcon width={18} height={18} color={editIconColor} />
+                <EditIcon width={18} height={18} color={fgColor} />
               </TouchableOpacity>
             )}
           </View>
@@ -99,7 +106,7 @@ export function BingoCard({
           <View className="flex-1 items-center gap-1">
             <Text className="text-label-sm">달성</Text>
             <Text className="text-body-sm">
-              {bingo.achievedCount}/{cols * rows}
+              {bingo.achievedCount} / {cols * rows}
             </Text>
           </View>
           <View className="flex-1 items-center gap-1">

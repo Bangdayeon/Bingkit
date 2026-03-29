@@ -1,25 +1,85 @@
-import { View, useColorScheme } from 'react-native';
+import { Dimensions, Image, View, useColorScheme } from 'react-native';
 import { Text } from '@/components/Text';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { CommunityPost } from '@/types/community';
 import { LikeButton } from './LikeButton';
 import { AnonymousProfile } from '@/components/AnonymousProfile';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
+import { getThemeImage, FIGMA_W, FIGMA_H, GRID_CONFIGS } from '@/features/bingo/lib/theme-config';
 
 const ICON_SIZE = 20;
 
-interface PostCardProps {
-  post: CommunityPost;
-}
+function BingoBoardPreview({
+  cells,
+  grid,
+  theme,
+}: {
+  cells: string[];
+  grid: string;
+  theme: string;
+}) {
+  const [cols, rows] = grid.split('x').map(Number);
+  const availableWidth = Dimensions.get('window').width - 40;
+  const image = getThemeImage(theme as never, grid);
 
-function BingoGridPreview({ items }: { items: string[][] }) {
+  if (image !== null) {
+    const scale = availableWidth / FIGMA_W;
+    const cardHeight = FIGMA_H * scale;
+    const cfg = GRID_CONFIGS[grid];
+    if (!cfg) return null;
+    const gridTop = cfg.top * scale;
+    const gridLeft = cfg.left * scale;
+    const cellW = cfg.cellW * scale;
+    const cellH = cfg.cellH * scale;
+    const gapX = cfg.gapX * scale;
+    const gapY = cfg.gapY * scale;
+
+    return (
+      <View style={{ width: availableWidth, height: cardHeight, marginTop: 12 }}>
+        <Image
+          source={image}
+          style={{ position: 'absolute', width: '100%', height: '100%' }}
+          resizeMode="cover"
+        />
+        {Array.from({ length: cols * rows }).map((_, i) => {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          return (
+            <View
+              key={i}
+              style={{
+                position: 'absolute',
+                left: gridLeft + col * (cellW + gapX),
+                top: gridTop + row * (cellH + gapY),
+                width: cellW,
+                height: cellH,
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 4,
+              }}
+            >
+              <Text
+                className="text-caption-sm text-center"
+                style={{ color: '#181C1C' /* gray-900 */ }}
+                numberOfLines={2}
+              >
+                {cells[i] ?? ''}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
+
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 12 }}>
-      {items.flat().map((text, i) => (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
+      {cells.map((text, i) => (
         <View
           key={i}
           style={{
-            width: '31.3%',
-            height: 72,
+            width: `${(100 - (cols - 1) * 2) / cols}%` as unknown as number,
+            aspectRatio: 1,
             borderRadius: 4,
             borderWidth: 1,
             borderColor: '#D2D6D6' /* gray-300 */,
@@ -29,13 +89,21 @@ function BingoGridPreview({ items }: { items: string[][] }) {
             padding: 4,
           }}
         >
-          <Text className="text-body-sm text-center" numberOfLines={2}>
+          <Text
+            className="text-caption-sm text-center"
+            style={{ color: '#181C1C' /* gray-900 */ }}
+            numberOfLines={2}
+          >
             {text}
           </Text>
         </View>
       ))}
     </View>
   );
+}
+
+interface PostCardProps {
+  post: CommunityPost;
 }
 
 export function PostCard({ post }: PostCardProps) {
@@ -45,7 +113,11 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <View className="px-5 pt-4 pb-4">
       <View className="flex-row items-center gap-2">
-        <AnonymousProfile seed={post.author} size="md" />
+        {post.isAnonymous ? (
+          <AnonymousProfile seed={post.id} size="md" />
+        ) : (
+          <ProfileAvatar avatarUrl={post.avatarUrl ?? null} size={32} />
+        )}
         <Text className="text-label-sm">{post.author}</Text>
         <Text className="text-caption-sm" style={{ color: '#181C1C' /* gray-900 */ }}>
           •
@@ -57,10 +129,27 @@ export function PostCard({ post }: PostCardProps) {
 
       <Text className="text-label-sm mt-2">{post.title}</Text>
 
-      {post.bingoItems && <BingoGridPreview items={post.bingoItems} />}
+      {post.bingo ? (
+        <BingoBoardPreview
+          cells={post.bingo.cells}
+          grid={post.bingo.grid}
+          theme={post.bingo.theme}
+        />
+      ) : post.imageUrls?.[0] ? (
+        <Image
+          source={{ uri: post.imageUrls[0] }}
+          style={{ width: '100%', height: 180, borderRadius: 8, marginTop: 12 }}
+          resizeMode="cover"
+        />
+      ) : null}
 
       <View className="flex-row items-center gap-4 mt-3">
-        <LikeButton count={post.likeCount} iconColor={iconColor} />
+        <LikeButton
+          count={post.likeCount}
+          iconColor={iconColor}
+          postId={post.id}
+          initialLiked={post.likedByMe}
+        />
 
         <View className="flex-row items-center gap-1">
           <SMSIcon width={ICON_SIZE} height={ICON_SIZE} color={iconColor} />

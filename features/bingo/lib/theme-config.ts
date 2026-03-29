@@ -37,6 +37,23 @@ const THEME_IMAGES: Record<string, Record<string, ImageSourcePropType>> = {
   고먐미: square_catImages,
 };
 
+// 테마별 포그라운드 색상 (앱 다크모드와 무관하게 고정)
+// title, edit icon 등 이미지 위에 올라오는 요소에 적용
+const THEME_FOREGROUND_COLOR: Record<string, string> = {
+  default: '#181C1C' /* gray-900 */,
+  기본: '#181C1C' /* gray-900 */,
+  rabbit: '#181C1C' /* gray-900 */,
+  토끼: '#181C1C' /* gray-900 */,
+  red_horse: '#181C1C' /* gray-900 */,
+  붉은말: '#181C1C' /* gray-900 */,
+  square_cat: '#181C1C' /* gray-900 */,
+  고먐미: '#181C1C' /* gray-900 */,
+};
+
+export function getThemeForegroundColor(theme: BingoTheme | string): string {
+  return THEME_FOREGROUND_COLOR[theme] ?? '#181C1C' /* gray-900 */;
+}
+
 // 피그마 프레임 기준 (px) — 모든 이미지 동일
 export const FIGMA_W = 1080;
 export const FIGMA_H = 1440;

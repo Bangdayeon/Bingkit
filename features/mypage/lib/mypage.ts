@@ -1,9 +1,12 @@
 import { supabase } from '@/lib/supabase';
 
+const R2_PUBLIC_URL = 'https://pub-ce1a524f861f4062a6ec96dd100c4aec.r2.dev';
+
 export interface MyProfile {
   displayName: string;
   username: string;
   bio: string;
+  avatarUrl: string | null;
   feedCount: number;
   followerCount: number;
   followingCount: number;
@@ -17,7 +20,7 @@ export const fetchMyProfile = async (): Promise<MyProfile | null> => {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('display_name, username, bio')
+    .select('display_name, username, bio, avatar_url')
     .eq('id', user.id)
     .single();
 
@@ -33,6 +36,7 @@ export const fetchMyProfile = async (): Promise<MyProfile | null> => {
     displayName: profile.display_name,
     username: profile.username,
     bio: profile.bio ?? '',
+    avatarUrl: profile.avatar_url ?? null,
     feedCount: feedCount ?? 0,
     followerCount: 0,
     followingCount: 0,
@@ -43,17 +47,44 @@ export const updateMyProfile = async (data: {
   displayName: string;
   username: string;
   bio: string;
+  avatarUrl?: string;
 }): Promise<void> => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error('로그인이 필요합니다.');
 
-  const { error } = await supabase
-    .from('users')
-    .update({ display_name: data.displayName, username: data.username, bio: data.bio })
-    .eq('id', user.id);
+  const updates: Record<string, string> = {
+    display_name: data.displayName,
+    username: data.username,
+    bio: data.bio,
+  };
+  if (data.avatarUrl !== undefined) updates.avatar_url = data.avatarUrl;
+
+  const { error } = await supabase.from('users').update(updates).eq('id', user.id);
   if (error) throw error;
+};
+
+export const uploadProfileImage = async (uri: string, filename: string): Promise<string> => {
+  const ext = filename.split('.').pop() ?? 'jpg';
+  const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
+
+  const { data, error } = await supabase.functions.invoke('r2-presign', {
+    body: { filename, contentType },
+  });
+  if (error) throw error;
+
+  const file = await fetch(uri);
+  const blob = await file.blob();
+
+  const uploadRes = await fetch(data.presignedUrl as string, {
+    method: 'PUT',
+    body: blob,
+    headers: { 'Content-Type': contentType },
+  });
+  if (!uploadRes.ok) throw new Error('이미지 업로드에 실패했습니다.');
+
+  return `${R2_PUBLIC_URL}/${data.key as string}`;
 };
 
 export interface LinkedAccount {
