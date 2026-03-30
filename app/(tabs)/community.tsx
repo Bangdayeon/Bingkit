@@ -20,8 +20,17 @@ export default function CommunityScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const loadingRef = useRef(false);
+  const isFocused = useRef(false); // 현재 포커스 상태
+  const filterIndexRef = useRef(filterIndex); // 최신 filterIndex를 ref로 추적
 
   const category = FILTER_CATEGORIES[filterIndex];
+  const categoryRef = useRef(category);
+
+  // ref 최신값 유지
+  useEffect(() => {
+    filterIndexRef.current = filterIndex;
+    categoryRef.current = FILTER_CATEGORIES[filterIndex];
+  }, [filterIndex]);
 
   const loadPosts = useCallback(
     async (pageNum: number, cat: PostCategory | null, reset: boolean) => {
@@ -33,45 +42,54 @@ export default function CommunityScreen() {
 
       setPosts((prev) => (reset ? fetched : [...prev, ...fetched]));
       setHasMore(fetched.length === PAGE_SIZE);
-
       setLoading(false);
       loadingRef.current = false;
     },
     [],
   );
 
-  // 필터 변경 시 초기화 후 재조회
+  // 포커스 진입 시 1회만 호출 (필터 변경은 별도 처리)
+  useFocusEffect(
+    useCallback(() => {
+      isFocused.current = true;
+      setPage(0);
+      setHasMore(true);
+      loadPosts(0, categoryRef.current, true);
+
+      return () => {
+        isFocused.current = false;
+      };
+    }, [loadPosts]), // loadPosts만 의존 → category 변경으로 재실행 안됨
+  );
+
+  // 필터 변경 시에만 호출 (포커스 진입은 useFocusEffect가 처리)
+  const isFirstMount = useRef(true);
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
     setPage(0);
     setHasMore(true);
     loadPosts(0, category, true);
-  }, [filterIndex]);
-
-  // 화면 포커스 시 첫 페이지 재조회 (글 작성 후 돌아왔을 때 반영)
-  useFocusEffect(
-    useCallback(() => {
-      setPage(0);
-      setHasMore(true);
-      loadPosts(0, category, true);
-    }, [category]),
-  );
+  }, [filterIndex]); // filterIndex만 의존
 
   const handleLoadMore = useCallback(() => {
     if (!hasMore || loadingRef.current) return;
     const next = page + 1;
     setPage(next);
-    loadPosts(next, category, false);
-  }, [hasMore, page, category, loadPosts]);
+    loadPosts(next, categoryRef.current, false);
+  }, [hasMore, page, loadPosts]);
 
   const handleRefresh = useCallback(async () => {
     if (loadingRef.current) return;
     setRefreshing(true);
-    const fetched = await fetchPosts(0, category);
+    const fetched = await fetchPosts(0, categoryRef.current);
     setPosts(fetched);
     setPage(0);
     setHasMore(fetched.length === PAGE_SIZE);
     setRefreshing(false);
-  }, [category]);
+  }, [loadPosts]);
 
   const handleFilterSelect = useCallback((index: number) => {
     setFilterIndex(index);
@@ -89,12 +107,11 @@ export default function CommunityScreen() {
         isRefreshing={refreshing}
         filterIndex={filterIndex}
       />
-
       <Pressable
         onPress={() => router.push('/community/write')}
         className="absolute bottom-[104px] shadow-gray-100 right-5 w-14 h-14 rounded-full bg-sky-300 items-center justify-center"
       >
-        <EditIcon width={32} height={32} color="#4C5252" /* gray-700 */ />
+        <EditIcon width={32} height={32} color="#4C5252" />
       </Pressable>
     </SafeAreaView>
   );

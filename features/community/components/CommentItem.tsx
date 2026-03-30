@@ -58,15 +58,21 @@ export function CommentItem({
         <Text className="text-label-sm ml-2">{comment.author}</Text>
         {isPostAuthor && (
           <View
-            className="ml-1.5 px-1.5 py-0.5 rounded-full"
+            className="ml-1.5 px-1.5 py-1 rounded-full"
             style={{ backgroundColor: '#54DBED' /* sky-400 */ }}
           >
-            <Text className="text-caption-sm">작성자</Text>
+            <Text className="text-[10px]">작성자</Text>
           </View>
         )}
         <View style={{ flex: 1 }} />
         <View className="flex-row items-center gap-3">
-          <LikeButton size="sm" count={comment.likeCount} iconColor={iconColor} />
+          <LikeButton
+            size="sm"
+            count={comment.likeCount}
+            iconColor={iconColor}
+            commentId={comment.id}
+            initialLiked={comment.likedByMe}
+          />
           <Pressable hitSlop={8} onPress={() => onReplyPress(comment.id, comment.author)}>
             <SMSIcon width={18} height={18} color={iconColor} />
           </Pressable>

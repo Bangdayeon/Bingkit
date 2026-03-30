@@ -1,4 +1,4 @@
-import { Image, View } from 'react-native';
+import { Image } from 'react-native';
 import ProfileLgSvg from '@/assets/default_profiles/profile_lg.svg';
 
 export const DEFAULT_AVATAR_COLORS = [
@@ -19,32 +19,27 @@ export function randomDefaultAvatarUrl(): string {
 
 interface ProfileAvatarProps {
   avatarUrl: string | null | undefined;
-  size?: number;
+  size?: number; // px
 }
 
 export function ProfileAvatar({ avatarUrl, size = 98 }: ProfileAvatarProps) {
-  if (avatarUrl?.startsWith(DEFAULT_AVATAR_PREFIX)) {
-    const color = avatarUrl.slice(DEFAULT_AVATAR_PREFIX.length);
+  // 유저 프로필이 없는 경우 → 회색 고정
+  if (!avatarUrl) {
+    const grayColor = '#D2D6D6';
+    return <ProfileLgSvg width={size} height={size} color={grayColor} />;
+  }
+
+  // 기본 컬러 지정된 경우
+  if (avatarUrl.startsWith('default:')) {
+    const color = avatarUrl.slice('default:'.length);
     return <ProfileLgSvg width={size} height={size} color={color} />;
   }
 
-  if (avatarUrl) {
-    return (
-      <Image
-        source={{ uri: avatarUrl }}
-        style={{ width: size, height: size, borderRadius: size / 2 }}
-      />
-    );
-  }
-
+  // 외부 URL
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: '#D2D6D6' /* gray-300 */,
-      }}
+    <Image
+      source={{ uri: avatarUrl }}
+      style={{ width: size, height: size, borderRadius: size / 2 }}
     />
   );
 }

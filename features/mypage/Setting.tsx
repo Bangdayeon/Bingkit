@@ -10,6 +10,10 @@ import { Modal } from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
 import { fetchMyProfile, MyProfile } from '@/features/mypage/lib/mypage';
 import * as WebBrowser from 'expo-web-browser';
+import { getCache, setCache } from '@/lib/cache';
+
+const CACHE_KEY_PROFILE = '@bingket/cache-my-profile';
+const PROFILE_TTL = 1000 * 60 * 30; // 30분
 
 export function SettingPage() {
   const router = useRouter();
@@ -21,7 +25,16 @@ export function SettingPage() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchMyProfile().then(setProfile);
+      getCache<MyProfile>(CACHE_KEY_PROFILE, PROFILE_TTL).then((cached) => {
+        if (cached) setProfile(cached);
+        // 백그라운드에서 갱신
+        fetchMyProfile().then((fresh) => {
+          if (fresh) {
+            setProfile(fresh);
+            setCache(CACHE_KEY_PROFILE, fresh);
+          }
+        });
+      });
     }, []),
   );
 

@@ -141,7 +141,7 @@ export default function AccountScreen() {
                 </View>
                 <Text className="text-title-sm">{cfg?.label ?? account.provider}</Text>
                 <Text className="text-title-sm text-gray-500 dark:text-gray-400 ml-auto">
-                  {account.email ?? ''}
+                  {account.email?.endsWith('@kakao.bingket') ? '' : (account.email ?? '')}
                 </Text>
               </View>
             );

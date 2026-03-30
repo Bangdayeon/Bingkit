@@ -6,19 +6,31 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 interface HeaderTabBarProps {
   menus: string[];
   defaultIndex?: number;
+  selectedIndex?: number;
   onTabChange?: (index: number) => void;
 }
 
-export function HeaderTabBar({ menus, defaultIndex = 0, onTabChange }: HeaderTabBarProps) {
+export function HeaderTabBar({
+  menus,
+  defaultIndex = 0,
+  selectedIndex: externalIndex,
+  onTabChange,
+}: HeaderTabBarProps) {
   const insets = useSafeAreaInsets();
   const isDark = useColorScheme() === 'dark';
-  const [selectedIndex, setSelectedIndex] = useState(defaultIndex);
+  const [selectedIndex, setSelectedIndex] = useState(externalIndex ?? defaultIndex);
   const [tabWidths, setTabWidths] = useState<number[]>([]);
   const [tabOffsets, setTabOffsets] = useState<number[]>([]);
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (tabOffsets.length > 0) {
+    if (externalIndex !== undefined && externalIndex !== selectedIndex) {
+      setSelectedIndex(externalIndex);
+    }
+  }, [externalIndex]);
+
+  useEffect(() => {
+    if (tabOffsets.length > 0 && tabOffsets[selectedIndex] !== undefined) {
       Animated.spring(slideAnim, {
         toValue: tabOffsets[selectedIndex] + (tabWidths[selectedIndex] - 40) / 2,
         useNativeDriver: true,
@@ -26,7 +38,7 @@ export function HeaderTabBar({ menus, defaultIndex = 0, onTabChange }: HeaderTab
         stiffness: 200,
       }).start();
     }
-  }, [selectedIndex, tabOffsets]);
+  }, [selectedIndex, tabOffsets, tabWidths]);
 
   const handleSelect = (index: number) => {
     setSelectedIndex(index);

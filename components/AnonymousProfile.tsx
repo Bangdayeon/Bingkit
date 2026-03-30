@@ -16,12 +16,12 @@ function getColor(seed: string): string {
 }
 
 interface AnonymousProfileProps {
-  seed: string;
+  seed: string | null;
   size: 'md' | 'sm';
 }
 
 export function AnonymousProfile({ seed, size }: AnonymousProfileProps) {
-  const color = getColor(seed);
+  const color = seed === null ? '#9CA3AF' /* gray-400 */ : getColor(seed);
 
   return size === 'md' ? <ProfileMd color={color} /> : <ProfileSm color={color} />;
 }

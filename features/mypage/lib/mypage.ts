@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase';
 
 const R2_PUBLIC_URL = 'https://pub-ce1a524f861f4062a6ec96dd100c4aec.r2.dev';
@@ -14,8 +15,9 @@ export interface MyProfile {
 
 export const fetchMyProfile = async (): Promise<MyProfile | null> => {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   if (!user) return null;
 
   const { data: profile } = await supabase
@@ -24,7 +26,21 @@ export const fetchMyProfile = async (): Promise<MyProfile | null> => {
     .eq('id', user.id)
     .single();
 
-  if (!profile) return null;
+  if (!profile) {
+    // public.users 행이 없는 경우 (trigger 미작동 등) — auth 메타데이터로 폴백
+    const rawName = (user.user_metadata?.name as string | undefined) ?? '';
+    const displayName =
+      rawName.replace(/[^\u{AC00}-\u{D7A3}a-zA-Z0-9]/gu, '').slice(0, 20) || '빙고유저';
+    return {
+      displayName,
+      username: `user_${user.id.replace(/-/g, '').slice(0, 15)}`,
+      bio: '',
+      avatarUrl: null,
+      feedCount: 0,
+      followerCount: 0,
+      followingCount: 0,
+    };
+  }
 
   const { count: feedCount } = await supabase
     .from('posts')
@@ -50,8 +66,9 @@ export const updateMyProfile = async (data: {
   avatarUrl?: string;
 }): Promise<void> => {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   if (!user) throw new Error('로그인이 필요합니다.');
 
   const updates: Record<string, string> = {
@@ -95,18 +112,30 @@ export interface LinkedAccount {
 export const fetchLinkedAccounts = async (): Promise<LinkedAccount[]> => {
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser(); // getSession().user는 JWT에 identities 미포함 → getUser() 필수
   if (!user) return [];
-  return (user.identities ?? []).map((identity) => ({
-    provider: identity.provider,
-    email: (identity.identity_data?.email as string | undefined) ?? null,
-  }));
+
+  return (user.identities ?? []).map((identity) => {
+    // admin.createUser로 생성된 카카오 유저는 provider가 "email"로 저장됨
+    // user_metadata.kakao_id 유무로 실제 provider 판별
+    const isKakao =
+      identity.provider === 'kakao' ||
+      (identity.provider === 'email' && !!user.user_metadata?.kakao_id);
+    const provider = isKakao ? 'kakao' : identity.provider;
+    const email = isKakao
+      ? ((user.user_metadata?.kakao_email as string | undefined) ??
+        (identity.identity_data?.email as string | undefined) ??
+        null)
+      : ((identity.identity_data?.email as string | undefined) ?? null);
+    return { provider, email };
+  });
 };
 
 export const resetMyBingos = async (): Promise<void> => {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   if (!user) throw new Error('로그인이 필요합니다.');
 
   const { error } = await supabase
@@ -144,8 +173,9 @@ export { timeAgo };
 
 export const fetchMyPosts = async (): Promise<MyPost[]> => {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -170,15 +200,24 @@ export const fetchMyPosts = async (): Promise<MyPost[]> => {
 
 export const deleteAccount = async (): Promise<void> => {
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('로그인이 필요합니다.');
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) throw new Error('로그인이 필요합니다.');
 
-  const { error } = await supabase
-    .from('users')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', user.id);
-  if (error) throw error;
+  const { error } = await supabase.functions.invoke('delete-account', {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+  });
+
+  if (error) {
+    // FunctionsHttpError.message는 항상 generic — context.text()로 실제 서버 응답 추출
+    const body = await (error as { context?: Response }).context?.text?.();
+    throw new Error(body ?? error.message);
+  }
+
+  // 탈퇴 시 모든 로컬 캐시 제거
+  await AsyncStorage.multiRemove(['@bingket/cache-my-profile', '@bingket/draft-bingo']);
 
   await supabase.auth.signOut();
 };

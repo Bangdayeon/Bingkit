@@ -39,12 +39,31 @@ async function signInWithGoogle(): Promise<void> {
     return;
   }
 
-  const { error: sessionError } = await supabase.auth.setSession({
+  const { data: sessionResult, error: sessionError } = await supabase.auth.setSession({
     access_token: accessToken,
     refresh_token: refreshToken,
   });
   if (sessionError) {
     Sentry.captureException(sessionError);
+    return;
+  }
+
+  // public.users 행 보장 — 탈퇴 후 재가입 시 trigger 미작동 대비
+  const user = sessionResult.session?.user;
+  if (user) {
+    const username = 'user_' + user.id.replace(/-/g, '').slice(0, 15);
+    const rawName =
+      (user.user_metadata?.full_name as string | undefined) ??
+      (user.user_metadata?.name as string | undefined) ??
+      '빙고유저';
+    const safeDisplayName =
+      rawName.replace(/[^\uAC00-\uD7A3a-zA-Z0-9]/g, '').slice(0, 20) || '빙고유저';
+    await supabase
+      .from('users')
+      .upsert(
+        { id: user.id, username, display_name: safeDisplayName },
+        { onConflict: 'id', ignoreDuplicates: true },
+      );
   }
 }
 

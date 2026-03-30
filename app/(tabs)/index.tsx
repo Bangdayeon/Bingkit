@@ -1,15 +1,22 @@
 import { HeaderTabBar } from '@/components/HeaderTabbar';
 import { BingoHistory } from '@/features/bingo/BingoHistory';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, View, useColorScheme } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BingoAll } from '@/features/bingo/BingoAll';
+import { useFocusEffect } from 'expo-router';
 
 export default function HomeScreen() {
   const [tabIndex, setTabIndex] = useState(0);
   const [isReorderMode, setIsReorderMode] = useState(false);
   const insets = useSafeAreaInsets();
   const isDark = useColorScheme() === 'dark';
+
+  useFocusEffect(
+    useCallback(() => {
+      setTabIndex(0);
+    }, []),
+  );
 
   const handleTabChange = (index: number) => {
     setTabIndex(index);
@@ -24,7 +31,11 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="relative flex-1 bg-white dark:bg-gray-900">
-      <HeaderTabBar menus={['전체', '기록']} onTabChange={handleTabChange} />
+      <HeaderTabBar
+        menus={['전체', '기록']}
+        onTabChange={handleTabChange}
+        selectedIndex={tabIndex}
+      />
 
       {/* 기록 탭 전용 순서 변경 버튼 (HeaderTabBar 위에 올림) */}
       {tabIndex === 1 && (

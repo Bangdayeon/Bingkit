@@ -9,6 +9,31 @@ import {
   FIGMA_H,
   GRID_CONFIGS,
 } from '../lib/theme-config';
+import { DonutStat } from './DonutStat';
+
+/** grid별 최대 빙고 수 (행 + 열 + 대각선(정사각형만)) */
+function calcMaxBingo(cols: number, rows: number): number {
+  return cols + rows + (cols === rows ? 2 : 0);
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** startDate~targetDate 기준 [오늘까지 경과일, 전체 기간] 계산 */
+function calcDayProgress(startDate: string | null, targetDate: string | null): [number, number] {
+  if (!startDate || !targetDate) return [0, 0];
+  const start = new Date(startDate).getTime();
+  const end = new Date(targetDate).getTime();
+  const total = Math.max(Math.round((end - start) / DAY_MS), 1);
+  const elapsed = Math.min(Math.max(Math.round((Date.now() - start) / DAY_MS), 0), total);
+  return [elapsed, total];
+}
+
+/** 'YYYY-MM-DD' → 'YY.MM.DD' */
+function formatDate(date: string | null): string {
+  if (!date) return '';
+  const [y, m, d] = date.split('-');
+  return `${y.slice(2)}.${m}.${d}`;
+}
 
 interface BingoCardProps {
   bingo: BingoData;
@@ -30,6 +55,9 @@ export function BingoCard({
   const image = getThemeImage(bingo.theme, bingo.grid);
   const checkImage = getThemeImage(bingo.theme, 'check');
 
+  const [dayElapsed, dayTotal] = calcDayProgress(bingo.startDate, bingo.targetDate);
+  const formattedEndDate = formatDate(bingo.targetDate);
+
   if (image !== null) {
     const scale = screenWidth / FIGMA_W;
     const cardHeight = FIGMA_H * scale;
@@ -42,7 +70,7 @@ export function BingoCard({
     const gapY = cfg.gapY * scale;
 
     return (
-      <View className="pb-32">
+      <View className="pb-24">
         {/* 이미지 + 셀 오버레이 */}
         <View style={{ width: screenWidth, height: cardHeight }}>
           <Image
@@ -102,21 +130,28 @@ export function BingoCard({
         </View>
 
         {/* 스탯 — 이미지 외부 */}
-        <View className="flex-row mt-4">
-          <View className="flex-1 items-center gap-1">
-            <Text className="text-label-sm">달성</Text>
-            <Text className="text-body-sm">
-              {bingo.achievedCount} / {cols * rows}
-            </Text>
+        <View className="mt-4">
+          <View className="flex-row">
+            <View className="flex-1 items-center">
+              <DonutStat label="달성" current={bingo.achievedCount} total={cols * rows} />
+            </View>
+            <View className="flex-1 items-center">
+              <DonutStat
+                label="빙고"
+                current={bingo.bingoCount}
+                total={calcMaxBingo(cols, rows)}
+                overflowRed
+              />
+            </View>
+            <View className="flex-1 items-center">
+              <DonutStat label="종료일" current={dayElapsed} total={dayTotal} />
+            </View>
           </View>
-          <View className="flex-1 items-center gap-1">
-            <Text className="text-label-sm">빙고</Text>
-            <Text className="text-body-sm">{bingo.bingoCount}</Text>
-          </View>
-          <View className="flex-1 items-center gap-1">
-            <Text className="text-label-sm">D-day</Text>
-            <Text className="text-body-sm">{bingo.dday}</Text>
-          </View>
+          {formattedEndDate ? (
+            <View className="items-end px-5 mt-4">
+              <Text className="text-caption-sm text-gray-600">{formattedEndDate}</Text>
+            </View>
+          ) : null}
         </View>
       </View>
     );

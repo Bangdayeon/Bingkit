@@ -10,6 +10,8 @@ export interface BingoData {
   achievedCount: number;
   bingoCount: number;
   dday: number;
+  startDate: string | null; // 'YYYY-MM-DD'
+  targetDate: string | null; // 'YYYY-MM-DD'
   state: BingoState;
   theme: BingoTheme;
 }

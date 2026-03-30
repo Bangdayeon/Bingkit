@@ -18,6 +18,15 @@ import ProgressIcon from '@/assets/icons/ic_progress.svg';
 import ForwardArrowIcon from '@/assets/icons/ic_arrow_forward.svg';
 import { fetchMyBingos, fetchMyCompletedBingos } from '@/features/bingo/lib/bingo';
 import { applyBingoOrder, loadBingoOrder, saveBingoOrder } from '@/features/bingo/lib/bingo-order';
+import { getCache, setCache } from '@/lib/cache';
+
+const CACHE_KEY_HISTORY = '@bingket/cache-bingo-history';
+
+interface HistoryCache {
+  drafts: BingoItem[];
+  inProgress: BingoItem[];
+  done: BingoItem[];
+}
 
 interface BingoItem {
   id: string;
@@ -232,7 +241,6 @@ export function BingoHistory({ isReorderMode }: { isReorderMode: boolean }) {
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(() => {
-    setLoading(true);
     Promise.all([
       AsyncStorage.getItem('@bingket/draft-bingo'),
       fetchMyBingos(),
@@ -240,15 +248,31 @@ export function BingoHistory({ isReorderMode }: { isReorderMode: boolean }) {
       loadBingoOrder(),
     ]).then(([raw, progress, completed, savedOrder]) => {
       const draft = raw ? JSON.parse(raw) : null;
-      setDrafts(draft?.title ? [{ id: 'draft_0', title: draft.title }] : []);
+      const drafts = draft?.title ? [{ id: 'draft_0', title: draft.title }] : [];
       const progressItems = progress.map(({ bingo }) => ({ id: bingo.id, title: bingo.title }));
-      setInProgress(applyBingoOrder(progressItems, savedOrder));
-      setDone(completed.map(({ bingo }) => ({ id: bingo.id, title: bingo.title })));
+      const inProgress = applyBingoOrder(progressItems, savedOrder);
+      const done = completed.map(({ bingo }) => ({ id: bingo.id, title: bingo.title }));
+      setDrafts(drafts);
+      setInProgress(inProgress);
+      setDone(done);
       setLoading(false);
+      setCache(CACHE_KEY_HISTORY, { drafts, inProgress, done });
     });
   }, []);
 
-  useFocusEffect(loadData);
+  useFocusEffect(
+    useCallback(() => {
+      getCache<HistoryCache>(CACHE_KEY_HISTORY).then((cached) => {
+        if (cached) {
+          setDrafts(cached.drafts);
+          setInProgress(cached.inProgress);
+          setDone(cached.done);
+          setLoading(false);
+        }
+        loadData();
+      });
+    }, [loadData]),
+  );
 
   const handleOrderChange = useCallback((newItems: BingoItem[]) => {
     setInProgress(newItems);

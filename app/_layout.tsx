@@ -13,7 +13,6 @@ import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { BadgeCelebration } from '@/components/BadgeCelebration';
 
 export default function RootLayout() {
   useEffect(() => {
@@ -31,13 +30,26 @@ export default function RootLayout() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        const createdAt = new Date(session.user.created_at).getTime();
-        const isNewUser = Date.now() - createdAt < 60_000;
-        router.replace(isNewUser ? '/(auth)/onboarding' : '/(tabs)');
-        // 신규 로그인 시 푸시 토큰 등록
-        registerForPushNotifications().then((token) => {
-          if (token) savePushToken(token);
-        });
+        const user = session.user;
+        void (async () => {
+          // re-signup 또는 trigger 미작동 대비: public.users 행 보장
+          const rawName = (user.user_metadata?.name as string | undefined) ?? '';
+          const displayName =
+            rawName.replace(/[^\u{AC00}-\u{D7A3}a-zA-Z0-9]/gu, '').slice(0, 20) || '빙고유저';
+          const username = `user_${user.id.replace(/-/g, '').slice(0, 15)}`;
+          await supabase
+            .from('users')
+            .upsert(
+              { id: user.id, username, display_name: displayName },
+              { onConflict: 'id', ignoreDuplicates: true },
+            );
+          const createdAt = new Date(user.created_at).getTime();
+          const isNewUser = Date.now() - createdAt < 60_000;
+          router.replace(isNewUser ? '/(auth)/onboarding' : '/(tabs)');
+          registerForPushNotifications().then((token) => {
+            if (token) savePushToken(token);
+          });
+        })();
       } else if (event === 'INITIAL_SESSION' && session) {
         // 앱 재실행 시 이미 로그인된 경우에도 토큰 갱신
         registerForPushNotifications().then((token) => {
@@ -52,7 +64,6 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <BadgeCelebration />
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />

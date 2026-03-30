@@ -178,7 +178,7 @@ export const fetchBingoForView = async (boardId: string): Promise<FetchedBingo |
   const { data: board, error } = await supabase
     .from('bingo_boards')
     .select(
-      `id, title, grid, theme, max_edits, target_date, status,
+      `id, title, grid, theme, max_edits, start_date, target_date, status,
        bingo_cells (id, position, content, memo, is_checked, checked_at)`,
     )
     .eq('id', boardId)
@@ -201,6 +201,8 @@ export const fetchBingoForView = async (boardId: string): Promise<FetchedBingo |
       achievedCount: checked.filter(Boolean).length,
       bingoCount: calcBingoCount(checked, cols, rows),
       dday: calcDday(board.target_date),
+      startDate: board.start_date ?? null,
+      targetDate: board.target_date ?? null,
       state: board.status as 'progress' | 'done',
       theme: board.theme as BingoTheme,
     },
@@ -224,7 +226,7 @@ export const fetchMyCompletedBingos = async (): Promise<FetchedBingo[]> => {
   const { data: boards, error } = await supabase
     .from('bingo_boards')
     .select(
-      `id, title, grid, theme, max_edits, target_date,
+      `id, title, grid, theme, max_edits, start_date, target_date,
        bingo_cells (id, position, content, memo, is_checked, checked_at)`,
     )
     .eq('user_id', user.id)
@@ -249,6 +251,8 @@ export const fetchMyCompletedBingos = async (): Promise<FetchedBingo[]> => {
         achievedCount: checked.filter(Boolean).length,
         bingoCount: calcBingoCount(checked, cols, rows),
         dday: calcDday(board.target_date),
+        startDate: board.start_date ?? null,
+        targetDate: board.target_date ?? null,
         state: 'done',
         theme: board.theme as BingoTheme,
       },
@@ -272,7 +276,7 @@ export const fetchMyBingos = async (): Promise<FetchedBingo[]> => {
   const { data: boards, error } = await supabase
     .from('bingo_boards')
     .select(
-      `id, title, grid, theme, max_edits, target_date,
+      `id, title, grid, theme, max_edits, start_date, target_date,
        bingo_cells (id, position, content, memo, is_checked, checked_at)`,
     )
     .eq('user_id', user.id)
@@ -297,6 +301,8 @@ export const fetchMyBingos = async (): Promise<FetchedBingo[]> => {
         achievedCount: checked.filter(Boolean).length,
         bingoCount: calcBingoCount(checked, cols, rows),
         dday: calcDday(board.target_date),
+        startDate: board.start_date ?? null,
+        targetDate: board.target_date ?? null,
         state: 'progress',
         theme: board.theme as BingoTheme,
       },

@@ -40,6 +40,7 @@ export default function BingoAddScreen() {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [afterAlertAction, setAfterAlertAction] = useState<(() => void) | null>(null);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // 드래프트 불러오기
   useEffect(() => {
@@ -110,19 +111,24 @@ export default function BingoAddScreen() {
     setAfterAlertAction(after ? () => after : null);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!title.trim()) return showAlert('제목을 입력해주세요.');
     if (!selectedDuration) return showAlert('목표 기간을 선택해주세요.');
     if (!startDate) return showAlert('시작일을 선택해주세요.');
     if (!endDate) return showAlert('종료일을 선택해주세요.');
     if (cellsRef.current.filter((c) => c?.trim()).length < totalCells)
       return showAlert('빙고 칸을 모두 채워주세요.');
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSave = async () => {
+    setShowConfirmModal(false);
     try {
       await createBingo({
         title,
-        duration: selectedDuration,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
+        duration: selectedDuration!,
+        startDate: startDate!.toISOString(),
+        endDate: endDate!.toISOString(),
         grid: selectedGrid,
         editCount: selectedEditCount,
         theme: selectedTheme,
@@ -227,6 +233,20 @@ export default function BingoAddScreen() {
           afterAlertAction?.();
           setAfterAlertAction(null);
         }}
+      />
+
+      <Modal
+        visible={showConfirmModal}
+        title={title}
+        body={
+          '목표 기간, 칸 개수, 수정 가능 횟수는\n저장 후 수정이 불가능합니다.\n이대로 빙고를 만들까요?'
+        }
+        variant="default"
+        cancelLabel="한 번 더 보기"
+        confirmLabel="빙고 만들기"
+        onCancel={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmSave}
+        onDismiss={() => setShowConfirmModal(false)}
       />
 
       <Modal

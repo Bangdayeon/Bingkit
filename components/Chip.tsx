@@ -22,10 +22,8 @@ export function Chip({ label, selected, onPress, color = 'green' }: ChipProps) {
   return (
     <Pressable
       onPress={onPress}
-      className={`h-7 px-3 rounded-full items-center justify-center border ${
-        selected
-          ? SELECTED_CLASSES[color]
-          : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700'
+      className={`h-7 px-3 rounded-full items-center justify-center ${
+        selected ? SELECTED_CLASSES[color] : 'bg-gray-200 dark:bg-gray-900'
       }`}
     >
       <Text

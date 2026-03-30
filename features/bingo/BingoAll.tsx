@@ -10,8 +10,10 @@ import { BingoData } from '@/types/bingo';
 import { BingoCellDetail } from '@/types/bingo-cell';
 import { fetchMyBingos, updateCell, calcBingoCount } from '@/features/bingo/lib/bingo';
 import { applyBingoOrder, loadBingoOrder } from '@/features/bingo/lib/bingo-order';
+import { getCache, setCache } from '@/lib/cache';
 
 const MAX_BINGOS = 3;
+const CACHE_KEY_ALL = '@bingket/cache-bingo-all';
 
 export function BingoAll() {
   const router = useRouter();
@@ -24,7 +26,6 @@ export function BingoAll() {
   const memoDebounceRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const loadData = useCallback(() => {
-    setLoading(true);
     Promise.all([fetchMyBingos(), loadBingoOrder()]).then(([fetched, savedOrder]) => {
       const details: Record<string, BingoCellDetail[]> = {};
       const serverBingos = fetched.map(({ bingo, cellDetails: cd }) => {
@@ -32,13 +33,30 @@ export function BingoAll() {
         return bingo;
       });
       const ordered = applyBingoOrder(serverBingos, savedOrder);
-      setBingos(ordered.slice(0, MAX_BINGOS));
+      const sliced = ordered.slice(0, MAX_BINGOS);
+      setBingos(sliced);
       setCellDetails(details);
       setLoading(false);
+      setCache(CACHE_KEY_ALL, { bingos: sliced, cellDetails: details });
     });
   }, []);
 
-  useFocusEffect(loadData);
+  useFocusEffect(
+    useCallback(() => {
+      // 캐시 먼저 보여주기
+      getCache<{ bingos: BingoData[]; cellDetails: Record<string, BingoCellDetail[]> }>(
+        CACHE_KEY_ALL,
+      ).then((cached) => {
+        if (cached) {
+          setBingos(cached.bingos);
+          setCellDetails(cached.cellDetails);
+          setLoading(false);
+        }
+        // 캐시 여부 관계없이 백그라운드에서 갱신
+        loadData();
+      });
+    }, [loadData]),
+  );
 
   const handleCellPress = (bingo: BingoData, cellIndex: number) => {
     setModalTarget({ bingoId: bingo.id, cellIndex });

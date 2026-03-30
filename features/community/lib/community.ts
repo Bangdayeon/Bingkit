@@ -21,24 +21,6 @@ function calcDdayLocal(targetDate: string | null): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
-// ── 익명 이름 생성 ────────────────────────────────────────────
-const ADJECTIVES = [
-  '귀여운',
-  '용감한',
-  '행복한',
-  '신비로운',
-  '활발한',
-  '따뜻한',
-  '재빠른',
-  '영리한',
-];
-const NOUNS = ['토끼', '고양이', '강아지', '여우', '곰', '판다', '햄스터', '다람쥐'];
-
-function anonymousName(userId: string): string {
-  const hash = userId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  return `${ADJECTIVES[hash % ADJECTIVES.length]} ${NOUNS[(hash >> 3) % NOUNS.length]}`;
-}
-
 // ── 시간 포맷 ─────────────────────────────────────────────────
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -63,7 +45,7 @@ type RawBoard = {
   bingo_cells: Array<{ position: number; content: string }>;
 } | null;
 
-type RawUser = { username: string; avatar_url: string | null } | null;
+type RawUser = { display_name: string; avatar_url: string | null } | null;
 
 type RawSnapshot = { cells: string[]; grid: string; theme: string } | null;
 
@@ -108,7 +90,7 @@ function mapPost(
     id: p.id,
     title: p.title,
     userId: p.user_id,
-    author: isAnonymous ? '익명' : (user?.username ?? anonymousName(p.user_id)),
+    author: isAnonymous ? '익명' : (user?.display_name ?? '(알 수 없음)'),
     isAnonymous,
     avatarUrl: isAnonymous ? null : (user?.avatar_url ?? null),
     timeAgo: timeAgo(p.created_at),
@@ -132,7 +114,7 @@ function mapPost(
 
 const POST_SELECT = `
   id, title, content, category, like_count, comment_count, created_at, user_id, image_urls, is_anonymous, bingo_snapshot,
-  users ( username, avatar_url ),
+  users ( display_name, avatar_url ),
   bingo_boards ( grid, theme, bingo_cells ( position, content ) )
 `;
 
@@ -184,7 +166,7 @@ export const fetchMyBingosForPost = async (): Promise<BingoData[]> => {
   const { data: boards } = await supabase
     .from('bingo_boards')
     .select(
-      `id, title, grid, theme, max_edits, target_date, status,
+      `id, title, grid, theme, max_edits, start_date, target_date, status,
        bingo_cells (position, content, is_checked)`,
     )
     .eq('user_id', user.id)
@@ -207,6 +189,8 @@ export const fetchMyBingosForPost = async (): Promise<BingoData[]> => {
       achievedCount: checked.filter(Boolean).length,
       bingoCount: calcBingoCount(checked, cols, rows),
       dday: calcDdayLocal(board.target_date),
+      startDate: board.start_date ?? null,
+      targetDate: board.target_date ?? null,
       state: board.status as BingoState,
       theme: board.theme as BingoTheme,
     };
@@ -229,6 +213,8 @@ export const fetchMyBingosForPost = async (): Promise<BingoData[]> => {
         achievedCount: 0,
         bingoCount: 0,
         dday: 0,
+        startDate: null,
+        targetDate: null,
         state: 'draft',
         theme: THEME_DISPLAY_TO_KEY[d.selectedTheme as string] ?? 'default',
       };
@@ -245,8 +231,14 @@ export const fetchMyBingosForPost = async (): Promise<BingoData[]> => {
 export const uploadPostImage = async (uri: string, mimeType: string): Promise<string> => {
   const ext = mimeType.split('/')[1] ?? 'jpg';
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) throw new Error('로그인이 필요합니다.');
+
   const { data, error } = await supabase.functions.invoke('post-presign', {
     body: { filename: `image.${ext}`, contentType: mimeType },
+    headers: { Authorization: `Bearer ${session.access_token}` },
   });
   if (error) throw new Error(error.message);
 
@@ -274,27 +266,30 @@ export interface CreatePostRequest {
 }
 
 export const createPost = async (req: CreatePostRequest): Promise<string> => {
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-  if (authError || !user) throw new Error('로그인이 필요합니다.');
+  // 현재 로그인한 유저 가져오기
+  const { data: userData, error: authError } = await supabase.auth.getUser();
+  if (authError || !userData?.user) throw new Error('로그인이 필요합니다.');
 
+  const userId = userData.user.id; // 글 작성자 ID
+
+  // 이미지 업로드
   const imageUrls: string[] = [];
   for (const img of req.imageUris) {
-    const url = await uploadPostImage(img.uri, img.mimeType);
+    const url = await uploadPostImage(img.uri, img.mimeType ?? 'image/jpeg');
     imageUrls.push(url);
   }
 
   const isDraftBingo = req.bingo?.id === 'draft';
+
+  // posts 테이블에 insert
   const { data, error } = await supabase
     .from('posts')
     .insert({
-      user_id: user.id,
       category: req.category,
       title: req.title.trim(),
       content: req.content.trim(),
       is_anonymous: req.isAnonymous,
+      user_id: userId, // ← 반드시 포함
       image_urls: imageUrls,
       bingo_board_id: req.bingo && !isDraftBingo ? req.bingo.id : null,
       bingo_snapshot:
@@ -389,15 +384,31 @@ type RawCommentRow = {
   parent_id: string | null;
   is_anonymous: boolean;
   created_at: string;
+  like_count: number;
   users: unknown;
 };
+
+// 내가 좋아요 누른 댓글 ID 조회
+async function fetchLikedCommentSet(commentIds: string[]): Promise<Set<string>> {
+  if (commentIds.length === 0) return new Set();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return new Set();
+  const { data } = await supabase
+    .from('comment_likes')
+    .select('comment_id')
+    .eq('user_id', user.id)
+    .in('comment_id', commentIds);
+  return new Set((data ?? []).map((l) => l.comment_id as string));
+}
 
 // ── 댓글 목록 조회 ────────────────────────────────────────────
 export const fetchComments = async (postId: string): Promise<Comment[]> => {
   const { data, error } = await supabase
     .from('comments')
     .select(
-      'id, content, user_id, parent_id, is_anonymous, created_at, users ( username, avatar_url )',
+      'id, content, user_id, parent_id, is_anonymous, created_at, like_count, users ( display_name, avatar_url )',
     )
     .eq('post_id', postId)
     .eq('is_deleted', false)
@@ -419,6 +430,9 @@ export const fetchComments = async (postId: string): Promise<Comment[]> => {
     }
   }
 
+  // 내가 좋아요 누른 댓글 ID 세트
+  const likedCommentSet = await fetchLikedCommentSet(rows.map((c) => c.id));
+
   const mapRow = (c: RawCommentRow): Omit<Comment, 'replies'> & Omit<CommentReply, never> => {
     const user = c.users as RawUser;
     const isAnon = c.is_anonymous;
@@ -426,19 +440,20 @@ export const fetchComments = async (postId: string): Promise<Comment[]> => {
     return {
       id: c.id,
       userId: c.user_id,
-      author: isAnon ? `익명${anonNum}` : (user?.username ?? '알 수 없음'),
+      author: isAnon ? `익명${anonNum}` : (user?.display_name ?? '알 수 없음'),
       isAnonymous: isAnon,
       avatarUrl: isAnon ? null : (user?.avatar_url ?? null),
       body: c.content,
       createdAt: formatCommentDate(c.created_at),
-      likeCount: 0,
+      likeCount: c.like_count,
+      likedByMe: likedCommentSet.has(c.id),
     };
   };
 
   const topLevel = rows.filter((c) => !c.parent_id);
   const replies = rows.filter((c) => c.parent_id);
 
-  // 부모가 삭제된 경우: 대댓글은 살아있지만 부모 댓글이 없음 → placeholder 생성
+  // 부모가 삭제된 경우 → placeholder 생성
   const topLevelIds = new Set(topLevel.map((c) => c.id));
   const orphanGroups = new Map<string, RawCommentRow[]>();
   for (const r of replies) {
@@ -467,6 +482,7 @@ export const fetchComments = async (postId: string): Promise<Comment[]> => {
         ),
       ),
       likeCount: 0,
+      likedByMe: false,
       isDeleted: true,
       replies: childReplies.map(mapRow),
     }),
@@ -516,6 +532,29 @@ export const deleteComment = async (commentId: string): Promise<void> => {
     .eq('user_id', user.id);
 
   if (error) throw new Error(error.message);
+};
+
+// ── 댓글 좋아요 토글 ─────────────────────────────────────────
+export const toggleCommentLike = async (commentId: string, like: boolean): Promise<void> => {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) throw new Error('로그인이 필요합니다.');
+
+  if (like) {
+    const { error } = await supabase
+      .from('comment_likes')
+      .insert({ user_id: user.id, comment_id: commentId });
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase
+      .from('comment_likes')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('comment_id', commentId);
+    if (error) throw new Error(error.message);
+  }
 };
 
 // ── 차단된 유저 ID 목록 ───────────────────────────────────────

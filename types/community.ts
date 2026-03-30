@@ -11,6 +11,7 @@ export interface CommentReply {
   body: string;
   createdAt: string;
   likeCount: number;
+  likedByMe?: boolean;
 }
 
 export interface Comment {
@@ -24,6 +25,13 @@ export interface Comment {
   likeCount: number;
   isDeleted?: boolean;
   replies?: CommentReply[];
+  likedByMe?: boolean;
+}
+
+export interface CommunityUser {
+  id: string;
+  username: string;
+  is_deleted: boolean; // 새 필드
 }
 
 export interface CommunityPost {
@@ -49,4 +57,5 @@ export interface CommunityPost {
     theme: BingoTheme;
   };
   imageUrls?: string[];
+  user?: CommunityUser; // 팝업에서 탈퇴 여부 확인
 }

@@ -2,9 +2,9 @@ import { Chip } from '@/components/Chip';
 import Calendar from '@/assets/icons/ic_calendar.svg';
 import { Pressable, View, useColorScheme } from 'react-native';
 import { Text } from '@/components/Text';
+import { Information } from '@/features/bingo/components/Information';
 
 const DURATION_OPTIONS = ['1개월', '3개월', '6개월', '1년', '직접 지정'];
-const ALERT_TEXT = '*처음 지정 후 수정이 불가능해요.';
 
 interface BingoGoalProps {
   selectedDuration: string | null;
@@ -36,7 +36,7 @@ export function BingoGoal({
     <View className="px-5 pt-6 pb-5">
       <View className="flex-row items-center gap-2 mb-3">
         <Text className="text-title-md">목표 기간</Text>
-        <Text className="text-caption-sm text-red-500">{ALERT_TEXT}</Text>
+        <Information content="처음 지정 후 수정이 불가능해요." />
       </View>
       <View className="flex-row flex-wrap gap-2">
         {DURATION_OPTIONS.map((opt) => (

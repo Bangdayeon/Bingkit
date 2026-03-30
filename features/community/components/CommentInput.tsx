@@ -52,10 +52,10 @@ export function CommentInput({
 
       <View className="flex-row items-center px-5 gap-3 pt-3 pb-1">
         <Pressable className="flex-row items-center gap-1" onPress={onToggleAnonymous} hitSlop={8}>
-          <Text className="text-caption-sm" style={{ color: anonymousColor }}>
+          <Text className="text-caption-md" style={{ color: anonymousColor }}>
             익명
           </Text>
-          <CheckIcon width={14} height={14} color={anonymousColor} />
+          <CheckIcon width={16} height={16} color={anonymousColor} />
         </Pressable>
 
         <TextInput

@@ -15,6 +15,7 @@ import {
   ScrollView,
   View,
 } from 'react-native';
+import { clearCache } from '@/lib/cache';
 
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -166,6 +167,7 @@ export default function ProfileEditPage() {
         newAvatarUrl = await uploadProfileImage(avatarUri, filename);
       }
       await updateMyProfile({ displayName: name, username: userId, bio, avatarUrl: newAvatarUrl });
+      await clearCache('@bingket/cache-my-profile');
       router.back();
     } catch (e) {
       Alert.alert('저장 실패', e instanceof Error ? e.message : '다시 시도해주세요.');

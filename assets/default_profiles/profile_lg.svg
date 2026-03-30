@@ -1,8 +1,14 @@
-<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="0.5" y="0.5" width="99" height="99" rx="49.5" fill="currentColor" stroke="#D2D6D6"/>
-<rect x="13" y="21" width="22.5" height="54" rx="11.25" fill="white"/>
-<rect x="25" y="87" width="22.5" height="54" rx="11.25" transform="rotate(-90 25 87)" fill="white"/>
-<path d="M1 31.5H18.5C46.1142 31.5 68.5 53.8858 68.5 81.5V99H21C9.95431 99 1 90.0457 1 79V31.5Z" fill="white"/>
-<rect x="24.9473" y="51" width="9" height="6.28866" rx="3.14433" transform="rotate(45 24.9473 51)" fill="#000000"/>
-<rect x="45.3568" y="71.4102" width="9" height="6.28866" rx="3.14433" transform="rotate(45 45.3568 71.4102)" fill="#000000"/>
+<svg width="101" height="101" viewBox="0 0 101 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.5" y="0.5" width="99.9996" height="99.9998" rx="49.9998" fill="currentColor" stroke="#D2D6D6"/>
+<mask id="mask0_104_455" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="101" height="101">
+<rect x="0.5" y="0.5" width="99.9996" height="99.9998" rx="49.9998" fill="currentColor" stroke="#D2D6D6"/>
+</mask>
+<g mask="url(#mask0_104_455)">
+<rect x="13.1224" y="22" width="22.7295" height="54.5509" rx="11.3648" fill="white"/>
+<rect x="25.2448" y="88.6719" width="22.7295" height="54.5508" rx="11.3648" transform="rotate(-90 25.2448 88.6719)" fill="white"/>
+<path d="M1 32.6074H29.1885C51.2799 32.6074 69.1885 50.516 69.1885 72.6074V100.796H49C22.4904 100.796 1 79.3057 1 52.7961V32.6074Z" fill="white"/>
+<rect width="9.09181" height="6.35281" rx="3.17641" transform="matrix(0.707106 0.707107 -0.707106 0.707107 25.1916 52.3057)" fill="#000000"/>
+<rect width="9.09181" height="6.35281" rx="3.17641" transform="matrix(0.707106 0.707107 -0.707106 0.707107 45.8093 72.9243)" fill="#000000"/>
+<rect x="0.5" y="0.5" width="99.9996" height="99.9998" rx="49.9998" stroke="#D2D6D6"/>
+</g>
 </svg>

@@ -81,7 +81,7 @@ export function BingoCellModal({
 
   const handleDateConfirm = () => {
     if (!datePickerCellId) return;
-    onUpdate(datePickerCellId, { completedAt: tempDate.toISOString() });
+    onUpdate(datePickerCellId, { completed: true, completedAt: tempDate.toISOString() });
     setDatePickerCellId(null);
   };
 
@@ -144,7 +144,7 @@ export function BingoCellModal({
                   variant="ghost"
                   onClick={() => handleToggleComplete(item)}
                   icon={
-                    item.completed || !!item.completedAt ? (
+                    item.completed ? (
                       <DoneIcon width={24} height={24} color="#48BE30" /* green-600 */ />
                     ) : (
                       <CheckIcon width={24} height={24} color="#4C5252" /* gray-700 */ />

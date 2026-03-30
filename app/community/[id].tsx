@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -31,6 +30,7 @@ import {
 } from '@/features/community/lib/community';
 import { checkAndAwardBadges } from '@/lib/badge-checker';
 import { supabase } from '@/lib/supabase';
+import { Modal } from '@/components/Modal';
 
 const REPORT_REASONS = [
   '상업적 광고 및 판매',
@@ -40,29 +40,6 @@ const REPORT_REASONS = [
   '사칭/사기',
   '기타',
 ];
-
-const MODAL_CARD_STYLE = {
-  backgroundColor: '#FDFDFD' as const,
-  borderRadius: 30,
-  paddingHorizontal: 20,
-  paddingTop: 24,
-  paddingBottom: 20,
-  width: '100%' as const,
-  maxWidth: 300,
-  shadowColor: '#000000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 5,
-  elevation: 5,
-};
-
-const MODAL_OVERLAY_STYLE = {
-  flex: 1 as const,
-  backgroundColor: 'rgba(0,0,0,0.4)',
-  alignItems: 'center' as const,
-  justifyContent: 'center' as const,
-  paddingHorizontal: 20,
-};
 
 export default function CommunityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -77,7 +54,7 @@ export default function CommunityDetailScreen() {
   const [localComments, setLocalComments] = useState<Comment[]>([]);
   const [, setCommentsLoading] = useState(false);
   const [comment, setComment] = useState('');
-  const [commentAnonymous, setCommentAnonymous] = useState(false);
+  const [commentAnonymous, setCommentAnonymous] = useState(true);
   const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   const [keyboardShown, setKeyboardShown] = useState(false);
@@ -285,7 +262,6 @@ export default function CommunityDetailScreen() {
   };
 
   // ── 팝오버 메뉴 아이템 ─────────────────────────────────────
-
   const postMenuItems = isOwnPost
     ? [
         {
@@ -323,14 +299,18 @@ export default function CommunityDetailScreen() {
             setShowReportModal(true);
           },
         },
-        {
-          label: '차단하기',
-          danger: true as const,
-          onPress: () => {
-            setShowPostMenu(false);
-            handleBlockUser(post.userId);
-          },
-        },
+        ...(post.user?.is_deleted
+          ? []
+          : [
+              {
+                label: '차단하기',
+                danger: true as const,
+                onPress: () => {
+                  setShowPostMenu(false);
+                  handleBlockUser(post.userId);
+                },
+              },
+            ]),
       ];
 
   const commentMenuUserId =
@@ -427,17 +407,9 @@ export default function CommunityDetailScreen() {
       {/* ── 신고하기 모달 ── */}
       <Modal
         visible={showReportModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowReportModal(false)}
-      >
-        <Pressable
-          style={MODAL_OVERLAY_STYLE}
-          onPress={() => !isReporting && setShowReportModal(false)}
-        >
-          <Pressable style={MODAL_CARD_STYLE}>
-            <Text className="text-title-sm mb-4">신고하기</Text>
-
+        title="신고하기"
+        body={
+          <>
             {REPORT_REASONS.map((reason) => (
               <Pressable
                 key={reason}
@@ -450,10 +422,7 @@ export default function CommunityDetailScreen() {
                     height: 16,
                     borderRadius: 8,
                     borderWidth: 1.5,
-                    borderColor:
-                      selectedReason === reason
-                        ? '#28C8DE' /* sky-500 */
-                        : '#D2D6D6' /* gray-300 */,
+                    borderColor: selectedReason === reason ? '#28C8DE' : '#D2D6D6',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
@@ -464,7 +433,7 @@ export default function CommunityDetailScreen() {
                         width: 8,
                         height: 8,
                         borderRadius: 4,
-                        backgroundColor: '#28C8DE' /* sky-500 */,
+                        backgroundColor: '#28C8DE',
                       }}
                     />
                   )}
@@ -472,241 +441,121 @@ export default function CommunityDetailScreen() {
                 <Text className="text-body-md">{reason}</Text>
               </Pressable>
             ))}
-
-            <View className="flex-row gap-3 mt-5">
-              <Pressable
-                onPress={() => {
-                  setShowReportModal(false);
-                  setSelectedReason(null);
-                  setReportTarget(null);
-                }}
-                disabled={isReporting}
-                className="flex-1 h-9 rounded-full border border-gray-300 items-center justify-center"
-              >
-                <Text className="text-label-sm">취소하기</Text>
-              </Pressable>
-              <Pressable
-                onPress={async () => {
-                  if (!selectedReason || !reportTarget) return;
-                  setIsReporting(true);
-                  try {
-                    await submitReport(reportTarget.type, reportTarget.id, selectedReason);
-                    setShowReportModal(false);
-                    setSelectedReason(null);
-                    setReportTarget(null);
-                    setAlertModal({ title: '신고 완료', message: '신고가 접수되었습니다.' });
-                  } catch (e) {
-                    setAlertModal({
-                      title: '오류',
-                      message: e instanceof Error ? e.message : '신고에 실패했습니다.',
-                    });
-                  } finally {
-                    setIsReporting(false);
-                  }
-                }}
-                disabled={!selectedReason || isReporting}
-                style={{
-                  flex: 1,
-                  height: 36,
-                  borderRadius: 999,
-                  backgroundColor: '#EC5858' /* red-400 */,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: selectedReason && !isReporting ? 1 : 0.5,
-                }}
-              >
-                {isReporting ? (
-                  <ActivityIndicator size="small" color="#FDFDFD" />
-                ) : (
-                  <Text className="text-label-sm" style={{ color: '#FDFDFD' }}>
-                    신고하기
-                  </Text>
-                )}
-              </Pressable>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+            {isReporting && (
+              <View className="mt-2">
+                <ActivityIndicator size="small" color="#EC5858" />
+              </View>
+            )}
+          </>
+        }
+        variant="default" // 확인 + 취소 버튼 둘 다 사용
+        confirmLabel="신고하기"
+        cancelLabel="취소하기"
+        onConfirm={async () => {
+          if (!selectedReason || !reportTarget) return;
+          setIsReporting(true);
+          try {
+            await submitReport(reportTarget.type, reportTarget.id, selectedReason);
+            setShowReportModal(false);
+            setSelectedReason(null);
+            setReportTarget(null);
+            setAlertModal({ title: '신고 완료', message: '신고가 접수되었습니다.' });
+          } catch (e) {
+            setAlertModal({
+              title: '오류',
+              message: e instanceof Error ? e.message : '신고에 실패했습니다.',
+            });
+          } finally {
+            setIsReporting(false);
+          }
+        }}
+        onCancel={() => {
+          if (isReporting) return;
+          setShowReportModal(false);
+          setSelectedReason(null);
+          setReportTarget(null);
+        }}
+        onDismiss={() => {
+          if (isReporting) return;
+          setShowReportModal(false);
+        }}
+      />
 
       {/* ── 게시글 삭제 확인 모달 ── */}
       <Modal
         visible={showDeleteModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => !isDeleting && setShowDeleteModal(false)}
-      >
-        <Pressable
-          style={MODAL_OVERLAY_STYLE}
-          onPress={() => !isDeleting && setShowDeleteModal(false)}
-        >
-          <Pressable style={MODAL_CARD_STYLE}>
-            <Text className="text-title-sm mb-2">게시글 삭제</Text>
+        title="게시글 삭제"
+        body={
+          <>
             <Text className="text-body-sm text-gray-500">
-              정말로 삭제하시겠어요?{'\n'}삭제된 게시글은 복구할 수 없어요.
+              정말로 삭제하시겠어요?{'\n'}
+              삭제된 게시글은 복구할 수 없어요.
             </Text>
-            <View className="flex-row gap-3 mt-5">
-              <Pressable
-                onPress={() => setShowDeleteModal(false)}
-                disabled={isDeleting}
-                className="flex-1 h-9 rounded-full border border-gray-300 items-center justify-center"
-              >
-                <Text className="text-label-sm">취소</Text>
-              </Pressable>
-              <Pressable
-                onPress={handleDeletePost}
-                disabled={isDeleting}
-                style={{
-                  flex: 1,
-                  height: 36,
-                  borderRadius: 999,
-                  backgroundColor: '#EC5858' /* red-400 */,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: isDeleting ? 0.5 : 1,
-                }}
-              >
-                {isDeleting ? (
-                  <ActivityIndicator size="small" color="#FDFDFD" />
-                ) : (
-                  <Text className="text-label-sm" style={{ color: '#FDFDFD' }}>
-                    삭제하기
-                  </Text>
-                )}
-              </Pressable>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+            {isDeleting && (
+              <View className="mt-2">
+                <ActivityIndicator size="small" color="#EC5858" />
+              </View>
+            )}
+          </>
+        }
+        variant="single"
+        confirmLabel="삭제하기"
+        onConfirm={handleDeletePost}
+        onDismiss={() => !isDeleting && setShowDeleteModal(false)}
+      />
 
       {/* ── 댓글 삭제 확인 모달 ── */}
       <Modal
         visible={showDeleteCommentModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => !isDeletingComment && setShowDeleteCommentModal(false)}
-      >
-        <Pressable
-          style={MODAL_OVERLAY_STYLE}
-          onPress={() => !isDeletingComment && setShowDeleteCommentModal(false)}
-        >
-          <Pressable style={MODAL_CARD_STYLE}>
-            <Text className="text-title-sm mb-2">댓글 삭제</Text>
+        title="댓글 삭제"
+        body={
+          <>
             <Text className="text-body-sm text-gray-500">댓글을 삭제할까요?</Text>
-            <View className="flex-row gap-3 mt-5">
-              <Pressable
-                onPress={() => {
-                  setShowDeleteCommentModal(false);
-                  setDeleteCommentTargetId(null);
-                }}
-                disabled={isDeletingComment}
-                className="flex-1 h-9 rounded-full border border-gray-300 items-center justify-center"
-              >
-                <Text className="text-label-sm">취소</Text>
-              </Pressable>
-              <Pressable
-                onPress={confirmDeleteComment}
-                disabled={isDeletingComment}
-                style={{
-                  flex: 1,
-                  height: 36,
-                  borderRadius: 999,
-                  backgroundColor: '#EC5858' /* red-400 */,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: isDeletingComment ? 0.5 : 1,
-                }}
-              >
-                {isDeletingComment ? (
-                  <ActivityIndicator size="small" color="#FDFDFD" />
-                ) : (
-                  <Text className="text-label-sm" style={{ color: '#FDFDFD' }}>
-                    삭제하기
-                  </Text>
-                )}
-              </Pressable>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+            {isDeletingComment && (
+              <View className="mt-2">
+                <ActivityIndicator size="small" color="#EC5858" />
+              </View>
+            )}
+          </>
+        }
+        variant="single" // 확인 버튼만 사용
+        confirmLabel="삭제하기"
+        onConfirm={confirmDeleteComment}
+        onDismiss={() => !isDeletingComment && setShowDeleteCommentModal(false)}
+      />
 
-      {/* ── 차단 확인 모달 ── */}
+      {/* ── 사용자 차단 확인 모달 ── */}
       <Modal
         visible={showBlockModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => !isBlocking && setShowBlockModal(false)}
-      >
-        <Pressable
-          style={MODAL_OVERLAY_STYLE}
-          onPress={() => !isBlocking && setShowBlockModal(false)}
-        >
-          <Pressable style={MODAL_CARD_STYLE}>
-            <Text className="text-title-sm mb-2">차단하기</Text>
+        title="차단하기"
+        body={
+          <>
             <Text className="text-body-sm text-gray-500">
-              이 사용자를 차단하시겠어요?{'\n'}차단된 사용자의 게시글과 댓글이 보이지 않습니다.
+              이 사용자를 차단하시겠어요?{'\n'}
+              차단된 사용자의 게시글과 댓글이 보이지 않습니다.
             </Text>
-            <View className="flex-row gap-3 mt-5">
-              <Pressable
-                onPress={() => {
-                  setShowBlockModal(false);
-                  setBlockTargetUserId(null);
-                }}
-                disabled={isBlocking}
-                className="flex-1 h-9 rounded-full border border-gray-300 items-center justify-center"
-              >
-                <Text className="text-label-sm">취소</Text>
-              </Pressable>
-              <Pressable
-                onPress={confirmBlockUser}
-                disabled={isBlocking}
-                style={{
-                  flex: 1,
-                  height: 36,
-                  borderRadius: 999,
-                  backgroundColor: '#EC5858' /* red-400 */,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: isBlocking ? 0.5 : 1,
-                }}
-              >
-                {isBlocking ? (
-                  <ActivityIndicator size="small" color="#FDFDFD" />
-                ) : (
-                  <Text className="text-label-sm" style={{ color: '#FDFDFD' }}>
-                    차단하기
-                  </Text>
-                )}
-              </Pressable>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+            {isBlocking && (
+              <View className="mt-2">
+                <ActivityIndicator size="small" color="#EC5858" />
+              </View>
+            )}
+          </>
+        }
+        variant="single"
+        confirmLabel="차단하기"
+        onConfirm={confirmBlockUser}
+        onDismiss={() => !isBlocking && setShowBlockModal(false)}
+      />
 
       {/* ── 범용 알림 모달 ── */}
       <Modal
         visible={alertModal !== null}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setAlertModal(null)}
-      >
-        <Pressable style={MODAL_OVERLAY_STYLE} onPress={() => setAlertModal(null)}>
-          <Pressable style={MODAL_CARD_STYLE}>
-            <Text className="text-title-sm mb-2">{alertModal?.title}</Text>
-            <Text className="text-body-sm text-gray-500">{alertModal?.message}</Text>
-            <View className="mt-5">
-              <Pressable
-                onPress={() => setAlertModal(null)}
-                className="h-9 rounded-full items-center justify-center"
-                style={{ backgroundColor: '#28C8DE' /* sky-500 */ }}
-              >
-                <Text className="text-label-sm" style={{ color: '#FDFDFD' }}>
-                  확인
-                </Text>
-              </Pressable>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+        title={alertModal?.title ?? ''}
+        body={alertModal?.message ?? ''}
+        variant="single"
+        onConfirm={() => setAlertModal(null)}
+        onDismiss={() => setAlertModal(null)}
+      />
     </SafeAreaView>
   );
 }

@@ -2,6 +2,7 @@ import { Chip } from '@/components/Chip';
 import { AddEachBingo } from './AddEachBingo';
 import { View } from 'react-native';
 import { Text } from '@/components/Text';
+import { Information } from '../components/Information';
 
 const GRID_OPTIONS = ['3x3', '4x3', '4x4'];
 const EDIT_COUNT_OPTIONS = ['0', '1', '2', '3', '무제한'];
@@ -35,7 +36,9 @@ export function WriteBingo({
       {/* 칸 개수 */}
       <View className="flex-row items-center gap-2 mb-3">
         <Text className="text-body-lg">칸 개수</Text>
-        <Text className="text-caption-sm text-red-500">*처음 지정 후 수정이 불가능해요</Text>
+        <Information
+          content={`• 처음 지정 후 수정이 불가능해요.\n• 4x3 빙고는 대각선 3칸도 빙고로 인정이 돼요`}
+        />
       </View>
       <View className="flex-row flex-wrap gap-2 mb-5">
         {GRID_OPTIONS.map((opt) => (
@@ -51,7 +54,7 @@ export function WriteBingo({
       {/* 수정 가능 횟수 */}
       <View className="flex-row items-center gap-2 mb-1">
         <Text className="text-body-lg">수정 가능 횟수</Text>
-        <Text className="text-caption-sm text-red-500">*처음 지정 후 수정이 불가능해요</Text>
+        <Information content="처음 지정 후 수정이 불가능해요." />
       </View>
       <Text className="text-body-sm text-gray-500 dark:text-gray-400 mb-3">
         각 빙고 항목을 몇 번까지 수정할 수 있는지 선택해주세요.

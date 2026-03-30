@@ -18,7 +18,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Text } from '@/components/Text';
 import ArrowBackIcon from '@/assets/icons/ic_arrow_back.svg';
-import CameraIcon from '@/assets/icons/ic_camera.svg';
+// import CameraIcon from '@/assets/icons/ic_camera.svg';
 import CheckIcon from '@/assets/icons/ic_check.svg';
 import type { PostCategory } from '@/types/community';
 import type { BingoData, BingoState } from '@/types/bingo';
@@ -176,7 +176,7 @@ export default function CommunityWriteScreen() {
   });
   const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
   const [attachedBingo, setAttachedBingo] = useState<BingoData | null>(null);
-  const [isAnonymous, setIsAnonymous] = useState(params.initIsAnonymous === '1');
+  const [isAnonymous, setIsAnonymous] = useState(true);
 
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showCameraMenu, setShowCameraMenu] = useState(false);
@@ -375,14 +375,14 @@ export default function CommunityWriteScreen() {
           <View style={{ flex: 1 }} />
 
           {/* 카메라 (최대 이미지 수 미달 시만 활성) */}
-          <Pressable
+          {/* <Pressable
             onPress={() => totalImageCount < MAX_IMAGES && setShowCameraMenu(true)}
             hitSlop={8}
           >
             <CameraIcon
               width={24}
               height={24}
-              color={totalImageCount >= MAX_IMAGES ? '#B4BBBB' /* gray-400 */ : iconColor}
+              color={totalImageCount >= MAX_IMAGES ? '#B4BBBB'  : iconColor}
             />
             {totalImageCount > 0 && (
               <View
@@ -390,7 +390,7 @@ export default function CommunityWriteScreen() {
                   position: 'absolute',
                   top: -4,
                   right: -6,
-                  backgroundColor: '#28C8DE' /* sky-500 */,
+                  backgroundColor: '#28C8DE' ,
                   borderRadius: 8,
                   minWidth: 14,
                   height: 14,
@@ -404,7 +404,7 @@ export default function CommunityWriteScreen() {
                 </Text>
               </View>
             )}
-          </Pressable>
+          </Pressable> */}
 
           {/* 빙고 첨부 */}
           <Pressable onPress={handleOpenBingoModal} hitSlop={8}>

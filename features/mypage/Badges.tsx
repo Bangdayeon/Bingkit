@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { supabase } from '@/lib/supabase';
+import { BadgeModal } from './components/BadgeModal';
 
 interface EarnedBadge {
   badgeId: string;
   iconUrl: string;
   name: string;
-  earnedAt: string; // ISO string, 정렬용
+  earnedAt: string;
 }
 
 const TOTAL_BADGES = 16;
+const COLUMNS = 3;
+const BADGE_SIZE = 96;
+const GAP = 12;
 
 async function fetchMyBadges(): Promise<EarnedBadge[]> {
   const {
@@ -41,6 +45,7 @@ async function fetchMyBadges(): Promise<EarnedBadge[]> {
 export function BadgesPage() {
   const [earned, setEarned] = useState<EarnedBadge[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showBadgeModal, setShowBadgeModal] = useState<EarnedBadge | null>(null);
 
   useEffect(() => {
     fetchMyBadges().then((data) => {
@@ -49,50 +54,69 @@ export function BadgesPage() {
     });
   }, []);
 
-  // 획득 순서대로 슬롯 채우기, 나머지는 빈 슬롯
   const slots: (EarnedBadge | null)[] = [
     ...earned,
     ...Array<null>(Math.max(0, TOTAL_BADGES - earned.length)).fill(null),
   ];
 
-  return (
-    <ScrollView className="flex-1 mt-[80px] bg-white dark:bg-gray-900 mb-20">
-      {loading ? (
-        <View className="flex-1 items-center justify-center py-20">
-          <ActivityIndicator color="#929898" /* gray-500 */ />
-        </View>
-      ) : (
-        <View className="px-5 py-4">
-          <View className="flex-row flex-wrap gap-3 justify-center">
-            {slots.map((badge, i) =>
-              badge ? (
-                <Image
-                  key={badge.badgeId}
-                  source={{ uri: badge.iconUrl }}
-                  style={{ width: 96, height: 96, borderRadius: 12 }}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View
-                  key={`empty-${i}`}
-                  className="bg-gray-200 dark:bg-gray-700 rounded-[20px]"
-                  style={{ width: 96, height: 96 }}
-                />
-              ),
-            )}
-          </View>
+  // 슬롯을 COLUMNS 단위로 행 분할
+  const rows = slots.reduce<(EarnedBadge | null)[][]>((acc, item, i) => {
+    if (i % COLUMNS === 0) acc.push([]);
+    acc[acc.length - 1].push(item);
+    return acc;
+  }, []);
 
-          <Text
-            className="text-body-sm text-center mt-8 mb-2"
-            style={{ color: '#B4BBBB' /* gray-400 */ }}
-          >
-            Coming Soon...
-          </Text>
-          <Text className="text-caption-sm text-center" style={{ color: '#B4BBBB' /* gray-400 */ }}>
-            더 많은 뱃지가 추가될 예정이에요
-          </Text>
-        </View>
-      )}
-    </ScrollView>
+  return (
+    <>
+      <ScrollView className="flex-1 mt-[80px] bg-white dark:bg-gray-900 mb-20">
+        {loading ? (
+          <View className="flex-1 items-center justify-center py-20">
+            <ActivityIndicator color="#929898" />
+          </View>
+        ) : (
+          <View className="py-4 items-center">
+            <View style={{ gap: GAP }}>
+              {rows.map((row, rowIndex) => (
+                <View key={rowIndex} style={{ flexDirection: 'row', gap: GAP }}>
+                  {row.map((badge, colIndex) =>
+                    badge ? (
+                      <Pressable
+                        key={badge.badgeId}
+                        onPress={() => {
+                          setShowBadgeModal(badge);
+                        }}
+                      >
+                        <Image
+                          key={badge.badgeId}
+                          source={{ uri: badge.iconUrl }}
+                          style={{ width: BADGE_SIZE, height: BADGE_SIZE, borderRadius: 12 }}
+                          resizeMode="contain"
+                        />
+                      </Pressable>
+                    ) : (
+                      <View
+                        key={`empty-${rowIndex}-${colIndex}`}
+                        style={{ width: BADGE_SIZE, height: BADGE_SIZE, borderRadius: 20 }}
+                        className="bg-gray-200 dark:bg-gray-700"
+                      />
+                    ),
+                  )}
+                </View>
+              ))}
+            </View>
+
+            <Text className="text-body-sm text-center mt-10" style={{ color: '#B4BBBB' }}>
+              더 많은 뱃지가 추가될 예정이에요
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+
+      <BadgeModal
+        visible={!!showBadgeModal}
+        badge={showBadgeModal}
+        onClose={() => setShowBadgeModal(null)}
+      />
+    </>
   );
 }
