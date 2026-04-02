@@ -1,8 +1,15 @@
+import * as Sentry from '@sentry/react-native';
 import { BingoCard } from '@/features/bingo/components/BingoCard';
-import { fetchBingoForView } from '@/features/bingo/lib/bingo';
+import { BingoCellModal } from '@/features/bingo/BingoCellModal';
+import {
+  fetchBingoForView,
+  updateCell,
+  updateRetrospective,
+  calcBingoCount,
+} from '@/features/bingo/lib/bingo';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, ScrollView, TextInput, View, useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '@/components/IconButton';
 import { Text } from '@/components/Text';
@@ -10,22 +17,64 @@ import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import ProgressIcon from '@/assets/icons/ic_progress.svg';
 import DoneIcon from '@/assets/icons/ic_done.svg';
 import type { FetchedBingo } from '@/features/bingo/lib/bingo';
+import type { BingoCellDetail } from '@/types/bingo-cell';
+import { fetchBattleByBoardId } from '@/features/battle/lib/battle';
 
 export default function BingoViewScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const isDark = useColorScheme() === 'dark';
   const { bingoId } = useLocalSearchParams<{ bingoId: string }>();
 
   const [data, setData] = useState<FetchedBingo | null>(null);
+  const [cellDetails, setCellDetails] = useState<BingoCellDetail[]>([]);
   const [loading, setLoading] = useState(true);
+  const [battleId, setBattleId] = useState<string | null>(null);
+  const [modalTarget, setModalTarget] = useState<number | null>(null);
+  const [retrospective, setRetrospective] = useState('');
+  const memoDebounceRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const retroDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!bingoId) return;
     fetchBingoForView(bingoId).then((result) => {
       setData(result);
+      if (result) {
+        setCellDetails(result.cellDetails);
+        setRetrospective(result.bingo.retrospective ?? '');
+      }
       setLoading(false);
     });
+    fetchBattleByBoardId(bingoId).then((res) => {
+      if (res) setBattleId(res.battleId);
+    });
   }, [bingoId]);
+
+  const handleCellUpdate = (
+    cellId: string,
+    updates: Partial<Pick<BingoCellDetail, 'completed' | 'completedAt' | 'memo'>>,
+  ) => {
+    setCellDetails((prev) => prev.map((c) => (c.id === cellId ? { ...c, ...updates } : c)));
+
+    const { memo, ...nonMemoUpdates } = updates;
+    if (Object.keys(nonMemoUpdates).length > 0) {
+      updateCell(cellId, nonMemoUpdates).catch(Sentry.captureException);
+    }
+    if (memo !== undefined) {
+      clearTimeout(memoDebounceRef.current[cellId]);
+      memoDebounceRef.current[cellId] = setTimeout(() => {
+        updateCell(cellId, { memo }).catch(Sentry.captureException);
+      }, 500);
+    }
+  };
+
+  const handleRetrospectiveChange = (text: string) => {
+    setRetrospective(text);
+    if (retroDebounceRef.current) clearTimeout(retroDebounceRef.current);
+    retroDebounceRef.current = setTimeout(() => {
+      updateRetrospective(bingoId, text).catch(Sentry.captureException);
+    }, 500);
+  };
 
   if (loading) {
     return (
@@ -37,9 +86,16 @@ export default function BingoViewScreen() {
 
   if (!data) return null;
 
-  const { bingo, cellDetails } = data;
+  const { bingo } = data;
   const isDone = bingo.state === 'done';
   const completedCells = cellDetails.map((c) => c.completed);
+
+  const [cols, rows] = bingo.grid.split('x').map(Number);
+  const liveBingo = {
+    ...bingo,
+    achievedCount: completedCells.filter(Boolean).length,
+    bingoCount: calcBingoCount(completedCells, cols, rows),
+  };
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
@@ -61,18 +117,62 @@ export default function BingoViewScreen() {
         <View style={{ width: 32 }} />
       </View>
 
-      <ScrollView className="flex-1 pb-40">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
         <BingoCard
-          bingo={bingo}
+          bingo={liveBingo}
           completedCells={completedCells}
-          onCellPress={() => {}}
+          onCellPress={(index) => setModalTarget(index)}
           onEditPress={
             isDone
               ? undefined
               : () => router.push({ pathname: '/bingo/modify', params: { bingoId: bingo.id } })
           }
+          hasBattle={!!battleId}
+          onBattlePress={
+            isDone
+              ? undefined
+              : battleId
+                ? () => router.push({ pathname: '/bingo/battle-status', params: { battleId } })
+                : () => router.push({ pathname: '/bingo/battle', params: { bingoId: bingo.id } })
+          }
         />
+
+        {isDone && (
+          <View className="px-5 mt-2">
+            <Text className="text-title-sm mb-2">회고</Text>
+            <TextInput
+              value={retrospective}
+              onChangeText={handleRetrospectiveChange}
+              placeholder="이 빙고를 돌아보며 한 마디 남겨보세요."
+              placeholderTextColor="#B4BBBB" /* gray-400 */
+              multiline
+              maxLength={500}
+              textAlignVertical="top"
+              style={{
+                minHeight: 100,
+                backgroundColor: isDark ? '#1F2323' /* gray-800 */ : '#F6F7F7' /* gray-100 */,
+                borderRadius: 20,
+                padding: 16,
+                fontSize: 14,
+                lineHeight: 20,
+                color: isDark ? '#F6F7F7' /* gray-100 */ : '#181C1C' /* gray-900 */,
+              }}
+            />
+            <Text className="text-caption-sm text-gray-400 text-right mt-1">
+              {retrospective.length}/500
+            </Text>
+          </View>
+        )}
       </ScrollView>
+
+      <BingoCellModal
+        visible={modalTarget !== null}
+        cells={cellDetails}
+        initialIndex={modalTarget ?? 0}
+        onClose={() => setModalTarget(null)}
+        onUpdate={handleCellUpdate}
+        readOnly={isDone}
+      />
     </View>
   );
 }

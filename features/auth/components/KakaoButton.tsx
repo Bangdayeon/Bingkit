@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Text';
 import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
+import { getStringParam } from '../util/getStringParam';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -25,30 +27,38 @@ async function handleDeepLink(url: string) {
   try {
     const parsed = Linking.parse(url);
 
+    // 🔥 타입 안전 처리
     const access_token =
-      (parsed.queryParams?.access_token as string | undefined) ??
-      extractFromFragment(url, 'access_token');
+      getStringParam(parsed.queryParams?.access_token) ?? extractFromFragment(url, 'access_token');
 
     const refresh_token =
-      (parsed.queryParams?.refresh_token as string | undefined) ??
+      getStringParam(parsed.queryParams?.refresh_token) ??
       extractFromFragment(url, 'refresh_token');
 
     if (!access_token || !refresh_token) return;
 
+    // 1. 세션 설정
     const { error } = await supabase.auth.setSession({
       access_token,
       refresh_token,
     });
 
-    if (error) {
-      Sentry.captureException(error);
-    }
+    if (error) throw error;
+
+    // 2. 유저 조회
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    router.replace('/(tabs)');
   } catch (e) {
     Sentry.captureException(e);
   }
 }
 
-// fragment 파싱 유틸 (#access_token=...)
+// fragment 파싱 (#access_token=...)
 function extractFromFragment(url: string, key: string) {
   const fragment = url.split('#')[1];
   if (!fragment) return undefined;
@@ -61,13 +71,11 @@ export function KakaoButton() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // 앱 실행 중 딥링크 수신
     const sub = Linking.addEventListener('url', ({ url }) => {
       console.log('DEEPLINK:', url);
       handleDeepLink(url);
     });
 
-    // 앱이 꺼져있다가 열릴 때
     Linking.getInitialURL().then((url) => {
       if (url) handleDeepLink(url);
     });

@@ -2,7 +2,7 @@ import { Chip } from '@/components/Chip';
 import Calendar from '@/assets/icons/ic_calendar.svg';
 import { Pressable, View, useColorScheme } from 'react-native';
 import { Text } from '@/components/Text';
-import { Information } from '@/features/bingo/components/Information';
+import { Information } from '@/components/Information';
 
 const DURATION_OPTIONS = ['1개월', '3개월', '6개월', '1년', '직접 지정'];
 

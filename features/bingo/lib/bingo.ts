@@ -2,19 +2,12 @@ import { supabase } from '@/lib/supabase';
 import type { BingoData, BingoTheme } from '@/types/bingo';
 import type { BingoCellDetail } from '@/types/bingo-cell';
 
-const THEME_KEY: Record<string, string> = {
-  기본: 'default',
-  토끼: 'rabbit',
-  붉은말: 'red_horse',
-  고먐미: 'square_cat',
-};
-
 const EDIT_COUNT: Record<string, number> = {
   '0': 0,
   '1': 1,
   '2': 2,
   '3': 3,
-  무제한: -1,
+  무제한: 99,
 };
 
 export interface CreateBingoRequest {
@@ -28,7 +21,7 @@ export interface CreateBingoRequest {
   cells: string[];
 }
 
-export const createBingo = async (data: CreateBingoRequest): Promise<void> => {
+export const createBingo = async (data: CreateBingoRequest): Promise<string> => {
   const {
     data: { user },
     error: authError,
@@ -41,7 +34,7 @@ export const createBingo = async (data: CreateBingoRequest): Promise<void> => {
       user_id: user.id,
       title: data.title,
       grid: data.grid,
-      theme: THEME_KEY[data.theme] ?? data.theme,
+      theme: data.theme,
       max_edits: EDIT_COUNT[data.editCount] ?? 0,
       start_date: data.startDate ? data.startDate.split('T')[0] : null,
       target_date: data.endDate ? data.endDate.split('T')[0] : null,
@@ -60,6 +53,8 @@ export const createBingo = async (data: CreateBingoRequest): Promise<void> => {
 
   const { error: cellsError } = await supabase.from('bingo_cells').insert(cells);
   if (cellsError) throw cellsError;
+
+  return board.id as string;
 };
 
 // 셀 완료 여부 / 완료일 / 메모 저장
@@ -92,17 +87,39 @@ function calcDday(targetDate: string | null): number {
 
 export function calcBingoCount(checked: boolean[], cols: number, rows: number): number {
   let count = 0;
+
+  // 가로 빙고
   for (let r = 0; r < rows; r++) {
     if (Array.from({ length: cols }, (_, c) => checked[r * cols + c]).every(Boolean)) count++;
   }
+
+  // 세로 빙고
   for (let c = 0; c < cols; c++) {
     if (Array.from({ length: rows }, (_, r) => checked[r * cols + c]).every(Boolean)) count++;
   }
-  if (cols === rows) {
-    if (Array.from({ length: cols }, (_, i) => checked[i * cols + i]).every(Boolean)) count++;
-    if (Array.from({ length: cols }, (_, i) => checked[i * cols + (cols - 1 - i)]).every(Boolean))
+
+  const diagLength = Math.min(cols, rows);
+
+  // 왼쪽 위 → 오른쪽 아래 대각선 (슬라이딩)
+  for (let startCol = 0; startCol <= cols - diagLength; startCol++) {
+    if (
+      Array.from({ length: diagLength }, (_, i) => checked[i * cols + (startCol + i)]).every(
+        Boolean,
+      )
+    )
       count++;
   }
+
+  // 오른쪽 위 → 왼쪽 아래 대각선 (슬라이딩)
+  for (let startCol = diagLength - 1; startCol < cols; startCol++) {
+    if (
+      Array.from({ length: diagLength }, (_, i) => checked[i * cols + (startCol - i)]).every(
+        Boolean,
+      )
+    )
+      count++;
+  }
+
   return count;
 }
 
@@ -146,12 +163,12 @@ export const fetchBingoForEdit = async (boardId: string): Promise<FetchedBingoFo
 export const updateBingo = async (
   boardId: string,
   title: string,
-  themeDisplay: string,
+  theme: string,
   changedCells: Array<{ id: string; content: string; newEditCount: number }>,
 ): Promise<void> => {
   const { error: boardError } = await supabase
     .from('bingo_boards')
-    .update({ title, theme: THEME_KEY[themeDisplay] ?? themeDisplay })
+    .update({ title, theme })
     .eq('id', boardId);
   if (boardError) throw boardError;
 
@@ -164,6 +181,15 @@ export const updateBingo = async (
   }
 };
 
+// 빙고 완료 처리
+export const markBingoDone = async (boardId: string): Promise<void> => {
+  const { error } = await supabase
+    .from('bingo_boards')
+    .update({ status: 'done' })
+    .eq('id', boardId);
+  if (error) throw error;
+};
+
 // 빙고 삭제 (소프트 딜리트)
 export const deleteBingo = async (boardId: string): Promise<void> => {
   const { error } = await supabase
@@ -173,12 +199,21 @@ export const deleteBingo = async (boardId: string): Promise<void> => {
   if (error) throw error;
 };
 
+// 회고 저장
+export const updateRetrospective = async (boardId: string, text: string): Promise<void> => {
+  const { error } = await supabase
+    .from('bingo_boards')
+    .update({ retrospective: text || null })
+    .eq('id', boardId);
+  if (error) throw error;
+};
+
 // 단건 조회 (뷰 화면용)
 export const fetchBingoForView = async (boardId: string): Promise<FetchedBingo | null> => {
   const { data: board, error } = await supabase
     .from('bingo_boards')
     .select(
-      `id, title, grid, theme, max_edits, start_date, target_date, status,
+      `id, title, grid, theme, max_edits, start_date, target_date, status, retrospective,
        bingo_cells (id, position, content, memo, is_checked, checked_at)`,
     )
     .eq('id', boardId)
@@ -205,6 +240,7 @@ export const fetchBingoForView = async (boardId: string): Promise<FetchedBingo |
       targetDate: board.target_date ?? null,
       state: board.status as 'progress' | 'done',
       theme: board.theme as BingoTheme,
+      retrospective: (board.retrospective as string | null) ?? null,
     },
     cellDetails: cells.map((c) => ({
       id: c.id,
@@ -226,7 +262,7 @@ export const fetchMyCompletedBingos = async (): Promise<FetchedBingo[]> => {
   const { data: boards, error } = await supabase
     .from('bingo_boards')
     .select(
-      `id, title, grid, theme, max_edits, start_date, target_date,
+      `id, title, grid, theme, max_edits, start_date, target_date, retrospective,
        bingo_cells (id, position, content, memo, is_checked, checked_at)`,
     )
     .eq('user_id', user.id)
@@ -255,6 +291,7 @@ export const fetchMyCompletedBingos = async (): Promise<FetchedBingo[]> => {
         targetDate: board.target_date ?? null,
         state: 'done',
         theme: board.theme as BingoTheme,
+        retrospective: (board.retrospective as string | null) ?? null,
       },
       cellDetails: cells.map((c) => ({
         id: c.id,
@@ -305,6 +342,7 @@ export const fetchMyBingos = async (): Promise<FetchedBingo[]> => {
         targetDate: board.target_date ?? null,
         state: 'progress',
         theme: board.theme as BingoTheme,
+        retrospective: null,
       },
       cellDetails: cells.map((c) => ({
         id: c.id,

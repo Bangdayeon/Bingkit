@@ -5,6 +5,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import { ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Text';
+import { router } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -50,6 +51,10 @@ async function signInWithGoogle(): Promise<void> {
 
   // public.users 행 보장 — 탈퇴 후 재가입 시 trigger 미작동 대비
   const user = sessionResult.session?.user;
+  if (!user) return;
+
+  router.replace('/(tabs)');
+
   if (user) {
     const username = 'user_' + user.id.replace(/-/g, '').slice(0, 15);
     const rawName =

@@ -1,8 +1,8 @@
 import { View } from 'react-native';
 import { Text } from '@/components/Text';
-import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { CommentItem } from './CommentItem';
 import { Comment } from '@/types/community';
+import MascotImage from '@/assets/mascots/mascot_hey_gray.svg';
 
 interface CommentSectionProps {
   comments: Comment[];
@@ -20,12 +20,10 @@ export function CommentSection({
   onReplyPress,
 }: CommentSectionProps) {
   return (
-    <View className="pt-4 pb-4">
+    <View className="mt-10 pt-10 border-t border-gray-400 pb-4">
       {comments.length === 0 ? (
-        <View className="items-center py-12 gap-3">
-          <View style={{ width: 60, height: 60, opacity: 0.25 }}>
-            <SMSIcon width={60} height={60} color={iconColor} />
-          </View>
+        <View className="items-center py-12 gap-5">
+          <MascotImage width={130} height={100} className="" />
           <Text className="text-body-md" style={{ color: '#929898' /* gray-500 */ }}>
             첫 댓글을 남겨주세요.
           </Text>

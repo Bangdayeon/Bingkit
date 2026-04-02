@@ -20,7 +20,7 @@ export const TextInput = forwardRef<RNTextInput, Props>(function TextInput(
   const hasMaxHeight = maxHeight !== undefined;
   return (
     <View
-      className={`rounded-2xl px-4 ${hasMaxHeight ? 'justify-start py-2' : 'justify-center h-9'} ${variantStyles[variant]} ${className}`}
+      className={`rounded-2xl px-4 ${hasMaxHeight ? 'justify-start py-2' : rest.multiline ? 'justify-start py-3' : 'justify-center h-9'} ${variantStyles[variant]} ${className}`}
       style={hasMaxHeight ? { maxHeight } : undefined}
     >
       <RNTextInput

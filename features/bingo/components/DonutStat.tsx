@@ -2,20 +2,27 @@ import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { View } from 'react-native';
 import { Text } from '@/components/Text';
 
-const SIZE = 72;
-const STROKE = 10;
-const R = (SIZE - STROKE) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * R;
-
 interface DonutStatProps {
   label: string;
   current: number;
   total: number;
-  /** true이면 current > total 시 빨간색으로 표시 */
+  size?: 'sm' | 'md';
   overflowRed?: boolean;
 }
 
-export function DonutStat({ label, current, total, overflowRed }: DonutStatProps) {
+export function DonutStat({
+  label,
+  current,
+  total,
+  size = 'md',
+  overflowRed = true,
+}: DonutStatProps) {
+  const SIZE = size === 'sm' ? 60 : 72;
+  const STROKE = size === 'sm' ? 8 : 10;
+
+  const R = (SIZE - STROKE) / 2;
+  const CIRCUMFERENCE = 2 * Math.PI * R;
+
   const ratio = total > 0 ? Math.min(current / total, 1) : 0;
   const isOver = overflowRed && current > total;
   const filled = CIRCUMFERENCE * ratio;
@@ -23,6 +30,7 @@ export function DonutStat({ label, current, total, overflowRed }: DonutStatProps
   return (
     <View className="items-center gap-1">
       <Text className="text-label-sm">{label}</Text>
+
       <View style={{ width: SIZE, height: SIZE }}>
         <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
           <Defs>
@@ -32,33 +40,33 @@ export function DonutStat({ label, current, total, overflowRed }: DonutStatProps
             </LinearGradient>
           </Defs>
 
-          {/* 배경 트랙 */}
+          {/* background */}
           <Circle
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={R}
             fill="none"
-            stroke="#E5E7EB" /* gray-200 */
+            stroke="#E5E7EB"
             strokeWidth={STROKE}
           />
 
-          {/* 채워진 호 */}
+          {/* progress */}
           {filled > 0 && (
             <Circle
               cx={SIZE / 2}
               cy={SIZE / 2}
               r={R}
               fill="none"
-              stroke={isOver ? '#EF4444' /* red-500 */ : 'url(#donutGrad)'}
+              stroke={isOver ? '#EF4444' : 'url(#donutGrad)'}
               strokeWidth={STROKE}
               strokeDasharray={`${filled} ${CIRCUMFERENCE - filled}`}
-              strokeDashoffset={CIRCUMFERENCE / 4} /* 12시 방향 시작 */
+              strokeDashoffset={CIRCUMFERENCE / 4}
               strokeLinecap="round"
             />
           )}
         </Svg>
 
-        {/* 중앙 텍스트 */}
+        {/* center text */}
         <View
           style={{
             position: 'absolute',

@@ -9,7 +9,6 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ActionSheetIOS,
   ActivityIndicator,
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -45,6 +44,7 @@ export default function ProfileEditPage() {
   const [toast, setToast] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const initialValues = useRef({ name: '', userId: '', bio: '', avatarUri: null as string | null });
 
   useEffect(() => {
@@ -128,6 +128,8 @@ export default function ProfileEditPage() {
     setAvatarUri(randomDefaultAvatarUrl());
   };
 
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+
   const handleCameraPress = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
@@ -139,22 +141,17 @@ export default function ProfileEditPage() {
         },
       );
     } else {
-      Alert.alert('프로필 사진', undefined, [
-        { text: '취소', style: 'cancel' },
-        { text: '카메라', onPress: () => pickImage('camera') },
-        { text: '앨범에서 선택', onPress: () => pickImage('library') },
-        { text: '기본 이미지 적용', onPress: applyDefaultAvatar },
-      ]);
+      setShowPhotoModal(true);
     }
   };
 
   const handleSave = async () => {
     if (name.trim().length === 0) {
-      Alert.alert('닉네임을 입력해주세요.');
+      setErrorMessage('닉네임을 입력해주세요.');
       return;
     }
     if (userId.trim().length === 0) {
-      Alert.alert('아이디를 입력해주세요.');
+      setErrorMessage('아이디를 입력해주세요.');
       return;
     }
     setSaving(true);
@@ -170,7 +167,7 @@ export default function ProfileEditPage() {
       await clearCache('@bingket/cache-my-profile');
       router.back();
     } catch (e) {
-      Alert.alert('저장 실패', e instanceof Error ? e.message : '다시 시도해주세요.');
+      setErrorMessage(e instanceof Error ? e.message : '다시 시도해주세요.');
     } finally {
       setSaving(false);
     }
@@ -278,6 +275,48 @@ export default function ProfileEditPage() {
           router.back();
         }}
         onDismiss={() => setShowLeaveModal(false)}
+      />
+      <Modal
+        visible={!!errorMessage}
+        title="저장 실패"
+        body={errorMessage ?? ''}
+        variant="error"
+        confirmLabel="확인"
+        onConfirm={() => setErrorMessage(null)}
+        onDismiss={() => setErrorMessage(null)}
+      />
+      <Modal
+        visible={showPhotoModal}
+        title="프로필 사진"
+        variant="default"
+        cancelLabel="취소"
+        confirmLabel="카메라"
+        onCancel={() => setShowPhotoModal(false)}
+        onConfirm={() => {
+          setShowPhotoModal(false);
+          pickImage('camera');
+        }}
+        onDismiss={() => setShowPhotoModal(false)}
+        body={
+          <View className="gap-2">
+            <Pressable
+              onPress={() => {
+                setShowPhotoModal(false);
+                pickImage('library');
+              }}
+            >
+              <Text className="text-body-md text-center py-2">앨범에서 선택</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                setShowPhotoModal(false);
+                applyDefaultAvatar();
+              }}
+            >
+              <Text className="text-body-md text-center py-2">기본 이미지 적용</Text>
+            </Pressable>
+          </View>
+        }
       />
     </View>
   );

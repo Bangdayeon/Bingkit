@@ -1,7 +1,6 @@
 import { GoogleButton } from '@/features/auth/components/GoogleButton';
 import { KakaoButton } from '@/features/auth/components/KakaoButton';
-import { Image, TouchableOpacity, View } from 'react-native';
-import { Text } from '@/components/Text';
+import { Image, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
@@ -17,7 +16,7 @@ export default function LoginScreen() {
 
       <View className="px-5 pb-8 gap-3">
         <KakaoButton />
-
+        {/* 
         <TouchableOpacity className="w-full h-14 rounded-xl bg-black items-center justify-center">
           <Image
             source={require('../../assets/icons/apple_logo.png')}
@@ -26,7 +25,7 @@ export default function LoginScreen() {
             resizeMode="contain"
           />
           <Text className="text-white text-base font-semibold">Apple로 시작하기</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <GoogleButton />
       </View>

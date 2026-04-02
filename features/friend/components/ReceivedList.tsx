@@ -1,0 +1,54 @@
+import { View, Text, Pressable } from 'react-native';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
+import { IncomingRequest as IncomingRequestType } from '@/types/friend';
+
+interface Props {
+  pendingRequests: IncomingRequestType[];
+  handleIncomingResponse: (requestId: string, accept: boolean) => void;
+}
+
+export function ReceivedList({ pendingRequests, handleIncomingResponse }: Props) {
+  return (
+    <View>
+      {pendingRequests.length > 0 && (
+        <View>
+          <Text className="text-title-sm dark:text-gray-400 px-5 pt-4 pb-2">
+            받은 친구 요청 {pendingRequests.length}
+          </Text>
+          {pendingRequests.map((req) => (
+            <View
+              key={req.id}
+              className="flex-row items-center px-5 py-3 border-b border-gray-100 dark:border-gray-800"
+            >
+              <ProfileAvatar avatarUrl={req.avatarUrl} size={40} />
+              <View className="flex-1 ml-3">
+                <Text className="text-title-sm">{req.displayName}</Text>
+                <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
+                  @{req.username}
+                </Text>
+              </View>
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => handleIncomingResponse(req.id, false)}
+                  className="px-4 py-2 rounded-full bg-red-500"
+                >
+                  <Text className="text-label-sm" style={{ color: '#ffffff' }}>
+                    거절
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => handleIncomingResponse(req.id, true)}
+                  className="px-4 py-2 rounded-full bg-green-400"
+                >
+                  <Text className="text-label-sm" style={{ color: '#181C1C' }}>
+                    수락
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}

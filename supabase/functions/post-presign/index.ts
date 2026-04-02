@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from 'npm:@aws-sdk/client-s3@3';
 import { getSignedUrl } from 'npm:@aws-sdk/s3-request-presigner@3';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const r2 = new S3Client({
   region: 'auto',
@@ -9,16 +10,6 @@ const r2 = new S3Client({
     secretAccessKey: Deno.env.get('R2_SECRET_ACCESS_KEY') ?? '',
   },
 });
-
-function getUserIdFromJwt(authHeader: string): string | null {
-  try {
-    const token = authHeader.replace('Bearer ', '');
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.sub ?? null;
-  } catch {
-    return null;
-  }
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -31,14 +22,28 @@ Deno.serve(async (req) => {
   }
 
   const authHeader = req.headers.get('Authorization');
-  const userId = authHeader ? getUserIdFromJwt(authHeader) : null;
-  if (!userId) {
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } },
+  );
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
   const { filename, contentType } = (await req.json()) as { filename: string; contentType: string };
   const ext = filename.split('.').pop();
-  const key = `posts/${userId}/${crypto.randomUUID()}.${ext ?? 'jpg'}`;
+  const key = `posts/${user.id}/${crypto.randomUUID()}.${ext ?? 'jpg'}`;
 
   const presignedUrl = await getSignedUrl(
     r2,

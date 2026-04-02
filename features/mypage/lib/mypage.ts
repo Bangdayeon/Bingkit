@@ -9,6 +9,7 @@ export interface MyProfile {
   bio: string;
   avatarUrl: string | null;
   feedCount: number;
+  friendCount: number;
   followerCount: number;
   followingCount: number;
 }
@@ -37,16 +38,20 @@ export const fetchMyProfile = async (): Promise<MyProfile | null> => {
       bio: '',
       avatarUrl: null,
       feedCount: 0,
+      friendCount: 0,
       followerCount: 0,
       followingCount: 0,
     };
   }
 
-  const { count: feedCount } = await supabase
-    .from('posts')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('is_deleted', false);
+  const [{ count: feedCount }, { count: friendCount }] = await Promise.all([
+    supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_deleted', false),
+    supabase.from('friends').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+  ]);
 
   return {
     displayName: profile.display_name,
@@ -54,6 +59,7 @@ export const fetchMyProfile = async (): Promise<MyProfile | null> => {
     bio: profile.bio ?? '',
     avatarUrl: profile.avatar_url ?? null,
     feedCount: feedCount ?? 0,
+    friendCount: friendCount ?? 0,
     followerCount: 0,
     followingCount: 0,
   };
@@ -66,9 +72,8 @@ export const updateMyProfile = async (data: {
   avatarUrl?: string;
 }): Promise<void> => {
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user;
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('로그인이 필요합니다.');
 
   const updates: Record<string, string> = {
@@ -85,6 +90,9 @@ export const updateMyProfile = async (data: {
 export const uploadProfileImage = async (uri: string, filename: string): Promise<string> => {
   const ext = filename.split('.').pop() ?? 'jpg';
   const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
+
+  // getUser() refreshes token if needed — important for Kakao sessions
+  await supabase.auth.getUser();
 
   const { data, error } = await supabase.functions.invoke('r2-presign', {
     body: { filename, contentType },
@@ -133,9 +141,8 @@ export const fetchLinkedAccounts = async (): Promise<LinkedAccount[]> => {
 
 export const resetMyBingos = async (): Promise<void> => {
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user;
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('로그인이 필요합니다.');
 
   const { error } = await supabase
@@ -173,9 +180,8 @@ export { timeAgo };
 
 export const fetchMyPosts = async (): Promise<MyPost[]> => {
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user;
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -199,6 +205,8 @@ export const fetchMyPosts = async (): Promise<MyPost[]> => {
 };
 
 export const deleteAccount = async (): Promise<void> => {
+  // getUser() triggers token refresh before getSession() — needed for Kakao
+  await supabase.auth.getUser();
   const {
     data: { session },
   } = await supabase.auth.getSession();

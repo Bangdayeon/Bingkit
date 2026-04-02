@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Dimensions, Image, View, useColorScheme } from 'react-native';
 import { Text } from '@/components/Text';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
@@ -5,7 +6,8 @@ import { CommunityPost } from '@/types/community';
 import { LikeButton } from './LikeButton';
 import { AnonymousProfile } from '@/components/AnonymousProfile';
 import { ProfileAvatar } from '@/components/ProfileAvatar';
-import { getThemeImage, FIGMA_W, FIGMA_H, GRID_CONFIGS } from '@/features/bingo/lib/theme-config';
+import { getThemeImageUrl, FIGMA_W, FIGMA_H, GRID_CONFIGS } from '@/features/bingo/lib/theme';
+import { GridType } from '@/types/bingo-cell';
 
 const ICON_SIZE = 20;
 
@@ -15,14 +17,25 @@ function BingoBoardPreview({
   theme,
 }: {
   cells: string[];
-  grid: string;
+  grid: GridType;
   theme: string;
 }) {
+  const [imageUri, setImageUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    getThemeImageUrl(theme, grid).then((uri) => {
+      if (mounted) setImageUri(uri);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [theme, grid]);
+
   const [cols, rows] = grid.split('x').map(Number);
   const availableWidth = Dimensions.get('window').width - 40;
-  const image = getThemeImage(theme as never, grid);
 
-  if (image !== null) {
+  if (imageUri) {
     const scale = availableWidth / FIGMA_W;
     const cardHeight = FIGMA_H * scale;
     const cfg = GRID_CONFIGS[grid];
@@ -37,7 +50,7 @@ function BingoBoardPreview({
     return (
       <View style={{ width: availableWidth, height: cardHeight, marginTop: 12 }}>
         <Image
-          source={image}
+          source={{ uri: imageUri }}
           style={{ position: 'absolute', width: '100%', height: '100%' }}
           resizeMode="cover"
         />
@@ -60,7 +73,7 @@ function BingoBoardPreview({
             >
               <Text
                 className="text-caption-sm text-center"
-                style={{ color: '#181C1C' /* gray-900 */ }}
+                style={{ color: '#181C1C' }}
                 numberOfLines={2}
               >
                 {cells[i] ?? ''}
@@ -72,6 +85,7 @@ function BingoBoardPreview({
     );
   }
 
+  // 이미지 없으면 기본 그리드 렌더링
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
       {cells.map((text, i) => (
@@ -82,8 +96,8 @@ function BingoBoardPreview({
             aspectRatio: 1,
             borderRadius: 4,
             borderWidth: 1,
-            borderColor: '#D2D6D6' /* gray-300 */,
-            backgroundColor: '#FDFDFD' /* white */,
+            borderColor: '#D2D6D6',
+            backgroundColor: '#FDFDFD',
             alignItems: 'center',
             justifyContent: 'center',
             padding: 4,
@@ -91,7 +105,7 @@ function BingoBoardPreview({
         >
           <Text
             className="text-caption-sm text-center"
-            style={{ color: '#181C1C' /* gray-900 */ }}
+            style={{ color: '#181C1C' }}
             numberOfLines={2}
           >
             {text}
@@ -108,10 +122,11 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   const isDark = useColorScheme() === 'dark';
-  const iconColor = isDark ? '#F6F7F7' /* gray-100 */ : '#4C5252'; /* gray-700 */
+  const iconColor = isDark ? '#F6F7F7' : '#4C5252';
 
   return (
     <View className="px-5 pt-4 pb-4">
+      {/* 작성자 */}
       <View className="flex-row items-center gap-2">
         {post.isAnonymous ? (
           <AnonymousProfile seed={post.id} size="md" />
@@ -119,23 +134,25 @@ export function PostCard({ post }: PostCardProps) {
           <ProfileAvatar avatarUrl={post.avatarUrl ?? null} size={32} />
         )}
         <Text className="text-label-sm">{post.author}</Text>
-        <Text className="text-caption-sm" style={{ color: '#181C1C' /* gray-900 */ }}>
+        <Text className="text-caption-sm" style={{ color: '#181C1C' }}>
           •
         </Text>
-        <Text className="text-caption-sm" style={{ color: '#929898' /* gray-500 */ }}>
+        <Text className="text-caption-sm" style={{ color: '#929898' }}>
           {post.timeAgo}
         </Text>
       </View>
 
+      {/* 제목 */}
       <Text className="text-label-sm mt-2">{post.title}</Text>
 
+      {/* 빙고판 / 이미지 */}
       {post.bingo ? (
         <BingoBoardPreview
           cells={post.bingo.cells}
-          grid={post.bingo.grid}
+          grid={post.bingo.grid as GridType}
           theme={post.bingo.theme}
         />
-      ) : post.imageUrls?.[0] ? (
+      ) : post.imageUrls?.length ? (
         <Image
           source={{ uri: post.imageUrls[0] }}
           style={{ width: '100%', height: 180, borderRadius: 8, marginTop: 12 }}
@@ -143,6 +160,7 @@ export function PostCard({ post }: PostCardProps) {
         />
       ) : null}
 
+      {/* 좋아요 / 댓글 */}
       <View className="flex-row items-center gap-4 mt-3">
         <LikeButton
           count={post.likeCount}
@@ -150,7 +168,6 @@ export function PostCard({ post }: PostCardProps) {
           postId={post.id}
           initialLiked={post.likedByMe}
         />
-
         <View className="flex-row items-center gap-1">
           <SMSIcon width={ICON_SIZE} height={ICON_SIZE} color={iconColor} />
           <Text className="text-body-sm">{post.commentCount}</Text>

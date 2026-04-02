@@ -1,9 +1,11 @@
+// AddEachBingo.tsx (수정)
+
 import { Modal } from '@/components/Modal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, Image, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Text';
-import { getThemeImage, FIGMA_W, FIGMA_H, GRID_CONFIGS } from '../lib/theme-config';
 import { TextInput } from '@/components/TextInput';
+import { FIGMA_W, FIGMA_H, GRID_CONFIGS, getThemeImageUrl } from '@/features/bingo/lib/theme';
 
 interface AddBingoProps {
   selectedGrid: string;
@@ -23,12 +25,23 @@ export function AddEachBingo({
   const [localCells, setLocalCells] = useState<string[]>(cells);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState('');
+  const [image, setImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalCells(cells);
+  }, [cells]);
+
+  useEffect(() => {
+    const load = async () => {
+      const bg = await getThemeImageUrl(theme, selectedGrid as '3x3' | '4x3' | '4x4');
+      setImage(bg);
+    };
+    load();
+  }, [theme, selectedGrid]);
 
   const [cols, rows] = selectedGrid.split('x').map(Number);
   const availableWidth = Dimensions.get('window').width - 40;
   const textStyle = selectedGrid === '3x3' ? 'text-body-sm' : 'text-caption-md';
-
-  const image = getThemeImage(theme, selectedGrid);
 
   const handleCellPress = (index: number) => {
     if (disabledCells?.[index]) return;
@@ -72,8 +85,7 @@ export function AddEachBingo({
     />
   );
 
-  // 테마 이미지가 있을 때: 이미지 배경 위에 셀 절대 위치 렌더링
-  if (image !== null) {
+  if (image) {
     const scale = availableWidth / FIGMA_W;
     const cardHeight = FIGMA_H * scale;
     const cfg = GRID_CONFIGS[selectedGrid];
@@ -88,13 +100,15 @@ export function AddEachBingo({
       <>
         <View style={{ width: availableWidth, height: cardHeight }}>
           <Image
-            source={image}
+            source={{ uri: image }}
             style={{ position: 'absolute', width: '100%', height: '100%' }}
             resizeMode="cover"
           />
+
           {Array.from({ length: cols * rows }).map((_, i) => {
             const col = i % cols;
             const row = Math.floor(i / cols);
+
             return (
               <TouchableOpacity
                 key={i}
@@ -123,7 +137,6 @@ export function AddEachBingo({
     );
   }
 
-  // 기본: 테마 이미지 없을 때 기존 스타일 렌더링
   const gap = 6;
   const cellSize = (availableWidth - gap * (cols - 1)) / cols;
 
@@ -140,8 +153,8 @@ export function AddEachBingo({
               height: cellSize,
               borderRadius: 8,
               borderWidth: 1,
-              borderColor: '#D2D6D6' /* gray-300 */,
-              backgroundColor: '#FDFDFD' /* white */,
+              borderColor: '#D2D6D6',
+              backgroundColor: '#FDFDFD',
               alignItems: 'center',
               justifyContent: 'center',
               padding: 4,

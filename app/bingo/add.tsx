@@ -8,6 +8,7 @@ import { WriteBingo } from '@/features/bingo/bingo-add/WriteBingo';
 import { DatePicker } from '@/features/bingo/bingo-add/DatePicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBingo } from '@/features/bingo/lib/bingo';
+import { setSelectedBoardId, setSelectedBoardTitle } from '@/features/battle/lib/battle-selection';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
@@ -17,7 +18,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function BingoAddScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { loadDraft } = useLocalSearchParams<{ loadDraft?: string }>();
+  const { loadDraft, fromBattle } = useLocalSearchParams<{
+    loadDraft?: string;
+    fromBattle?: string;
+  }>();
 
   const [title, setTitle] = useState('');
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
@@ -124,7 +128,7 @@ export default function BingoAddScreen() {
   const handleConfirmSave = async () => {
     setShowConfirmModal(false);
     try {
-      await createBingo({
+      const newBoardId = await createBingo({
         title,
         duration: selectedDuration!,
         startDate: startDate!.toISOString(),
@@ -135,7 +139,13 @@ export default function BingoAddScreen() {
         cells: cellsRef.current,
       });
       await AsyncStorage.removeItem('@bingket/draft-bingo');
-      router.replace('/(tabs)');
+      if (fromBattle === 'true') {
+        setSelectedBoardId(newBoardId);
+        setSelectedBoardTitle(title);
+        router.back();
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (e) {
       Sentry.captureException(e);
       showAlert('저장에 실패했어요. 잠시 후 다시 시도해주세요.');

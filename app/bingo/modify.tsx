@@ -1,3 +1,5 @@
+// app/bingo/modify.tsx (수정)
+
 import * as Sentry from '@sentry/react-native';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
@@ -5,20 +7,13 @@ import { TextInput } from '@/components/TextInput';
 import { AddEachBingo } from '@/features/bingo/bingo-add/AddEachBingo';
 import { BingoModifyHeader } from '@/features/bingo/bingo-modify/Header';
 import { fetchBingoForEdit, updateBingo, deleteBingo } from '@/features/bingo/lib/bingo';
+import { fetchThemes } from '@/features/bingo/lib/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Chip } from '@/components/Chip';
-
-const THEMES = ['기본', '토끼', '붉은말', '고먐미'];
-const THEME_TO_DISPLAY: Record<string, string> = {
-  default: '기본',
-  rabbit: '토끼',
-  red_horse: '붉은말',
-  square_cat: '고먐미',
-};
 
 export default function BingoModifyScreen() {
   const insets = useSafeAreaInsets();
@@ -33,25 +28,47 @@ export default function BingoModifyScreen() {
   const [cellIds, setCellIds] = useState<string[]>([]);
   const [cellOriginalEditCounts, setCellOriginalEditCounts] = useState<number[]>([]);
   const [cellEdits, setCellEdits] = useState<number[]>([]);
-  const [selectedTheme, setSelectedTheme] = useState('기본');
+  const [selectedTheme, setSelectedTheme] = useState<string>('');
+
+  const [themes, setThemes] = useState<{ id: string; displayName: string }[]>([]);
 
   useEffect(() => {
-    if (!bingoId) return;
-    fetchBingoForEdit(bingoId).then((data) => {
-      if (!data) {
+    const init = async () => {
+      try {
+        const themeMap = await fetchThemes();
+
+        const uniqueThemes = Object.values(themeMap).filter(
+          (v, i, arr) => arr.findIndex((t) => t.id === v.id) === i,
+        );
+
+        setThemes(uniqueThemes.map((t) => ({ id: t.id, displayName: t.displayName })));
+
+        if (!bingoId) return;
+
+        const data = await fetchBingoForEdit(bingoId);
+        if (!data) {
+          router.back();
+          return;
+        }
+
+        setGrid(data.grid);
+        setMaxEdits(data.maxEdits);
+        setTitle(data.title);
+        setCells(data.cells);
+        setCellIds(data.cellIds);
+        setCellOriginalEditCounts(data.cellEditCounts);
+        setCellEdits(Array(data.cells.length).fill(0));
+
+        setSelectedTheme(data.theme); // DB 값 그대로 사용
+
+        setLoading(false);
+      } catch (e) {
+        Sentry.captureException(e);
         router.back();
-        return;
       }
-      setGrid(data.grid);
-      setMaxEdits(data.maxEdits);
-      setTitle(data.title);
-      setCells(data.cells);
-      setCellIds(data.cellIds);
-      setCellOriginalEditCounts(data.cellEditCounts);
-      setCellEdits(Array(data.cells.length).fill(0));
-      setSelectedTheme(THEME_TO_DISPLAY[data.theme] ?? '기본');
-      setLoading(false);
-    });
+    };
+
+    init();
   }, [bingoId]);
 
   const isDirty = useRef(false);
@@ -140,15 +157,16 @@ export default function BingoModifyScreen() {
             <Text className="text-body-lg">테마</Text>
             <View className="flex-1" />
           </View>
+
           <View className="flex-row flex-wrap gap-2 mb-4">
-            {THEMES.map((theme) => (
+            {themes.map((theme) => (
               <Chip
-                key={theme}
-                label={theme}
-                selected={selectedTheme === theme}
+                key={theme.id}
+                label={theme.displayName}
+                selected={selectedTheme === theme.id}
                 onPress={() => {
                   markDirty();
-                  setSelectedTheme(theme);
+                  setSelectedTheme(theme.id);
                 }}
               />
             ))}
@@ -179,7 +197,7 @@ export default function BingoModifyScreen() {
           </View>
 
           <Pressable onPress={() => setShowDeleteModal(true)} className="mt-6">
-            <Text className="text-body-lg" style={{ color: '#E02828' /* red-500 */ }}>
+            <Text className="text-body-lg" style={{ color: '#E02828' }}>
               빙고 삭제하기
             </Text>
           </Pressable>

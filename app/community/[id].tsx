@@ -95,7 +95,6 @@ export default function CommunityDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       if (!id) return;
-      setPostLoading(true);
       fetchPost(id).then((data) => {
         setPost(data);
         setPostLoading(false);
@@ -116,6 +115,8 @@ export default function CommunityDetailScreen() {
     if (!id) return;
     const data = await fetchComments(id);
     setLocalComments(data);
+    const count = data.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0);
+    setPost((p) => (p ? { ...p, commentCount: count } : p));
   }, [id]);
 
   useEffect(() => {
@@ -381,7 +382,6 @@ export default function CommunityDetailScreen() {
       >
         <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
           <PostBody post={post} iconColor={iconColor} />
-          <View className="h-px bg-gray-300 dark:bg-gray-700 mt-4" />
           <CommentSection
             comments={localComments}
             postAuthorId={post.userId}

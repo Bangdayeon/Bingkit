@@ -1,7 +1,8 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
+import { Button } from '@/components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   fetchNotifications,
@@ -10,7 +11,94 @@ import {
 } from '@/features/notifications/lib/notifications';
 import { supabase } from '@/lib/supabase';
 
+interface NotificationItemProps {
+  item: Notification;
+  onRead: () => Promise<void>;
+  onAction: (type: string, targetId: string | null) => void;
+  onFriendResponse: (requestId: string, accept: boolean) => Promise<void>;
+}
+
+function NotificationItem({ item, onRead, onAction, onFriendResponse }: NotificationItemProps) {
+  const isFriendRequest = item.type === 'friend_request';
+  const isBattleRequest = item.type === 'battle_request';
+  const isBattleAccepted = item.type === 'battle_accepted';
+  const [responding, setResponding] = useState(false);
+
+  const handlePress = async () => {
+    await onRead();
+    if (!isFriendRequest && !isBattleRequest && !isBattleAccepted) {
+      onAction(item.type, item.target_id);
+    }
+  };
+
+  const handleFriendResponse = async (accept: boolean) => {
+    if (!item.target_id) return;
+    setResponding(true);
+    await onRead();
+    await onFriendResponse(item.target_id, accept);
+    setResponding(false);
+  };
+
+  return (
+    <Pressable
+      className={`border-t border-gray-300 dark:border-gray-700 px-4 py-4 justify-center ${
+        item.is_read ? 'bg-gray-100 dark:bg-gray-800' : 'bg-sky-100 dark:bg-sky-900'
+      }`}
+      onPress={handlePress}
+    >
+      <Text className="text-body-lg mb-3">{item.message}</Text>
+
+      {/* 친구 요청: 수락/거절 버튼 */}
+      {isFriendRequest && item.target_id ? (
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <Button
+              label="수락하기"
+              onClick={() => handleFriendResponse(true)}
+              disabled={responding}
+              loading={responding}
+            />
+          </View>
+          <View className="flex-1">
+            <Button
+              label="거절하기"
+              variant="secondary"
+              onClick={() => handleFriendResponse(false)}
+              disabled={responding}
+            />
+          </View>
+        </View>
+      ) : null}
+
+      {/* 배틀 요청: 확인하기 버튼 */}
+      {isBattleRequest && item.target_id ? (
+        <Button
+          label="확인하기"
+          variant="secondary"
+          onClick={async () => {
+            await onRead();
+            onAction(item.type, item.target_id);
+          }}
+        />
+      ) : null}
+
+      {/* 배틀 수락: 대결 현황 보기 버튼 */}
+      {isBattleAccepted && item.target_id ? (
+        <Button
+          label="대결 현황 보기"
+          variant="secondary"
+          onClick={async () => {
+            await onRead();
+            onAction(item.type, item.target_id);
+          }}
+        />
+      ) : null}
+    </Pressable>
+  );
+}
+
 export default function NotificationsScreen() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +114,32 @@ export default function NotificationsScreen() {
   const markAllRead = async () => {
     await supabase.from('notifications').update({ is_read: true }).eq('is_read', false);
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+  };
+
+  const handleAction = (type: string, targetId: string | null) => {
+    if (!targetId) return;
+    if (type === 'battle_request') {
+      router.push({ pathname: '/bingo/battle-check', params: { requestId: targetId } });
+    } else if (type === 'battle_accepted') {
+      router.push({ pathname: '/bingo/battle-status', params: { battleId: targetId } });
+    } else if (type === 'comment' || type === 'reply' || type === 'like' || type === 'popular') {
+      router.push({ pathname: '/bingo/view', params: { bingoId: targetId } });
+    }
+  };
+
+  const handleFriendResponse = async (requestId: string, accept: boolean) => {
+    const { error } = await supabase
+      .from('friend_requests')
+      .update({ status: accept ? 'accepted' : 'rejected' })
+      .eq('id', requestId);
+
+    if (error) {
+      Alert.alert('오류', error.message ?? '처리에 실패했어요.');
+      return;
+    }
+
+    // 해당 알림을 목록에서 제거
+    setNotifications((prev) => prev.filter((n) => n.target_id !== requestId));
   };
 
   if (loading) {
@@ -53,23 +167,18 @@ export default function NotificationsScreen() {
           </View>
         )}
         {notifications.map((item) => (
-          <Pressable
+          <NotificationItem
             key={item.id}
-            className={`border-t border-gray-300 dark:border-gray-700 px-4 justify-center ${
-              item.is_read ? 'bg-gray-100 dark:bg-gray-800' : 'bg-sky-100 dark:bg-sky-900'
-            }`}
-            style={{ minHeight: 115 }}
-            onPress={async () => {
+            item={item}
+            onRead={async () => {
               await markNotificationRead(item.id);
               setNotifications((prev) =>
                 prev.map((n) => (n.id === item.id ? { ...n, is_read: true } : n)),
               );
-              // TODO: target_type / target_id 기반으로 라우팅 추가
             }}
-          >
-            <Text className="text-title-sm mb-3">{item.type}</Text>
-            <Text className="text-body-lg">{item.message}</Text>
-          </Pressable>
+            onAction={handleAction}
+            onFriendResponse={handleFriendResponse}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>

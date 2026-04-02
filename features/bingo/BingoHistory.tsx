@@ -19,8 +19,7 @@ import ForwardArrowIcon from '@/assets/icons/ic_arrow_forward.svg';
 import { fetchMyBingos, fetchMyCompletedBingos } from '@/features/bingo/lib/bingo';
 import { applyBingoOrder, loadBingoOrder, saveBingoOrder } from '@/features/bingo/lib/bingo-order';
 import { getCache, setCache } from '@/lib/cache';
-
-const CACHE_KEY_HISTORY = '@bingket/cache-bingo-history';
+import { CACHE_KEY_HISTORY } from '@/constants/cache_key';
 
 interface HistoryCache {
   drafts: BingoItem[];
@@ -289,7 +288,7 @@ export function BingoHistory({ isReorderMode }: { isReorderMode: boolean }) {
 
   return (
     <ScrollView
-      className="flex-1 mt-[80px] bg-white px-5 dark:bg-gray-900 mb-20"
+      className="flex-1 mt-[60px] bg-white px-5 dark:bg-gray-900 mb-20"
       scrollEnabled={!isReorderMode}
     >
       <Section

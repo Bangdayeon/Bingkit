@@ -13,6 +13,7 @@ const THEME_DISPLAY_TO_KEY: Record<string, BingoTheme> = {
   토끼: 'rabbit',
   붉은말: 'red_horse',
   고먐미: 'square_cat',
+  돼지: 'pig',
 };
 
 function calcDdayLocal(targetDate: string | null): number {
@@ -231,16 +232,30 @@ export const fetchMyBingosForPost = async (): Promise<BingoData[]> => {
 export const uploadPostImage = async (uri: string, mimeType: string): Promise<string> => {
   const ext = mimeType.split('/')[1] ?? 'jpg';
 
+  // getUser() triggers token refresh — required for Kakao sessions with expired access tokens
+  await supabase.auth.getUser();
   const {
     data: { session },
   } = await supabase.auth.getSession();
+
   if (!session) throw new Error('로그인이 필요합니다.');
 
   const { data, error } = await supabase.functions.invoke('post-presign', {
-    body: { filename: `image.${ext}`, contentType: mimeType },
+    body: {
+      filename: `${Date.now()}_${Math.random()}.${ext}`,
+      contentType: mimeType,
+    },
     headers: { Authorization: `Bearer ${session.access_token}` },
   });
-  if (error) throw new Error(error.message);
+
+  if (error) {
+    const body = await (error as { context?: Response }).context?.text?.();
+    throw new Error(body ?? error.message);
+  }
+
+  if (!data) {
+    throw new Error('presign data is null');
+  }
 
   const file = await fetch(uri);
   const blob = await file.blob();

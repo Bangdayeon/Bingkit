@@ -1,5 +1,5 @@
 export type BingoState = 'draft' | 'progress' | 'done';
-export type BingoTheme = 'default' | 'rabbit' | 'red_horse' | 'square_cat';
+export type BingoTheme = string;
 
 export interface BingoData {
   id: string;
@@ -14,4 +14,5 @@ export interface BingoData {
   targetDate: string | null; // 'YYYY-MM-DD'
   state: BingoState;
   theme: BingoTheme;
+  retrospective: string | null;
 }

@@ -8,17 +8,24 @@ import { Text } from '@/components/Text';
 import AddIcon from '@/assets/icons/ic_add.svg';
 import { BingoData } from '@/types/bingo';
 import { BingoCellDetail } from '@/types/bingo-cell';
-import { fetchMyBingos, updateCell, calcBingoCount } from '@/features/bingo/lib/bingo';
+import {
+  fetchMyBingos,
+  markBingoDone,
+  updateCell,
+  calcBingoCount,
+} from '@/features/bingo/lib/bingo';
 import { applyBingoOrder, loadBingoOrder } from '@/features/bingo/lib/bingo-order';
+import { fetchBattleByBoardId, fetchMyBattles } from '@/features/battle/lib/battle';
 import { getCache, setCache } from '@/lib/cache';
-
-const MAX_BINGOS = 3;
-const CACHE_KEY_ALL = '@bingket/cache-bingo-all';
+import { MAX_BINGOS } from '@/constants/bingo';
+import { CACHE_KEY_ALL } from '@/constants/cache_key';
 
 export function BingoAll() {
   const router = useRouter();
   const [bingos, setBingos] = useState<BingoData[]>([]);
   const [cellDetails, setCellDetails] = useState<Record<string, BingoCellDetail[]>>({});
+  const [battleIds, setBattleIds] = useState<Record<string, string | null>>({});
+  const [friendAvatars, setFriendAvatars] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(true);
   const [modalTarget, setModalTarget] = useState<{ bingoId: string; cellIndex: number } | null>(
     null,
@@ -26,23 +33,54 @@ export function BingoAll() {
   const memoDebounceRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const loadData = useCallback(() => {
-    Promise.all([fetchMyBingos(), loadBingoOrder()]).then(([fetched, savedOrder]) => {
+    Promise.all([fetchMyBingos(), loadBingoOrder()]).then(async ([fetched, savedOrder]) => {
       const details: Record<string, BingoCellDetail[]> = {};
       const serverBingos = fetched.map(({ bingo, cellDetails: cd }) => {
         details[bingo.id] = cd;
         return bingo;
       });
-      const ordered = applyBingoOrder(serverBingos, savedOrder);
+
+      // 종료일이 오늘 이전인 빙고 자동 완료 처리
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiredIds = serverBingos
+        .filter((b) => b.targetDate && new Date(b.targetDate) < today)
+        .map((b) => b.id);
+      if (expiredIds.length > 0) {
+        await Promise.all(expiredIds.map((id) => markBingoDone(id).catch(Sentry.captureException)));
+      }
+
+      // 만료된 빙고는 BingoAll에서 제외 (BingoHistory 완료 탭으로 이동)
+      const progressBingos = serverBingos.filter((b) => !expiredIds.includes(b.id));
+      const ordered = applyBingoOrder(progressBingos, savedOrder);
       const sliced = ordered.slice(0, MAX_BINGOS);
       setBingos(sliced);
       setCellDetails(details);
       setLoading(false);
       setCache(CACHE_KEY_ALL, { bingos: sliced, cellDetails: details });
+
+      // 각 빙고의 배틀 여부 조회 + 상대방 아바타
+      const [battleResults, myBattles] = await Promise.all([
+        Promise.all(sliced.map((b) => fetchBattleByBoardId(b.id))),
+        fetchMyBattles(),
+      ]);
+      const ids: Record<string, string | null> = {};
+      const avatars: Record<string, string | null> = {};
+      sliced.forEach((b, i) => {
+        ids[b.id] = battleResults[i]?.battleId ?? null;
+        const battle = myBattles.find((bt) => bt.myBoardId === b.id);
+        avatars[b.id] = battle?.opponent.avatarUrl ?? null;
+      });
+      setBattleIds(ids);
+      setFriendAvatars(avatars);
     });
   }, []);
 
   useFocusEffect(
     useCallback(() => {
+      // 배틀 상태는 항상 최신으로 다시 받아야 하므로 포커스 시 초기화
+      setBattleIds({});
+      setFriendAvatars({});
       // 캐시 먼저 보여주기
       getCache<{ bingos: BingoData[]; cellDetails: Record<string, BingoCellDetail[]> }>(
         CACHE_KEY_ALL,
@@ -128,6 +166,19 @@ export function BingoAll() {
               ? router.push({ pathname: '/bingo/add', params: { loadDraft: 'true' } })
               : router.push({ pathname: '/bingo/modify', params: { bingoId: bingo.id } })
           }
+          hasBattle={!!battleIds[bingo.id]}
+          friendAvatarUrl={friendAvatars[bingo.id]}
+          onBattlePress={() => {
+            const battleId = battleIds[bingo.id];
+            if (battleId) {
+              router.push({ pathname: '/bingo/battle-status', params: { battleId } });
+            } else {
+              router.push({
+                pathname: '/bingo/battle',
+                params: { bingoId: bingo.id, bingoTitle: bingo.title },
+              });
+            }
+          }}
         />
       ))}
       {bingos.length === 0 && (

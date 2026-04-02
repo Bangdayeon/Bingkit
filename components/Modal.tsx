@@ -3,7 +3,7 @@ import { Text } from './Text';
 import { Button } from './Button';
 import { ReactNode } from 'react';
 
-type ModalVariant = 'default' | 'warning' | 'single';
+type ModalVariant = 'default' | 'warning' | 'error' | 'success' | 'single';
 
 interface ModalProps {
   visible: boolean;
@@ -23,11 +23,16 @@ export function Modal({
   body,
   variant = 'default',
   confirmLabel = '확인',
-  cancelLabel = '취소하기',
+  cancelLabel = '취소',
   onConfirm,
   onCancel,
   onDismiss,
 }: ModalProps) {
+  const getConfirmVariant = () => {
+    if (variant === 'warning' || variant === 'error') return 'dangerous';
+    return 'primary';
+  };
+
   return (
     <RNModal
       visible={visible}
@@ -39,22 +44,24 @@ export function Modal({
         className="flex-1 bg-black/40 items-center justify-center px-5"
         onPress={onDismiss}
       >
-        <Pressable className="w-full bg-white dark:bg-gray-900 rounded-[30px] px-8 pt-8 pb-5">
-          <Text className="text-title-sm mb-2">{title}</Text>
-          {body ? (
+        <Pressable className="w-full bg-white dark:bg-gray-900 rounded-[24px] px-6 pt-6 pb-5">
+          {/* Title */}
+          <Text className="text-title-sm mb-3">{title}</Text>
+
+          {/* Body */}
+          {body && (
             <View className="mb-6">
               {typeof body === 'string' ? (
-                <Text className="text-body-md leading-relaxed">{body}</Text>
+                <Text className="text-body-md text-gray-600 dark:text-gray-300">{body}</Text>
               ) : (
                 body
               )}
             </View>
-          ) : (
-            <View className="mb-6" />
           )}
 
-          {variant === 'single' ? (
-            <Button label={confirmLabel} variant="primary" onClick={onConfirm} />
+          {/* Buttons */}
+          {variant === 'single' || variant === 'success' || variant === 'error' ? (
+            <Button label={confirmLabel} variant={getConfirmVariant()} onClick={onConfirm} />
           ) : (
             <View className="flex-row gap-3">
               <Button
@@ -65,7 +72,7 @@ export function Modal({
               />
               <Button
                 label={confirmLabel}
-                variant={variant === 'warning' ? 'dangerous' : 'primary'}
+                variant={getConfirmVariant()}
                 onClick={onConfirm}
                 className="flex-1"
               />

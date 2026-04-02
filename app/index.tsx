@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -14,10 +15,23 @@ export default function SplashScreen() {
     }).start();
 
     const timer = setTimeout(async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      router.replace(session ? '/(tabs)' : '/(auth)/login');
+      const [
+        {
+          data: { session },
+        },
+        onboardingSeen,
+      ] = await Promise.all([
+        supabase.auth.getSession(),
+        AsyncStorage.getItem('@bingket/onboarding-seen'),
+      ]);
+
+      if (session) {
+        router.replace('/(tabs)');
+      } else if (!onboardingSeen) {
+        router.replace('/(auth)/onboarding');
+      } else {
+        router.replace('/(auth)/login');
+      }
     }, 2000);
 
     return () => clearTimeout(timer);

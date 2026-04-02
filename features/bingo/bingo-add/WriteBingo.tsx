@@ -2,11 +2,11 @@ import { Chip } from '@/components/Chip';
 import { AddEachBingo } from './AddEachBingo';
 import { View } from 'react-native';
 import { Text } from '@/components/Text';
-import { Information } from '../components/Information';
+import { Information } from '../../../components/Information';
 
 const GRID_OPTIONS = ['3x3', '4x3', '4x4'];
 const EDIT_COUNT_OPTIONS = ['0', '1', '2', '3', '무제한'];
-const THEME_OPTIONS = ['기본', '토끼', '붉은말', '고먐미'];
+const THEME_OPTIONS = ['기본', '토끼', '붉은말', '고먐미', '돼지'];
 
 interface WriteBingoProps {
   selectedGrid: string;

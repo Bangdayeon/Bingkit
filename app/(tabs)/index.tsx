@@ -1,9 +1,10 @@
 import { HeaderTabBar } from '@/components/HeaderTabbar';
+import { BingoAll } from '@/features/bingo/BingoAll';
 import { BingoHistory } from '@/features/bingo/BingoHistory';
+import { BingoBattle } from '@/features/bingo/BingoBattle';
 import { useCallback, useState } from 'react';
 import { Pressable, View, useColorScheme } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BingoAll } from '@/features/bingo/BingoAll';
 import { useFocusEffect } from 'expo-router';
 
 export default function HomeScreen() {
@@ -32,7 +33,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView className="relative flex-1 bg-white dark:bg-gray-900">
       <HeaderTabBar
-        menus={['전체', '기록']}
+        menus={['전체', '기록', '대결']}
         onTabChange={handleTabChange}
         selectedIndex={tabIndex}
       />
@@ -64,7 +65,9 @@ export default function HomeScreen() {
         </Pressable>
       )}
 
-      {tabIndex === 0 ? <BingoAll /> : <BingoHistory isReorderMode={isReorderMode} />}
+      {tabIndex === 0 && <BingoAll />}
+      {tabIndex === 1 && <BingoHistory isReorderMode={isReorderMode} />}
+      {tabIndex === 2 && <BingoBattle />}
     </SafeAreaView>
   );
 }

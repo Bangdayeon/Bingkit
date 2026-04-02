@@ -32,6 +32,8 @@ interface BingoCellModalProps {
   initialIndex: number;
   onClose: () => void;
   onUpdate: (cellId: string, updates: CellUpdate) => void;
+  /** 완료된 빙고: 메모만 편집 가능, 완료 토글/완료일 숨김 */
+  readOnly?: boolean;
 }
 
 function formatDate(iso: string | null): string {
@@ -46,6 +48,7 @@ export function BingoCellModal({
   initialIndex,
   onClose,
   onUpdate,
+  readOnly = false,
 }: BingoCellModalProps) {
   const insets = useSafeAreaInsets();
   const isDark = useColorScheme() === 'dark';
@@ -140,47 +143,53 @@ export function BingoCellModal({
                 >
                   {item.title}
                 </Text>
-                <IconButton
-                  variant="ghost"
-                  onClick={() => handleToggleComplete(item)}
-                  icon={
-                    item.completed ? (
-                      <DoneIcon width={24} height={24} color="#48BE30" /* green-600 */ />
-                    ) : (
-                      <CheckIcon width={24} height={24} color="#4C5252" /* gray-700 */ />
-                    )
-                  }
-                />
+                {!readOnly && (
+                  <IconButton
+                    variant="ghost"
+                    onClick={() => handleToggleComplete(item)}
+                    icon={
+                      item.completed ? (
+                        <DoneIcon width={24} height={24} color="#48BE30" /* green-600 */ />
+                      ) : (
+                        <CheckIcon width={24} height={24} color="#4C5252" /* gray-700 */ />
+                      )
+                    }
+                  />
+                )}
               </View>
 
               {/* 완료일 */}
-              <Text className="text-title-sm mb-2" style={{ color: '#181C1C' /* gray-900 */ }}>
-                완료일
-              </Text>
-              <Pressable
-                onPress={() => handleOpenDatePicker(item)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 4,
-                  backgroundColor: '#F6F7F7' /* gray-100 */,
-                  borderRadius: 999,
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  alignSelf: 'flex-start',
-                  marginBottom: 20,
-                }}
-              >
-                <CalendarIcon width={16} height={16} color="#4C5252" /* gray-700 */ />
-                <Text
-                  className="text-body-sm"
-                  style={{
-                    color: item.completedAt ? '#181C1C' : '#929898' /* gray-900 : gray-500 */,
-                  }}
-                >
-                  {formatDate(item.completedAt) || '날짜 선택'}
-                </Text>
-              </Pressable>
+              {!readOnly && (
+                <>
+                  <Text className="text-title-sm mb-2" style={{ color: '#181C1C' /* gray-900 */ }}>
+                    완료일
+                  </Text>
+                  <Pressable
+                    onPress={() => handleOpenDatePicker(item)}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                      backgroundColor: '#F6F7F7' /* gray-100 */,
+                      borderRadius: 999,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      alignSelf: 'flex-start',
+                      marginBottom: 20,
+                    }}
+                  >
+                    <CalendarIcon width={16} height={16} color="#4C5252" /* gray-700 */ />
+                    <Text
+                      className="text-body-sm"
+                      style={{
+                        color: item.completedAt ? '#181C1C' : '#929898' /* gray-900 : gray-500 */,
+                      }}
+                    >
+                      {formatDate(item.completedAt) || '날짜 선택'}
+                    </Text>
+                  </Pressable>
+                </>
+              )}
 
               {/* 메모 */}
               <Text className="text-title-sm mb-2" style={{ color: '#181C1C' /* gray-900 */ }}>

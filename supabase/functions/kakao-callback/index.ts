@@ -97,6 +97,7 @@ Deno.serve(async (req) => {
     const safeDisplayName =
       nickname.replace(/[^\uAC00-\uD7A3a-zA-Z0-9]/g, '').slice(0, 20) || '빙고유저';
 
+    // 신규 유저일 때만 insert, 기존 유저는 건드리지 않음 (닉네임/아이디 변경 보존)
     const { error: upsertError } = await admin.from('users').upsert(
       {
         id: userId,
@@ -105,6 +106,7 @@ Deno.serve(async (req) => {
       },
       {
         onConflict: 'id',
+        ignoreDuplicates: true,
       },
     );
 

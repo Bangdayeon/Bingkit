@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Dimensions,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -18,13 +17,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Text } from '@/components/Text';
 import ArrowBackIcon from '@/assets/icons/ic_arrow_back.svg';
-// import CameraIcon from '@/assets/icons/ic_camera.svg';
+import CameraIcon from '@/assets/icons/ic_camera.svg';
 import CheckIcon from '@/assets/icons/ic_check.svg';
 import type { PostCategory } from '@/types/community';
 import type { BingoData, BingoState } from '@/types/bingo';
-import { getThemeImage, FIGMA_W, FIGMA_H, GRID_CONFIGS } from '@/features/bingo/lib/theme-config';
 import { fetchMyBingosForPost, createPost, updatePost } from '@/features/community/lib/community';
 import { checkAndAwardBadges } from '@/lib/badge-checker';
+import BingoPreview from '@/components/BingoPreview';
 
 const HEADER_H = 60;
 const TITLE_H = 60;
@@ -57,90 +56,6 @@ function GridIcon({ color }: { color: string }) {
           key={i}
           style={{ width: 5.5, height: 5.5, backgroundColor: color, borderRadius: 1 }}
         />
-      ))}
-    </View>
-  );
-}
-
-function BingoPreview({ bingo }: { bingo: BingoData }) {
-  const [cols, rows] = bingo.grid.split('x').map(Number);
-  const availableWidth = Dimensions.get('window').width - 40;
-  const image = getThemeImage(bingo.theme, bingo.grid);
-
-  if (image !== null) {
-    const scale = availableWidth / FIGMA_W;
-    const cardHeight = FIGMA_H * scale;
-    const cfg = GRID_CONFIGS[bingo.grid];
-    const gridTop = cfg.top * scale;
-    const gridLeft = cfg.left * scale;
-    const cellW = cfg.cellW * scale;
-    const cellH = cfg.cellH * scale;
-    const gapX = cfg.gapX * scale;
-    const gapY = cfg.gapY * scale;
-
-    return (
-      <View style={{ width: availableWidth, height: cardHeight }}>
-        <Image
-          source={image}
-          style={{ position: 'absolute', width: '100%', height: '100%' }}
-          resizeMode="cover"
-        />
-        {Array.from({ length: cols * rows }).map((_, i) => {
-          const col = i % cols;
-          const row = Math.floor(i / cols);
-          return (
-            <View
-              key={i}
-              style={{
-                position: 'absolute',
-                left: gridLeft + col * (cellW + gapX),
-                top: gridTop + row * (cellH + gapY),
-                width: cellW,
-                height: cellH,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 4,
-              }}
-            >
-              <Text
-                className="text-caption-sm text-center"
-                style={{ color: '#181C1C' /* gray-900 */ }}
-                numberOfLines={2}
-              >
-                {bingo.cells[i] ?? ''}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
-    );
-  }
-
-  return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-      {bingo.cells.map((text, i) => (
-        <View
-          key={i}
-          style={{
-            width: `${(100 - (cols - 1) * 2) / cols}%` as unknown as number,
-            aspectRatio: 1,
-            borderRadius: 4,
-            borderWidth: 1,
-            borderColor: '#D2D6D6' /* gray-300 */,
-            backgroundColor: '#FDFDFD' /* white */,
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 4,
-          }}
-        >
-          <Text
-            className="text-caption-sm text-center"
-            style={{ color: '#181C1C' /* gray-900 */ }}
-            numberOfLines={2}
-          >
-            {text}
-          </Text>
-        </View>
       ))}
     </View>
   );
@@ -375,14 +290,14 @@ export default function CommunityWriteScreen() {
           <View style={{ flex: 1 }} />
 
           {/* 카메라 (최대 이미지 수 미달 시만 활성) */}
-          {/* <Pressable
+          <Pressable
             onPress={() => totalImageCount < MAX_IMAGES && setShowCameraMenu(true)}
             hitSlop={8}
           >
             <CameraIcon
               width={24}
               height={24}
-              color={totalImageCount >= MAX_IMAGES ? '#B4BBBB'  : iconColor}
+              color={totalImageCount >= MAX_IMAGES ? '#B4BBBB' : iconColor}
             />
             {totalImageCount > 0 && (
               <View
@@ -390,7 +305,7 @@ export default function CommunityWriteScreen() {
                   position: 'absolute',
                   top: -4,
                   right: -6,
-                  backgroundColor: '#28C8DE' ,
+                  backgroundColor: '#28C8DE',
                   borderRadius: 8,
                   minWidth: 14,
                   height: 14,
@@ -404,7 +319,7 @@ export default function CommunityWriteScreen() {
                 </Text>
               </View>
             )}
-          </Pressable> */}
+          </Pressable>
 
           {/* 빙고 첨부 */}
           <Pressable onPress={handleOpenBingoModal} hitSlop={8}>
