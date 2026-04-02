@@ -72,7 +72,6 @@ export function KakaoButton() {
 
   useEffect(() => {
     const sub = Linking.addEventListener('url', ({ url }) => {
-      console.log('DEEPLINK:', url);
       handleDeepLink(url);
     });
 
