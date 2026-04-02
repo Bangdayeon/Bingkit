@@ -20,9 +20,7 @@
       "package": "com.day.bingket",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -44,27 +42,6 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 200,
           "backgroundColor": "#ffffff"
-        }
-      ],
-      [
-        "expo-dynamic-app-icon",
-        {
-          "default": {
-            "image": "./assets/icon_themes/icon_theme_default.png",
-            "prerendered": true
-          },
-          "neon": {
-            "image": "./assets/icon_themes/icon_theme_neon.png",
-            "prerendered": true
-          },
-          "sunset": {
-            "image": "./assets/icon_themes/icon_theme_sunset.png",
-            "prerendered": true
-          },
-          "tanning": {
-            "image": "./assets/icon_themes/icon_theme_tanning.png",
-            "prerendered": true
-          }
         }
       ],
       "expo-web-browser",
