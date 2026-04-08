@@ -1,4 +1,5 @@
 import { GoogleButton } from '@/features/auth/components/GoogleButton';
+import { GuestLoginButton } from '@/features/auth/components/GuestLoginButton';
 import { KakaoButton } from '@/features/auth/components/KakaoButton';
 import { Image, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,6 +29,7 @@ export default function LoginScreen() {
         </TouchableOpacity> */}
 
         <GoogleButton />
+        <GuestLoginButton />
       </View>
     </SafeAreaView>
   );

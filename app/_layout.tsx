@@ -66,6 +66,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/email-login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="bingo/add" options={{ headerShown: false }} />
         <Stack.Screen name="bingo/modify" options={{ headerShown: false }} />
