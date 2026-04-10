@@ -25,6 +25,8 @@ import type { BingoData, BingoState } from '@/types/bingo';
 import { fetchMyBingosForPost, createPost, updatePost } from '@/features/community/lib/community';
 import { checkAndAwardBadges } from '@/lib/badge-checker';
 import BingoPreview from '@/components/BingoPreview';
+import { Toast } from '@/components/Toast';
+import { containsBadWord } from '@/constants/bad-words';
 
 const HEADER_H = 60;
 const TITLE_H = 60;
@@ -133,6 +135,7 @@ export default function CommunityWriteScreen() {
   const bingosLoadedRef = useRef(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
 
   const imageBlocks = mediaBlocks.filter((b) => b.type === 'image' || b.type === 'existing-image');
   const bingoBlock = mediaBlocks.find((b) => b.type === 'bingo') as
@@ -218,6 +221,10 @@ export default function CommunityWriteScreen() {
   // ── 제출 ──────────────────────────────────────────────────
   const handleSubmit = async () => {
     if (!canSubmit) return;
+    if (containsBadWord(title) || containsBadWord(textValue)) {
+      setToastVisible(true);
+      return;
+    }
     setIsSubmitting(true);
     // blocks = [빙고?, ...이미지들, text]
     const blocks: EditorBlock[] = [...mediaBlocks, { id: newId(), type: 'text', value: textValue }];
@@ -514,6 +521,12 @@ export default function CommunityWriteScreen() {
           </Pressable>
         </View>
       </Modal>
+
+      <Toast
+        message="올바르지 않은 표현을 사용했어요"
+        visible={toastVisible}
+        onDismiss={() => setToastVisible(false)}
+      />
 
       {/* 빙고 선택 모달 */}
       <Modal

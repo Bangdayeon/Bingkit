@@ -31,6 +31,8 @@ import {
 import { checkAndAwardBadges } from '@/lib/badge-checker';
 import { supabase } from '@/lib/supabase';
 import { Modal } from '@/components/Modal';
+import { Toast } from '@/components/Toast';
+import { containsBadWord } from '@/constants/bad-words';
 
 const REPORT_REASONS = [
   '상업적 광고 및 판매',
@@ -85,6 +87,7 @@ export default function CommunityDetailScreen() {
   const [isBlocking, setIsBlocking] = useState(false);
 
   const [replyTo, setReplyTo] = useState<{ id: string; author: string } | null>(null);
+  const [toastVisible, setToastVisible] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -193,6 +196,10 @@ export default function CommunityDetailScreen() {
   const handleAddComment = async () => {
     const trimmed = comment.trim();
     if (!trimmed || commentSubmitting) return;
+    if (containsBadWord(trimmed)) {
+      setToastVisible(true);
+      return;
+    }
     setCommentSubmitting(true);
     try {
       await addComment(post.id, trimmed, commentAnonymous, replyTo?.id);
@@ -555,6 +562,11 @@ export default function CommunityDetailScreen() {
         variant="single"
         onConfirm={() => setAlertModal(null)}
         onDismiss={() => setAlertModal(null)}
+      />
+      <Toast
+        message="올바르지 않은 표현을 사용했어요"
+        visible={toastVisible}
+        onDismiss={() => setToastVisible(false)}
       />
     </SafeAreaView>
   );
