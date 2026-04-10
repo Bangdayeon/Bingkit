@@ -1,4 +1,4 @@
-import { Image } from 'react-native';
+import { Image } from 'expo-image';
 import ProfileLgSvg from '@/assets/default_profiles/profile_lg.svg';
 
 export const DEFAULT_AVATAR_COLORS = [
@@ -40,6 +40,8 @@ export function ProfileAvatar({ avatarUrl, size = 98 }: ProfileAvatarProps) {
     <Image
       source={{ uri: avatarUrl }}
       style={{ width: size, height: size, borderRadius: size / 2 }}
+      contentFit="cover"
+      cachePolicy="memory-disk"
     />
   );
 }

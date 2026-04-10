@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { supabase } from '@/lib/supabase';
 import type {
   CommunityPost,
@@ -247,8 +248,11 @@ export const fetchMyBingosForPost = async (): Promise<BingoData[]> => {
 };
 
 // ── 게시글 이미지 R2 업로드 ──────────────────────────────────────
-export const uploadPostImage = async (uri: string, mimeType: string): Promise<string> => {
-  const ext = mimeType.split('/')[1] ?? 'jpg';
+export const uploadPostImage = async (uri: string): Promise<string> => {
+  // 포스트 이미지: 최대 1080px로 리사이즈 후 JPEG 압축
+  const imageRef = await ImageManipulator.manipulate(uri).resize({ width: 1080 }).renderAsync();
+  const resized = await imageRef.saveAsync({ compress: 0.75, format: SaveFormat.JPEG });
+  const ext = 'jpg';
 
   // getUser() triggers token refresh — required for Kakao sessions with expired access tokens
   await supabase.auth.getUser();
@@ -267,7 +271,7 @@ export const uploadPostImage = async (uri: string, mimeType: string): Promise<st
     },
     body: JSON.stringify({
       filename: `${Date.now()}_${Math.random()}.${ext}`,
-      contentType: mimeType,
+      contentType: 'image/jpeg',
     }),
   });
 
@@ -282,13 +286,13 @@ export const uploadPostImage = async (uri: string, mimeType: string): Promise<st
     throw new Error('presign data is null');
   }
 
-  const file = await fetch(uri);
+  const file = await fetch(resized.uri);
   const blob = await file.blob();
 
   const uploadRes = await fetch(data.presignedUrl as string, {
     method: 'PUT',
     body: blob,
-    headers: { 'Content-Type': mimeType },
+    headers: { 'Content-Type': 'image/jpeg' },
   });
   if (!uploadRes.ok) throw new Error('이미지 업로드에 실패했습니다.');
 
@@ -311,7 +315,7 @@ async function processBlocks(blocks: EditorBlock[]): Promise<{
     if (block.type === 'text') {
       storedBlocks.push({ type: 'text', value: block.value });
     } else if (block.type === 'image') {
-      const url = await uploadPostImage(block.uri, block.mimeType ?? 'image/jpeg');
+      const url = await uploadPostImage(block.uri);
       storedBlocks.push({ type: 'image', index: imageUrls.length });
       imageUrls.push(url);
     } else if (block.type === 'existing-image') {

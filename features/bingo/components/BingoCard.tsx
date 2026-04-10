@@ -171,7 +171,13 @@ export function BingoCard({
             />
           </View>
           <View className="flex-1 items-center">
-            <DonutStat label="종료일" current={dayElapsed} total={dayTotal} />
+            <DonutStat
+              label="종료일"
+              current={dayElapsed}
+              total={dayTotal}
+              centerText={dayTotal >= 1000 ? `D-${bingo.dday}` : undefined}
+              centerFontSize={dayTotal >= 1000 ? 14 : dayTotal >= 100 ? 12 : undefined}
+            />
           </View>
         </View>
 

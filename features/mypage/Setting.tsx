@@ -2,7 +2,16 @@ import * as Sentry from '@sentry/react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import Constants from 'expo-constants';
-import { ActivityIndicator, Pressable, ScrollView, View, Platform, Linking } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  View,
+  Platform,
+  Linking,
+} from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { ProfileAvatar } from '@/components/ProfileAvatar';
 import { Text } from '@/components/Text';
 import { MenuItem } from './MenuItem';
@@ -170,7 +179,19 @@ export function SettingPage() {
       />
       <MenuItem
         label="빠른 문의"
-        onPress={() => Linking.openURL('mailto:dybang00@gmail.com?subject=[빙킷] 문의')}
+        onPress={async () => {
+          const url = 'mailto:dybang00@gmail.com?subject=[빙킷] 문의';
+          const supported = await Linking.canOpenURL(url);
+          if (supported) {
+            await Linking.openURL(url);
+          } else {
+            await Clipboard.setStringAsync('dybang00@gmail.com');
+            Alert.alert(
+              '이메일 앱을 열 수 없어요',
+              '이메일 주소가 클립보드에 복사되었습니다.\ndybang00@gmail.com',
+            );
+          }
+        }}
         rightText="dybang00@gmail.com"
       />
       <MenuItem

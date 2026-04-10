@@ -1,4 +1,5 @@
-import { useColorScheme, Image, View } from 'react-native';
+import { useColorScheme, View } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from '@/components/Text';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { CommunityPost } from '@/types/community';
@@ -101,7 +102,8 @@ export function PostCard({ post }: PostCardProps) {
         <Image
           source={{ uri: firstImageUrl }}
           style={{ width: '100%', height: 180, borderRadius: 8, marginTop: 12 }}
-          resizeMode="cover"
+          contentFit="cover"
+          cachePolicy="memory"
         />
       ) : null}
 

@@ -1,4 +1,5 @@
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from '@/components/Text';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { LikeButton } from './LikeButton';
@@ -94,7 +95,8 @@ export function PostBody({ post, iconColor }: PostBodyProps) {
                   key={i}
                   source={{ uri: url }}
                   style={{ width: '100%', height: 220, borderRadius: 12, marginTop: 12 }}
-                  resizeMode="cover"
+                  contentFit="cover"
+                  cachePolicy="memory"
                 />
               ) : null;
             }
@@ -121,7 +123,8 @@ export function PostBody({ post, iconColor }: PostBodyProps) {
               key={i}
               source={{ uri: url }}
               style={{ width: '100%', height: 220, borderRadius: 12, marginTop: 12 }}
-              resizeMode="cover"
+              contentFit="cover"
+              cachePolicy="memory"
             />
           ))}
         </>

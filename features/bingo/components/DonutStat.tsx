@@ -8,6 +8,8 @@ interface DonutStatProps {
   total: number;
   size?: 'sm' | 'md';
   overflowRed?: boolean;
+  centerText?: string;
+  centerFontSize?: number;
 }
 
 export function DonutStat({
@@ -16,6 +18,8 @@ export function DonutStat({
   total,
   size = 'md',
   overflowRed = true,
+  centerText,
+  centerFontSize,
 }: DonutStatProps) {
   const SIZE = size === 'sm' ? 60 : 72;
   const STROKE = size === 'sm' ? 8 : 10;
@@ -78,9 +82,12 @@ export function DonutStat({
         >
           <Text
             className={size === 'sm' ? 'text-caption-sm' : 'text-body-sm'}
-            style={{ color: isOver ? '#EF4444' : undefined }}
+            style={{
+              color: isOver ? '#EF4444' : undefined,
+              ...(centerFontSize !== undefined ? { fontSize: centerFontSize } : {}),
+            }}
           >
-            {current}/{total}
+            {centerText ?? `${current}/${total}`}
           </Text>
         </View>
       </View>

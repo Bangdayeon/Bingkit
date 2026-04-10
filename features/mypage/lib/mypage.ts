@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { supabase } from '@/lib/supabase';
 
 const R2_PUBLIC_URL = 'https://pub-ce1a524f861f4062a6ec96dd100c4aec.r2.dev';
@@ -89,11 +90,15 @@ export const updateMyProfile = async (data: {
 
 export const uploadProfileImage = async (uri: string, filename: string): Promise<string> => {
   const ext = (filename.split('.').pop() ?? 'jpg').toLowerCase();
-  const contentType = ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
   // HEIC(iPhone 기본 포맷)는 jpeg로 변환된 채로 picker에서 나오지만
   // 파일명에 .heic/.heif가 붙는 경우 대비 — jpeg로 처리
   const safeFilename =
     ext === 'heic' || ext === 'heif' ? filename.replace(/\.(heic|heif)$/i, '.jpg') : filename;
+
+  // 프로필 이미지: 최대 400px로 리사이즈 후 JPEG 압축
+  const imageRef = await ImageManipulator.manipulate(uri).resize({ width: 400 }).renderAsync();
+  const resized = await imageRef.saveAsync({ compress: 0.8, format: SaveFormat.JPEG });
+  const contentType = 'image/jpeg';
 
   // getUser() refreshes token if needed — important for Kakao sessions
   await supabase.auth.getUser();
@@ -111,7 +116,7 @@ export const uploadProfileImage = async (uri: string, filename: string): Promise
     throw new Error(body ?? error.message);
   }
 
-  const file = await fetch(uri);
+  const file = await fetch(resized.uri);
   const blob = await file.blob();
 
   const uploadRes = await fetch(data.presignedUrl as string, {
