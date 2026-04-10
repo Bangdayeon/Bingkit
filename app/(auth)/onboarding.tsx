@@ -1,22 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Dimensions, FlatList, View } from 'react-native';
+import { FlatList, Image, View, useWindowDimensions } from 'react-native';
 import { Text } from '@/components/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '@/components/Button';
 import { Dot } from '@/features/onboarding/Dot';
 import IconButton from '@/components/IconButton';
 import CloseIcon from '@/assets/icons/ic_close.svg';
-import { Image } from 'react-native';
 
 import onboarding1 from '@/assets/onboarding/onboarding_1.png';
 import onboarding2 from '@/assets/onboarding/onboarding_2.png';
 import onboarding3 from '@/assets/onboarding/onboarding_3.png';
 import onboarding4 from '@/assets/onboarding/onboarding_4.png';
 import onboarding5 from '@/assets/onboarding/onboarding_5.png';
-
-const { width } = Dimensions.get('window');
 
 const slides = [
   { id: '1', title: '이루기 어려웠던 목표를\n빙고판 위에 작성해봐요.', img: onboarding1 },
@@ -32,6 +29,10 @@ const goToLogin = async () => {
 };
 
 export default function OnboardingScreen() {
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+  const imageWidth = isTablet ? Math.min(Math.round(width * 0.7), 720) : 340;
+  const imageHeight = Math.round(imageWidth * (464 / 340));
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -64,8 +65,14 @@ export default function OnboardingScreen() {
         onMomentumScrollEnd={handleMomentumScrollEnd}
         renderItem={({ item }) => (
           <View style={{ width }} className="flex-1 items-center justify-center px-5 gap-5">
-            <Image source={item.img} style={{ width: 340, height: 464 }} resizeMode="contain" />
-            <Text className="text-title-md text-center">{item.title}</Text>
+            <Image
+              source={item.img}
+              style={{ width: imageWidth, height: imageHeight }}
+              resizeMode="contain"
+            />
+            <Text className={`${isTablet ? 'text-title-lg' : 'text-title-md'} text-center`}>
+              {item.title}
+            </Text>
           </View>
         )}
       />
@@ -86,7 +93,7 @@ export default function OnboardingScreen() {
               scrollToIndex(currentIndex + 1);
             }
           }}
-          style={{ width: width - 40 }}
+          style={{ width: Math.min(width - 40, 480) }}
         />
       </View>
     </SafeAreaView>

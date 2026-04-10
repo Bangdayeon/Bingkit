@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { CommunityHeader } from '@/features/community/components/Header';
@@ -97,16 +97,18 @@ export default function CommunityScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
-      <CommunityHeader />
-      <CommunityFilter selectedIndex={filterIndex} onSelect={handleFilterSelect} color="blue" />
-      <PostList
-        posts={posts}
-        onLoadMore={handleLoadMore}
-        onRefresh={handleRefresh}
-        isLoading={loading}
-        isRefreshing={refreshing}
-        filterIndex={filterIndex}
-      />
+      <View className="flex-1 md:self-center md:w-full md:max-w-[600px]">
+        <CommunityHeader />
+        <CommunityFilter selectedIndex={filterIndex} onSelect={handleFilterSelect} color="blue" />
+        <PostList
+          posts={posts}
+          onLoadMore={handleLoadMore}
+          onRefresh={handleRefresh}
+          isLoading={loading}
+          isRefreshing={refreshing}
+          filterIndex={filterIndex}
+        />
+      </View>
       <Pressable
         onPress={() => router.push('/community/write')}
         className="absolute bottom-[104px] shadow-gray-100 right-5 w-14 h-14 rounded-full bg-sky-300 items-center justify-center"

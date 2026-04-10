@@ -29,7 +29,7 @@ export function DonutStat({
 
   return (
     <View className="items-center gap-1">
-      <Text className="text-label-sm">{label}</Text>
+      <Text className="text-label-sm md:text-label-md">{label}</Text>
 
       <View style={{ width: SIZE, height: SIZE }}>
         <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
@@ -76,7 +76,10 @@ export function DonutStat({
             justifyContent: 'center',
           }}
         >
-          <Text className="text-caption-sm" style={{ color: isOver ? '#EF4444' : undefined }}>
+          <Text
+            className={size === 'sm' ? 'text-caption-sm' : 'text-body-sm'}
+            style={{ color: isOver ? '#EF4444' : undefined }}
+          >
             {current}/{total}
           </Text>
         </View>

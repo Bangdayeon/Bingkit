@@ -111,7 +111,7 @@ export default function BingoPreview({
                 }}
               >
                 <Text
-                  className="text-caption-sm text-center"
+                  className="text-caption-sm text-center md:text-body-md"
                   style={{ color: '#181C1C' }}
                   numberOfLines={2}
                 >

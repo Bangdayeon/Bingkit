@@ -18,6 +18,7 @@ import { ProfileAvatar } from '@/components/ProfileAvatar';
 import { Information } from '@/components/Information';
 import { DonutStat } from '@/features/bingo/components/DonutStat';
 import { calcMaxBingo } from '@/lib/calcMaxBingo';
+import { useResponsive } from '@/lib/use-responsive';
 import { Modal } from '@/components/Modal';
 import InfoIcon from '@/assets/icons/ic_info.svg';
 import MenuIcon from '@/assets/icons/ic_more_vert.svg';
@@ -59,6 +60,9 @@ export default function BattleStatusScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { battleId } = useLocalSearchParams<{ battleId: string }>();
+
+  const { isTablet } = useResponsive();
+  const donutSize = isTablet ? 'md' : 'sm';
 
   const [detail, setDetail] = useState<BattleStatusDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -149,7 +153,7 @@ export default function BattleStatusScreen() {
             <View className="mx-5 mb-8">
               <Text className="text-title-md mb-1">내기 내용</Text>
               <View className="p-4 bg-gray-100 dark:bg-gray-800 rounded-2xl">
-                <Text className="text-body-md">{detail.betText}</Text>
+                <Text className="text-body-md md:text-body-lg">{detail.betText}</Text>
               </View>
             </View>
           )}
@@ -159,7 +163,7 @@ export default function BattleStatusScreen() {
             <View className="flex-1 w-1/2">
               <View className="flex-row gap-2 items-center">
                 <ProfileAvatar avatarUrl={detail.myBoard.avatarUrl} size={28} />
-                <Text className="text-body-md">
+                <Text className="text-body-md md:text-body-lg">
                   {detail.myBoard.displayName}
                   {detail.myScore > detail.friendScore ? ' 🔥' : ''}
                 </Text>
@@ -169,7 +173,7 @@ export default function BattleStatusScreen() {
             <View className="flex-1 w-1/2">
               <View className="flex-row gap-2 items-center">
                 <ProfileAvatar avatarUrl={detail.friendBoard.avatarUrl} size={28} />
-                <Text className="text-body-md">
+                <Text className="text-body-md md:text-body-lg">
                   {detail.friendBoard.displayName}
                   {detail.friendScore > detail.myScore ? ' 🔥' : ''}
                 </Text>
@@ -182,7 +186,7 @@ export default function BattleStatusScreen() {
             <View className="rounded-xl overflow-hidden">
               <BingoPreview
                 bingo={myBingo}
-                className="w-48"
+                className="w-48 md:w-[360px]"
                 completedCells={detail.myBoard.completedCells}
                 onPress={() => setSelectedBingo(myBingo)}
               />
@@ -190,7 +194,7 @@ export default function BattleStatusScreen() {
             <View className="rounded-xl overflow-hidden">
               <BingoPreview
                 bingo={friendBingo}
-                className="w-48"
+                className="w-48 md:w-[360px]"
                 completedCells={detail.friendBoard.completedCells}
                 onPress={() => setSelectedBingo(friendBingo)}
               />
@@ -205,13 +209,13 @@ export default function BattleStatusScreen() {
                   label="달성"
                   current={myBingo.achievedCount}
                   total={my_cols * my_rows}
-                  size="sm"
+                  size={donutSize}
                 />
                 <DonutStat
                   label="빙고"
                   current={myBingo.bingoCount}
                   total={calcMaxBingo(my_cols, my_rows)}
-                  size="sm"
+                  size={donutSize}
                 />
               </View>
               <Text className="text-title-lg">{detail.myScore}점</Text>
@@ -223,13 +227,13 @@ export default function BattleStatusScreen() {
                   label="달성"
                   current={friendBingo.achievedCount}
                   total={friend_cols * friend_rows}
-                  size="sm"
+                  size={donutSize}
                 />
                 <DonutStat
                   label="빙고"
                   current={friendBingo.bingoCount}
                   total={calcMaxBingo(friend_cols, friend_rows)}
-                  size="sm"
+                  size={donutSize}
                 />
               </View>
               <Text className="text-title-lg">{detail.friendScore}점</Text>
@@ -238,7 +242,7 @@ export default function BattleStatusScreen() {
 
           <View className="flex-row items-center gap-2 mx-5 bg-gray-200 rounded-2xl p-3 mt-8">
             <InfoIcon width={20} height={20} color="#4C5252" />
-            <Text className="text-caption-md ">
+            <Text className="text-caption-md md:text-body-md">
               점수는 1칸 = 1점, 빙고 1줄 = 보너스 2점으로 합산돼요.
             </Text>
           </View>

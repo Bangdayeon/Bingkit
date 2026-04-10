@@ -30,8 +30,8 @@ const variantStyles: Record<Variant, { container: string; text: string }> = {
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'h-10', // 약 40px
-  md: 'h-14', // 약 56px
+  sm: 'h-10 md:h-12', // phone: 40px / tablet: 48px
+  md: 'h-14 md:h-[60px]', // phone: 56px / tablet: 60px
 };
 
 export default function Button({
@@ -62,7 +62,7 @@ export default function Button({
         <ActivityIndicator color={variant === 'secondary' ? '#181C1C' : '#ffffff'} />
       ) : (
         <Text
-          className={`text-label-sm ${text}`}
+          className={`text-label-sm md:text-label-md ${text}`}
           style={variant === 'primary' ? { color: '#181C1C' } : undefined}
         >
           {label}

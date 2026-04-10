@@ -8,7 +8,7 @@ export function GuestLoginButton() {
       onPress={() => router.push('/(auth)/email-login')}
       className="w-full h-14 rounded-xl items-center justify-center"
     >
-      <Text className="text-base font-semibold">이메일로 시작하기</Text>
+      <Text className="text-base font-semibold md:text-lg">이메일로 시작하기</Text>
     </TouchableOpacity>
   );
 }

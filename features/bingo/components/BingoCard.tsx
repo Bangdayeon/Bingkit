@@ -1,7 +1,8 @@
 // BingoCard.tsx (수정)
 
-import { Dimensions, Image, Pressable, TouchableOpacity, View } from 'react-native';
+import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Text';
+import { useResponsive } from '@/lib/use-responsive';
 import EditIcon from '@/assets/icons/ic_edit.svg';
 import AddBattleIcon from '@/assets/icons/ic_add_battle.svg';
 import BattleIcon from '@/assets/icons/ic_battle.svg';
@@ -72,9 +73,10 @@ export function BingoCard({
     load();
   }, [bingo.theme, bingo.grid]);
 
+  const { isTablet, contentWidth } = useResponsive();
   const [cols, rows] = bingo.grid.split('x').map(Number);
   const textStyle = bingo.grid === '3x3' ? 'text-body-sm' : 'text-caption-md';
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = contentWidth;
 
   const [dayElapsed, dayTotal] = calcDayProgress(bingo.startDate, bingo.targetDate);
   const formattedEndDate = formatDate(bingo.targetDate);
@@ -98,7 +100,7 @@ export function BingoCard({
   const gapY = cfg.gapY * scale;
 
   return (
-    <View className="pb-24">
+    <View className={`pb-24${isTablet ? ' items-center' : ''}`}>
       <View style={{ width: screenWidth, height: cardHeight }}>
         <Image
           source={{ uri: image }}
@@ -155,7 +157,7 @@ export function BingoCard({
         })}
       </View>
 
-      <View className="mt-10">
+      <View className="mt-10" style={isTablet ? { width: screenWidth } : undefined}>
         <View className="flex-row">
           <View className="flex-1 items-center">
             <DonutStat label="달성" current={bingo.achievedCount} total={cols * rows} />

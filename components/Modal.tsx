@@ -44,7 +44,7 @@ export function Modal({
         className="flex-1 bg-black/40 items-center justify-center px-5"
         onPress={onDismiss}
       >
-        <Pressable className="w-full bg-white dark:bg-gray-900 rounded-[24px] px-6 pt-6 pb-5">
+        <Pressable className="w-full md:max-w-[480px] bg-white dark:bg-gray-900 rounded-[24px] px-6 pt-6 pb-5">
           {/* Title */}
           <Text className="text-title-sm mb-3">{title}</Text>
 

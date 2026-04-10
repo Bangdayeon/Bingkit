@@ -5,24 +5,22 @@ import CheckIcon from '@/assets/icons/ic_check.svg';
 import { BingoCellDetail } from '@/types/bingo-cell';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Dimensions,
   FlatList,
   Modal,
   Pressable,
   TextInput as RNTextInput,
   View,
   useColorScheme,
+  useWindowDimensions,
 } from 'react-native';
+import { TABLET_MAX_CONTENT_WIDTH } from '@/lib/use-responsive';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconButton from '@/components/IconButton';
 
-const SCREEN_W = Dimensions.get('window').width;
 const PEEK = 20;
 const CARD_MARGIN = 4;
-const CARD_WIDTH = SCREEN_W - PEEK * 2;
 const CARD_HEIGHT = 460;
-const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN * 2;
 
 type CellUpdate = Partial<Pick<BingoCellDetail, 'completed' | 'completedAt' | 'memo'>>;
 
@@ -60,6 +58,9 @@ export function BingoCellModal({
 }: BingoCellModalProps) {
   const insets = useSafeAreaInsets();
   const isDark = useColorScheme() === 'dark';
+  const { width } = useWindowDimensions();
+  const CARD_WIDTH = Math.min(width, TABLET_MAX_CONTENT_WIDTH) - PEEK * 2;
+  const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN * 2;
   const flatListRef = useRef<FlatList<BingoCellDetail>>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [datePickerCellId, setDatePickerCellId] = useState<string | null>(null);

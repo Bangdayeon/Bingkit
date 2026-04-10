@@ -1,6 +1,7 @@
 import { Modal } from '@/components/Modal';
 import { useEffect, useState } from 'react';
-import { Dimensions, Image, TouchableOpacity, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
+import { useResponsive } from '@/lib/use-responsive';
 import { Text } from '@/components/Text';
 import { TextInput } from '@/components/TextInput';
 import {
@@ -50,8 +51,9 @@ export function AddEachBingo({
     load();
   }, [theme, selectedGrid]);
 
+  const { contentWidth } = useResponsive();
   const [cols, rows] = selectedGrid.split('x').map(Number);
-  const availableWidth = Dimensions.get('window').width - 40;
+  const availableWidth = contentWidth - 40;
   const textStyle = selectedGrid === '3x3' ? 'text-body-sm' : 'text-caption-md';
 
   const handleCellPress = (index: number) => {

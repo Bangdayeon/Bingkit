@@ -72,7 +72,7 @@ export function SettingPage() {
   };
 
   return (
-    <ScrollView className="flex-1 mt-[52px] bg-white px-5 dark:bg-gray-900">
+    <ScrollView className="flex-1 mt-[52px] bg-white px-5 dark:bg-gray-900 md:self-center md:w-full md:max-w-[600px]">
       <View className="h-5" />
       {/* 프로필 영역 */}
       <View className="flex-row items-start mb-5  gap-4 h-[100px]">

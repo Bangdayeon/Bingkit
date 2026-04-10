@@ -3,6 +3,7 @@ import { AppState, Platform, useColorScheme, View } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useResponsive, TABLET_MAX_MODAL_WIDTH } from '@/lib/use-responsive';
 
 import HomeOff from '@/assets/icons/home_off.svg';
 import HomeOn from '@/assets/icons/home_on.svg';
@@ -67,15 +68,21 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
   const isDark = colorScheme === 'dark';
   const activeTabName = state.routes[state.index].name;
   const hasUnread = useUnreadNotifications(activeTabName);
+  const { isTablet, width } = useResponsive();
+
+  const TAB_HEIGHT = isTablet ? 72 : 64;
+  const TAB_BAR_WIDTH = TABLET_MAX_MODAL_WIDTH;
+  const horizontalPos = isTablet
+    ? { left: (width - TAB_BAR_WIDTH) / 2, right: (width - TAB_BAR_WIDTH) / 2 }
+    : { left: 24, right: 24 };
 
   return (
     <View
       style={{
         position: 'absolute',
         bottom: 28,
-        left: 24,
-        right: 24,
-        height: 64,
+        ...horizontalPos,
+        height: TAB_HEIGHT,
         backgroundColor: isDark ? '#4C5252' : '#ffffff',
         borderRadius: 32,
         flexDirection: 'row',
