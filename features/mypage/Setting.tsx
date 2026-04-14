@@ -208,6 +208,7 @@ export function SettingPage() {
         onPress={() => {}}
         rightText={`v ${Constants.expoConfig?.version ?? '1.0.0'}`}
       />
+      <MenuItem label="개발자 이메일" onPress={() => {}} rightText="dybang00@gmail.com" />
 
       <View className="h-px bg-gray-200 dark:bg-gray-700" />
 
