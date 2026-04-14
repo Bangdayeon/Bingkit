@@ -12,6 +12,8 @@ interface ModalProps {
   variant?: ModalVariant;
   confirmLabel?: string;
   cancelLabel?: string;
+  confirmDisabled?: boolean;
+  confirmLoading?: boolean;
   onConfirm: () => void;
   onCancel?: () => void;
   onDismiss?: () => void;
@@ -24,6 +26,8 @@ export function Modal({
   variant = 'default',
   confirmLabel = '확인',
   cancelLabel = '취소',
+  confirmDisabled = false,
+  confirmLoading = false,
   onConfirm,
   onCancel,
   onDismiss,
@@ -61,7 +65,13 @@ export function Modal({
 
           {/* Buttons */}
           {variant === 'single' || variant === 'success' || variant === 'error' ? (
-            <Button label={confirmLabel} variant={getConfirmVariant()} onClick={onConfirm} />
+            <Button
+              label={confirmLabel}
+              variant={getConfirmVariant()}
+              onClick={onConfirm}
+              disabled={confirmDisabled}
+              loading={confirmLoading}
+            />
           ) : (
             <View className="flex-row gap-3">
               <Button
@@ -74,6 +84,8 @@ export function Modal({
                 label={confirmLabel}
                 variant={getConfirmVariant()}
                 onClick={onConfirm}
+                disabled={confirmDisabled}
+                loading={confirmLoading}
                 className="flex-1"
               />
             </View>

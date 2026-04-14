@@ -239,6 +239,24 @@ export const fetchMyPosts = async (): Promise<MyPost[]> => {
   }));
 };
 
+export const submitReport = async (content: string): Promise<void> => {
+  await supabase.auth.getUser();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) throw new Error('로그인이 필요합니다.');
+
+  const { error } = await supabase.functions.invoke('submit-report', {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+    body: { content: content.trim() },
+  });
+
+  if (error) {
+    const body = await (error as { context?: Response }).context?.text?.();
+    throw new Error(body ?? error.message);
+  }
+};
+
 export const deleteAccount = async (): Promise<void> => {
   // getUser() triggers token refresh before getSession() — needed for Kakao
   await supabase.auth.getUser();

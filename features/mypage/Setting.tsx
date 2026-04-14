@@ -11,13 +11,12 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 import { ProfileAvatar } from '@/components/ProfileAvatar';
 import { Text } from '@/components/Text';
 import { MenuItem } from './MenuItem';
 import { Modal } from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
-import { fetchMyProfile, MyProfile } from '@/features/mypage/lib/mypage';
+import { fetchMyProfile, MyProfile, submitReport } from '@/features/mypage/lib/mypage';
 import * as WebBrowser from 'expo-web-browser';
 import { getCache, setCache } from '@/lib/cache';
 
@@ -31,11 +30,15 @@ import Privacy from '@/assets/pngIcons/privacy.png';
 import Update from '@/assets/pngIcons/update.png';
 import { CACHE_KEY_PROFILE } from '@/constants/cache_key';
 import { PROFILE_TTL } from '@/constants/cache_key';
+import { TextInput } from '@/components/TextInput';
 
 export function SettingPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<MyProfile | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showAskModal, setShowAskModal] = useState(false);
+  const [reportInputText, setReportInputText] = useState('');
+  const [isReportLoading, setIsReportLoading] = useState(false);
 
   const ANDROID_PACKAGE_NAME = 'com.my.app'; // TODO
   const IOS_APP_ID = '1234567890'; // TODO
@@ -78,6 +81,22 @@ export function SettingPage() {
   const handleLogout = async () => {
     setShowLogoutModal(false);
     await supabase.auth.signOut();
+  };
+
+  const handleReport = async () => {
+    if (!reportInputText.trim()) return;
+    setIsReportLoading(true);
+    try {
+      await submitReport(reportInputText);
+      setShowAskModal(false);
+      setReportInputText('');
+      Alert.alert('문의가 접수되었습니다', '빠른 시간 내에 검토 후 조치하겠습니다.');
+    } catch (e) {
+      Sentry.captureException(e);
+      Alert.alert('오류', '문의 접수에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsReportLoading(false);
+    }
   };
 
   return (
@@ -179,19 +198,7 @@ export function SettingPage() {
       />
       <MenuItem
         label="빠른 문의"
-        onPress={async () => {
-          const url = 'mailto:dybang00@gmail.com?subject=[빙킷] 문의';
-          const supported = await Linking.canOpenURL(url);
-          if (supported) {
-            await Linking.openURL(url);
-          } else {
-            await Clipboard.setStringAsync('dybang00@gmail.com');
-            Alert.alert(
-              '이메일 앱을 열 수 없어요',
-              '이메일 주소가 클립보드에 복사되었습니다.\ndybang00@gmail.com',
-            );
-          }
-        }}
+        onPress={() => setShowAskModal(true)}
         rightText="dybang00@gmail.com"
       />
       <MenuItem
@@ -214,6 +221,40 @@ export function SettingPage() {
         onCancel={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
         onDismiss={() => setShowLogoutModal(false)}
+      />
+      {/* 빠른 문의 모달 */}
+      <Modal
+        visible={showAskModal}
+        title="문의/신고하기"
+        confirmLabel="제출"
+        cancelLabel="취소"
+        confirmDisabled={!reportInputText.trim()}
+        confirmLoading={isReportLoading}
+        onConfirm={() => void handleReport()}
+        onCancel={() => {
+          setShowAskModal(false);
+          setReportInputText('');
+        }}
+        onDismiss={() => {
+          setShowAskModal(false);
+          setReportInputText('');
+        }}
+        body={
+          <View>
+            <TextInput
+              value={reportInputText}
+              onChangeText={(v) => setReportInputText(v.slice(0, 500))}
+              placeholder="문의/신고하실 내용을 입력하세요."
+              maxLength={500}
+              maxHeight={120}
+              className="min-h-[72px]"
+              style={{ textAlignVertical: 'top' }}
+            />
+            <Text className="text-caption-md text-gray-400 dark:text-gray-500 text-right mt-1">
+              {reportInputText.length}/500
+            </Text>
+          </View>
+        }
       />
     </ScrollView>
   );
