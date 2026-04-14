@@ -28,9 +28,7 @@ function NotificationItem({ item, onRead, onAction, onFriendResponse }: Notifica
 
   const handlePress = async () => {
     await onRead();
-    if (!isFriendRequest && !isBattleRequest && !isBattleAccepted) {
-      onAction(item.type, item.target_id);
-    }
+    onAction(item.type, item.target_id);
   };
 
   const handleFriendResponse = async (accept: boolean) => {
@@ -122,13 +120,17 @@ export default function NotificationsScreen() {
   };
 
   const handleAction = (type: string, targetId: string | null) => {
-    if (!targetId) return;
-    if (type === 'battle_request') {
+    if (type === 'friend_request') {
+      router.push('/mypage/friend-list');
+    } else if (type === 'battle_request' && targetId) {
       router.push({ pathname: '/bingo/battle-check', params: { requestId: targetId } });
-    } else if (type === 'battle_accepted') {
+    } else if (type === 'battle_accepted' && targetId) {
       router.push({ pathname: '/bingo/battle-status', params: { battleId: targetId } });
-    } else if (type === 'comment' || type === 'reply' || type === 'like' || type === 'popular') {
-      router.push({ pathname: '/bingo/view', params: { bingoId: targetId } });
+    } else if (
+      (type === 'comment' || type === 'reply' || type === 'like' || type === 'popular') &&
+      targetId
+    ) {
+      router.push(`/community/${targetId}`);
     }
   };
 
