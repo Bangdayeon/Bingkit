@@ -72,12 +72,16 @@ async function signInWithGoogle(): Promise<void> {
   }
 }
 
-export function GoogleButton() {
+interface GoogleButtonProps {
+  requireAgreement: (action: () => Promise<void>) => Promise<void>;
+}
+
+export function GoogleButton({ requireAgreement }: GoogleButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {
     setLoading(true);
-    await signInWithGoogle();
+    await requireAgreement(signInWithGoogle);
     setLoading(false);
   };
 

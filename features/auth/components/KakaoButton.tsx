@@ -44,13 +44,17 @@ async function signInWithKakao(): Promise<void> {
   router.replace('/(tabs)');
 }
 
-export function KakaoButton() {
+interface KakaoButtonProps {
+  requireAgreement: (action: () => Promise<void>) => Promise<void>;
+}
+
+export function KakaoButton({ requireAgreement }: KakaoButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {
     setLoading(true);
     try {
-      await signInWithKakao();
+      await requireAgreement(signInWithKakao);
     } catch (e) {
       Sentry.captureException(e);
     } finally {

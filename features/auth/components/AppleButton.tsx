@@ -55,7 +55,11 @@ async function signInWithApple(): Promise<void> {
     );
 }
 
-export function AppleButton() {
+interface AppleButtonProps {
+  requireAgreement: (action: () => Promise<void>) => Promise<void>;
+}
+
+export function AppleButton({ requireAgreement }: AppleButtonProps) {
   const [loading, setLoading] = useState(false);
 
   if (Platform.OS !== 'ios') return null;
@@ -63,7 +67,7 @@ export function AppleButton() {
   const handlePress = async () => {
     setLoading(true);
     try {
-      await signInWithApple();
+      await requireAgreement(signInWithApple);
     } catch (e: unknown) {
       if (
         typeof e === 'object' &&
