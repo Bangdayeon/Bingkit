@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -12,6 +11,7 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
+import { AutoHeightImage } from '@/components/AutoHeightImage';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -404,11 +404,7 @@ export default function CommunityWriteScreen() {
                 : (block as EditorBlock & { type: 'existing-image' }).url;
             return (
               <View key={block.id} style={{ marginHorizontal: 20, marginVertical: 8 }}>
-                <Image
-                  source={{ uri }}
-                  style={{ width: '100%', height: 220, borderRadius: 12 }}
-                  resizeMode="cover"
-                />
+                <AutoHeightImage uri={uri} />
                 <Pressable
                   onPress={() => removeMedia(block.id)}
                   style={{

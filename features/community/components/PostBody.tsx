@@ -1,6 +1,6 @@
 import { View } from 'react-native';
-import { Image } from 'expo-image';
 import { Text } from '@/components/Text';
+import { AutoHeightImage } from '@/components/AutoHeightImage';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { LikeButton } from './LikeButton';
 import AnonymousProfile from '@/components/AnonymousProfile';
@@ -90,15 +90,7 @@ export function PostBody({ post, iconColor }: PostBodyProps) {
           {mediaBlocks.map((block, i) => {
             if (block.type === 'image') {
               const url = (post.imageUrls ?? [])[block.index];
-              return url ? (
-                <Image
-                  key={i}
-                  source={{ uri: url }}
-                  style={{ width: '100%', height: 220, borderRadius: 12, marginTop: 12 }}
-                  contentFit="cover"
-                  cachePolicy="memory"
-                />
-              ) : null;
+              return url ? <AutoHeightImage key={i} uri={url} marginTop={12} /> : null;
             }
             if (block.type === 'bingo' && bingoData) {
               return (
@@ -119,13 +111,7 @@ export function PostBody({ post, iconColor }: PostBodyProps) {
             </View>
           )}
           {post.imageUrls?.map((url, i) => (
-            <Image
-              key={i}
-              source={{ uri: url }}
-              style={{ width: '100%', height: 220, borderRadius: 12, marginTop: 12 }}
-              contentFit="cover"
-              cachePolicy="memory"
-            />
+            <AutoHeightImage key={i} uri={url} marginTop={12} />
           ))}
         </>
       )}
