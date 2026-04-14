@@ -1,8 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 Deno.serve(async (req) => {
-  console.log('--- delete-account start ---');
-
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
     return new Response('Unauthorized - no header', { status: 401 });
@@ -22,8 +20,6 @@ Deno.serve(async (req) => {
   if (userError || !user) {
     return new Response('Unauthorized - invalid token', { status: 401 });
   }
-
-  console.log('user.id:', user.id);
 
   // 1. FK 걸린 데이터 먼저 삭제/정리
   await adminClient.from('notifications').delete().eq('user_id', user.id);
@@ -49,8 +45,6 @@ Deno.serve(async (req) => {
     console.error('auth delete error:', authDeleteError);
     return new Response(authDeleteError.message, { status: 500 });
   }
-
-  console.log('--- delete-account success ---');
 
   return new Response(JSON.stringify({ ok: true }), {
     headers: { 'Content-Type': 'application/json' },

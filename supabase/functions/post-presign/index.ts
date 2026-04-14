@@ -35,32 +35,25 @@ Deno.serve(async (req) => {
   }
 
   const token = authHeader.slice(7);
-  console.log('authHeader:', authHeader);
-
   let userId: string;
   try {
     const payload = decodeJwtPayload(token);
-    console.log('payload:', payload);
     if (typeof payload.sub !== 'string' || !payload.sub) {
       throw new Error('sub claim 없음');
     }
     userId = payload.sub;
   } catch (e) {
-    console.log('token decode error:', String(e));
     return new Response(JSON.stringify({ error: 'Invalid token', detail: String(e) }), {
       status: 401,
     });
   }
 
   const body = (await req.json()) as { filename: string; contentType: string };
-  console.log('body:', body);
 
   const { filename, contentType } = body;
 
   const ext = filename.split('.').pop();
   const key = `posts/${userId}/${crypto.randomUUID()}.${ext ?? 'jpg'}`;
-  console.log('userId:', userId);
-  console.log('key:', key);
 
   const presignedUrl = await getSignedUrl(
     r2,
