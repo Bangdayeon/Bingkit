@@ -1,5 +1,11 @@
 import { supabase } from '@/lib/supabase';
 
+export interface SenderProfile {
+  displayName: string;
+  username: string;
+  avatarUrl: string | null;
+}
+
 export interface Notification {
   id: string;
   type: string;
@@ -8,7 +14,13 @@ export interface Notification {
   target_type: string | null;
   is_read: boolean;
   created_at: string;
+  senderProfile?: SenderProfile;
 }
+
+type RequestRow = {
+  id: string;
+  sender: { display_name: string; username: string; avatar_url: string | null } | null;
+};
 
 export const fetchNotifications = async (): Promise<Notification[]> => {
   const {
@@ -24,7 +36,62 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     .limit(50);
 
   if (error) throw error;
-  return data ?? [];
+  const notifications = data ?? [];
+
+  // friend_request / battle_request 알림에 sender 프로필 병렬 조회
+  const friendIds = notifications
+    .filter((n) => n.type === 'friend_request' && n.target_id)
+    .map((n) => n.target_id as string);
+  const battleIds = notifications
+    .filter((n) => n.type === 'battle_request' && n.target_id)
+    .map((n) => n.target_id as string);
+
+  const senderMap = new Map<string, SenderProfile>();
+
+  const [friendRows, battleRows] = await Promise.all([
+    friendIds.length > 0
+      ? supabase
+          .from('friend_requests')
+          .select(
+            'id, sender:users!friend_requests_sender_id_fkey(display_name, username, avatar_url)',
+          )
+          .in('id', friendIds)
+          .returns<RequestRow[]>()
+      : Promise.resolve({ data: [] as RequestRow[] }),
+    battleIds.length > 0
+      ? supabase
+          .from('battle_requests')
+          .select(
+            'id, sender:users!battle_requests_sender_id_fkey(display_name, username, avatar_url)',
+          )
+          .in('id', battleIds)
+          .returns<RequestRow[]>()
+      : Promise.resolve({ data: [] as RequestRow[] }),
+  ]);
+
+  for (const row of friendRows.data ?? []) {
+    if (row.sender) {
+      senderMap.set(row.id, {
+        displayName: row.sender.display_name,
+        username: row.sender.username,
+        avatarUrl: row.sender.avatar_url,
+      });
+    }
+  }
+  for (const row of battleRows.data ?? []) {
+    if (row.sender) {
+      senderMap.set(row.id, {
+        displayName: row.sender.display_name,
+        username: row.sender.username,
+        avatarUrl: row.sender.avatar_url,
+      });
+    }
+  }
+
+  return notifications.map((n) => ({
+    ...n,
+    senderProfile: n.target_id ? senderMap.get(n.target_id) : undefined,
+  }));
 };
 
 export const markAllNotificationsRead = async (): Promise<void> => {
@@ -36,7 +103,7 @@ export const markAllNotificationsRead = async (): Promise<void> => {
   const { error } = await supabase
     .from('notifications')
     .update({ is_read: true })
-    .eq('user_id', user.id) // 추가
+    .eq('user_id', user.id)
     .eq('is_read', false);
 
   if (error) throw error;

@@ -12,6 +12,7 @@ import {
 } from '@/features/notifications/lib/notifications';
 import { supabase } from '@/lib/supabase';
 import Loading from '@/components/Loading';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
 
 interface NotificationItemProps {
   item: Notification;
@@ -46,6 +47,19 @@ function NotificationItem({ item, onRead, onAction, onFriendResponse }: Notifica
       }`}
       onPress={handlePress}
     >
+      {/* 친구/배틀 요청: sender 프로필 */}
+      {(isFriendRequest || isBattleRequest) && item.senderProfile && (
+        <View className="flex-row items-center gap-3 mb-3">
+          <ProfileAvatar avatarUrl={item.senderProfile.avatarUrl} size={40} />
+          <View>
+            <Text className="text-label-sm">{item.senderProfile.displayName}</Text>
+            <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
+              @{item.senderProfile.username}
+            </Text>
+          </View>
+        </View>
+      )}
+
       <Text className="text-body-lg mb-3">{item.message}</Text>
 
       {/* 친구 요청: 수락/거절 버튼 */}
@@ -145,7 +159,13 @@ export default function NotificationsScreen() {
       return;
     }
 
-    // 해당 알림을 목록에서 제거
+    // 알림 DB에서 삭제 (재진입 시 버튼 재노출 방지)
+    await supabase
+      .from('notifications')
+      .delete()
+      .eq('target_id', requestId)
+      .eq('type', 'friend_request');
+
     setNotifications((prev) => prev.filter((n) => n.target_id !== requestId));
   };
 
