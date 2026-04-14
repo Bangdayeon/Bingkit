@@ -18,10 +18,11 @@ export function useAgreement() {
   const onAgree = useCallback(async () => {
     await saveAgreement();
     setModalVisible(false);
-    if (pendingActionRef.current) {
-      await pendingActionRef.current();
+
+    setTimeout(() => {
+      pendingActionRef.current?.();
       pendingActionRef.current = null;
-    }
+    }, 0);
   }, []);
 
   const onDismiss = useCallback(() => {

@@ -65,23 +65,29 @@ export function AppleButton({ requireAgreement }: AppleButtonProps) {
   if (Platform.OS !== 'ios') return null;
 
   const handlePress = async () => {
-    setLoading(true);
     try {
-      await requireAgreement(signInWithApple);
-    } catch (e: unknown) {
-      if (
-        typeof e === 'object' &&
-        e !== null &&
-        'code' in e &&
-        (e as { code: string }).code === 'ERR_REQUEST_CANCELED'
-      ) {
-        return;
-      }
-      const message = e instanceof Error ? e.message : String(e);
-      Alert.alert('Apple 로그인 실패', message);
+      await requireAgreement(async () => {
+        setLoading(true);
+        try {
+          await signInWithApple();
+        } catch (e: unknown) {
+          if (
+            typeof e === 'object' &&
+            e !== null &&
+            'code' in e &&
+            (e as { code: string }).code === 'ERR_REQUEST_CANCELED'
+          ) {
+            return;
+          }
+          const message = e instanceof Error ? e.message : String(e);
+          Alert.alert('Apple 로그인 실패', message);
+          Sentry.captureException(e);
+        } finally {
+          setLoading(false);
+        }
+      });
+    } catch (e) {
       Sentry.captureException(e);
-    } finally {
-      setLoading(false);
     }
   };
 

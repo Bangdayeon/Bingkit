@@ -262,5 +262,7 @@ export const deleteAccount = async (): Promise<void> => {
   // 탈퇴 시 모든 로컬 캐시 제거
   await AsyncStorage.multiRemove(['@bingket/cache-my-profile', '@bingket/draft-bingo']);
 
+  await AsyncStorage.removeItem('@bingket/terms-agreed');
+
   await supabase.auth.signOut();
 };

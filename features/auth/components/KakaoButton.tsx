@@ -52,13 +52,17 @@ export function KakaoButton({ requireAgreement }: KakaoButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {
-    setLoading(true);
     try {
-      await requireAgreement(signInWithKakao);
+      await requireAgreement(async () => {
+        setLoading(true);
+        try {
+          await signInWithKakao();
+        } finally {
+          setLoading(false);
+        }
+      });
     } catch (e) {
       Sentry.captureException(e);
-    } finally {
-      setLoading(false);
     }
   };
 

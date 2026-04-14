@@ -80,9 +80,18 @@ export function GoogleButton({ requireAgreement }: GoogleButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handlePress = async () => {
-    setLoading(true);
-    await requireAgreement(signInWithGoogle);
-    setLoading(false);
+    try {
+      await requireAgreement(async () => {
+        setLoading(true);
+        try {
+          await signInWithGoogle();
+        } finally {
+          setLoading(false);
+        }
+      });
+    } catch (e) {
+      Sentry.captureException(e);
+    }
   };
 
   return (
