@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Pressable, View, useColorScheme } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Text } from '@/components/Text';
 
 interface DatePickerProps {
@@ -21,7 +21,6 @@ export function DatePicker({
   onConfirm,
   onDismiss,
 }: DatePickerProps) {
-  const isDark = useColorScheme() === 'dark';
   return (
     <>
       <Pressable
@@ -42,7 +41,7 @@ export function DatePicker({
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: isDark ? '#2E3333' /* gray-800 */ : '#FDFDFD' /* white */,
+          backgroundColor: '#FDFDFD' /* white */,
           borderTopLeftRadius: 16,
           borderTopRightRadius: 16,
           paddingHorizontal: 20,
@@ -52,7 +51,7 @@ export function DatePicker({
         }}
       >
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-body-sm text-gray-500 dark:text-gray-400">
+          <Text className="text-body-sm text-gray-500  ">
             {target === 'start' ? '시작일' : '종료일'} 선택
           </Text>
           <Pressable onPress={onConfirm}>
@@ -69,6 +68,7 @@ export function DatePicker({
             }}
             locale="ko-KR"
             style={{ flex: 1 }}
+            textColor={'#181C1C'}
             minimumDate={target === 'end' && startDate ? startDate : undefined}
           />
         </View>

@@ -12,7 +12,7 @@ interface BingoEditHeaderProps {
 export function BingoEditHeader({ title, onBack }: BingoEditHeaderProps) {
   const router = useRouter();
   return (
-    <View className="h-14 flex-row items-center border-b border-gray-100 dark:border-gray-800 px-4">
+    <View className="h-14 flex-row items-center border-b border-gray-100   px-4">
       <IconButton
         variant="ghost"
         icon={<BackArrowIcon width={20} height={20} />}

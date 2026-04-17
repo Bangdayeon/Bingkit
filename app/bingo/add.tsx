@@ -170,7 +170,7 @@ export default function BingoAddScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       <BingoEditHeader title="빙고 추가하기" onBack={handleBack} />
 
       <ScrollView
@@ -283,7 +283,7 @@ export default function BingoAddScreen() {
       )}
 
       <View
-        className="absolute bottom-0 left-0 right-0 flex-row gap-3 px-5 bg-white dark:bg-gray-900 pt-3 border-t border-gray-100 dark:border-gray-800"
+        className="absolute bottom-0 left-0 right-0 flex-row gap-3 px-5 bg-white   pt-3 border-t border-gray-100  "
         style={{ paddingBottom: insets.bottom + 8 }}
       >
         <Button label="임시 저장" variant="secondary" onClick={handleTempSave} className="flex-1" />

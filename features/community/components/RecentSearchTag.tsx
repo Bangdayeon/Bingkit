@@ -11,7 +11,7 @@ interface RecentSearchTagProps {
 export function RecentSearchTag({ label, onPress, onDelete }: RecentSearchTagProps) {
   return (
     <Animated.View layout={LinearTransition.duration(250)} exiting={FadeOutUp.duration(200)}>
-      <View className="flex-row items-center h-7 px-3 rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
+      <View className="flex-row items-center h-7 px-3 rounded-full border border-gray-300   bg-white  ">
         <Pressable onPress={onPress} hitSlop={4}>
           <Text className="text-body-sm">{label}</Text>
         </Pressable>

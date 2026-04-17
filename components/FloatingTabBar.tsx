@@ -1,5 +1,5 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { AppState, Platform, useColorScheme, View } from 'react-native';
+import { AppState, Platform, View } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -64,8 +64,6 @@ function useUnreadNotifications(activeTabName: string) {
 }
 
 export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
   const activeTabName = state.routes[state.index].name;
   const hasUnread = useUnreadNotifications(activeTabName);
   const { isTablet, width } = useResponsive();
@@ -83,7 +81,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
         bottom: 28,
         ...horizontalPos,
         height: TAB_HEIGHT,
-        backgroundColor: isDark ? '#4C5252' : '#ffffff',
+        backgroundColor: '#ffffff',
         borderRadius: 32,
         flexDirection: 'row',
         alignItems: 'center',

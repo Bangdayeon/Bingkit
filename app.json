@@ -67,7 +67,8 @@
           "project": "bingket"
         }
       ],
-      "expo-image"
+      "expo-image",
+      "expo-font"
     ],
     "extra": {
       "router": {},

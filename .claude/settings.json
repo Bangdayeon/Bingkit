@@ -34,7 +34,9 @@
       "Bash(ls -la /Users/bangdayeon/Desktop/Projects/Bingket/supabase/functions/*/index.ts)",
       "Bash(npx tsc:*)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); ios=d.get\\('expo',{}\\).get\\('ios',{}\\); print\\(json.dumps\\({'bundleId': ios.get\\('bundleIdentifier'\\), 'usesAppleSignIn': ios.get\\('usesAppleSignIn'\\)}, indent=2\\)\\)\")",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(xcodebuild -version)",
+      "Bash(xcrun --sdk iphoneos --show-sdk-version)"
     ]
   }
 }

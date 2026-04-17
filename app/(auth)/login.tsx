@@ -11,7 +11,7 @@ export default function LoginScreen() {
   const { requireAgreement, modalVisible, onAgree, onDismiss } = useAgreement();
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900 items-center">
+    <SafeAreaView className="flex-1 bg-white items-center">
       <View className="flex-1 w-full md:max-w-[480px] items-center justify-center">
         <Image
           source={require('../../assets/logoWithText_300.png')}

@@ -3,7 +3,7 @@ import { BingoAll } from '@/features/bingo/BingoAll';
 import { BingoHistory } from '@/features/bingo/BingoHistory';
 import { BingoBattle } from '@/features/bingo/BingoBattle';
 import { useCallback, useState } from 'react';
-import { Pressable, View, useColorScheme } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 
@@ -11,7 +11,6 @@ export default function HomeScreen() {
   const [tabIndex, setTabIndex] = useState(0);
   const [isReorderMode, setIsReorderMode] = useState(false);
   const insets = useSafeAreaInsets();
-  const isDark = useColorScheme() === 'dark';
 
   useFocusEffect(
     useCallback(() => {
@@ -24,14 +23,10 @@ export default function HomeScreen() {
     if (index !== 1) setIsReorderMode(false);
   };
 
-  const reorderIconColor = isReorderMode
-    ? isDark
-      ? '#F6F7F7' /* gray-100 */
-      : '#181C1C' /* gray-900 */
-    : '#B4BBBB'; /* gray-400 */
+  const reorderIconColor = isReorderMode ? '#181C1C' /* gray-900 */ : '#B4BBBB'; /* gray-400 */
 
   return (
-    <SafeAreaView className="relative flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="relative flex-1 bg-white">
       <HeaderTabBar
         menus={['전체', '기록', '대결']}
         onTabChange={handleTabChange}

@@ -38,7 +38,7 @@ export default function SplashScreen() {
   }, []);
 
   return (
-    <View className="flex-1 w-full h-full items-center justify-center bg-white dark:bg-gray-900">
+    <View className="flex-1 w-full h-full items-center justify-center bg-white">
       <Animated.Image
         source={require('../assets/app_icon.png')}
         style={{ width: 150, height: 150, opacity }}

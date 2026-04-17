@@ -49,7 +49,7 @@ export default function OnboardingScreen() {
   const isLast = currentIndex === slides.length - 1;
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-white">
       {/* 우측 상단 X 버튼 */}
       <View className="absolute top-10 right-0 z-10 p-4">
         <IconButton variant="ghost" icon={<CloseIcon />} onClick={goToLogin} />

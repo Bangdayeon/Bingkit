@@ -155,14 +155,14 @@ export function BingoAll() {
 
   if (loading) {
     return (
-      <View className="flex-1 mt-[50px] items-center justify-center bg-white dark:bg-gray-900">
+      <View className="flex-1 mt-[50px] items-center justify-center bg-white  ">
         <Loading color="6ADE50" />
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 mt-[60px] dark:bg-gray-900">
+    <ScrollView className="flex-1 mt-[60px]  ">
       {bingos.map((bingo) => (
         <BingoCard
           key={bingo.id}

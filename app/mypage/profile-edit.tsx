@@ -168,9 +168,9 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}

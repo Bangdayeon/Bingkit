@@ -94,7 +94,9 @@ module.exports = {
         kakao: '#FEE500',
       },
       fontFamily: {
-        pretendard: ['Pretendard Variable'],
+        nexon: ['Nexon-Lv1-Regular'],
+        'nexon-bold': ['Nexon-Lv1-Bold'],
+        'nexon-light': ['Nexon-Lv1-Light'],
       },
       fontSize: {
         // title

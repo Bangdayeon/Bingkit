@@ -13,8 +13,22 @@ import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { Appearance } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    'Nexon-Lv1-Regular': require('../assets/fonts/Nexon-Lv1-regular.otf'),
+    'Nexon-Lv1-Bold': require('../assets/fonts/Nexon-Lv1-Bold.otf'),
+    'Nexon-Lv1-Light': require('../assets/fonts/Nexon-Lv1-light.otf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
   useEffect(() => {
     AsyncStorage.getItem('@bingket/app-theme').then((saved) => {
       if (saved === 'light' || saved === 'dark') {

@@ -51,7 +51,7 @@ export function AgreementModal({ visible, onAgree, onDismiss }: AgreementModalPr
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleDismiss}>
       <Pressable className="flex-1 bg-black/40 justify-end" onPress={handleDismiss}>
-        <Pressable className="bg-white dark:bg-gray-900 rounded-t-[24px] px-5 pt-6 pb-10">
+        <Pressable className="bg-white   rounded-t-[24px] px-5 pt-6 pb-10">
           {/* Title */}
           <Text className="text-title-sm mb-6">서비스 이용 필수 동의</Text>
 
@@ -66,7 +66,7 @@ export function AgreementModal({ visible, onAgree, onDismiss }: AgreementModalPr
           </TouchableOpacity>
 
           {/* 구분선 */}
-          <View className="h-px bg-gray-100 dark:bg-gray-800 mb-4" />
+          <View className="h-px bg-gray-100   mb-4" />
 
           {/* 이용 약관 동의 */}
           <AgreementItem
@@ -142,7 +142,7 @@ function CheckCircle({ checked }: CheckCircleProps) {
   return (
     <View
       className={`w-6 h-6 rounded-full items-center justify-center ${
-        checked ? 'bg-green-400' : 'border-2 border-gray-300 dark:border-gray-600'
+        checked ? 'bg-green-400' : 'border-2 border-gray-300  '
       }`}
     >
       {checked && <CheckIcon width={14} height={14} color="#181C1C" />}

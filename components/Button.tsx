@@ -21,7 +21,7 @@ const variantStyles: Record<Variant, { container: string; text: string }> = {
     text: '',
   },
   secondary: {
-    container: 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700',
+    container: 'bg-white   border border-gray-200  ',
     text: '',
   },
   dangerous: {

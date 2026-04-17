@@ -9,7 +9,7 @@ import {
 } from '@/features/bingo/lib/bingo';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, TextInput, View, useColorScheme } from 'react-native';
+import { ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import IconButton from '@/components/IconButton';
 import { Text } from '@/components/Text';
@@ -24,7 +24,6 @@ import Loading from '@/components/Loading';
 export default function BingoViewScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const isDark = useColorScheme() === 'dark';
   const { bingoId } = useLocalSearchParams<{ bingoId: string }>();
 
   const [data, setData] = useState<FetchedBingo | null>(null);
@@ -79,7 +78,7 @@ export default function BingoViewScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+      <View className="flex-1 items-center justify-center bg-white  ">
         <Loading color="6ADE50" />
       </View>
     );
@@ -99,8 +98,8 @@ export default function BingoViewScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-200 dark:border-gray-800">
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-200  ">
         <IconButton
           variant="ghost"
           size={32}
@@ -151,11 +150,11 @@ export default function BingoViewScreen() {
               textAlignVertical="top"
               style={{
                 minHeight: 100,
-                backgroundColor: isDark ? '#1F2323' /* gray-800 */ : '#F6F7F7' /* gray-100 */,
+                backgroundColor: '#F6F7F7' /* gray-100 */,
                 borderRadius: 20,
                 padding: 16,
                 lineHeight: 20,
-                color: isDark ? '#F6F7F7' /* gray-100 */ : '#181C1C' /* gray-900 */,
+                color: '#181C1C' /* gray-900 */,
               }}
             />
             <Text className="text-caption-sm text-gray-400 text-right mt-1">

@@ -81,7 +81,7 @@ export default function BattleCheckScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+      <View className="flex-1 items-center justify-center bg-white  ">
         <Loading color="6ADE50" />
       </View>
     );
@@ -89,7 +89,7 @@ export default function BattleCheckScreen() {
 
   if (!detail) {
     return (
-      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+      <View className="flex-1 items-center justify-center bg-white  ">
         <Text className="text-body-md text-gray-400">요청을 불러올 수 없어요.</Text>
       </View>
     );
@@ -98,9 +98,9 @@ export default function BattleCheckScreen() {
   const senderBingoData = boardToBingoData(detail.senderBoard);
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}
@@ -131,8 +131,8 @@ export default function BattleCheckScreen() {
 
         {/* 내기 내용 */}
         {detail.betText ? (
-          <View className="p-4 bg-gray-100 dark:bg-gray-800 rounded-2xl mb-6">
-            <Text className="text-caption-sm text-gray-500 dark:text-gray-400 mb-1">내기 내용</Text>
+          <View className="p-4 bg-gray-100   rounded-2xl mb-6">
+            <Text className="text-caption-sm text-gray-500   mb-1">내기 내용</Text>
             <Text className="text-body-md">{detail.betText}</Text>
           </View>
         ) : null}
@@ -140,10 +140,8 @@ export default function BattleCheckScreen() {
         {/* 내 빙고 선택 */}
         <View className="mb-4">
           {selectedBoardId ? (
-            <View className="p-4 bg-green-50 dark:bg-green-900 rounded-2xl mb-3 flex-row items-center justify-between">
-              <Text className="text-caption-sm text-green-700 dark:text-green-300">
-                빙고판이 선택됐어요
-              </Text>
+            <View className="p-4 bg-green-50    rounded-2xl mb-3 flex-row items-center justify-between">
+              <Text className="text-caption-sm text-green-700  ">빙고판이 선택됐어요</Text>
               <Text
                 className="text-caption-sm text-gray-500"
                 onPress={() =>

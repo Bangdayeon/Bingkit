@@ -85,7 +85,7 @@ export function BingoCard({
     return (
       <View
         style={{ width: screenWidth, height: screenWidth * (FIGMA_H / FIGMA_W) }}
-        className="bg-gray-100 dark:bg-gray-800"
+        className="bg-gray-100  "
       />
     );
 

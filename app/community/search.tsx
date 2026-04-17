@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, TextInput as RNTextInput, View, useColorScheme } from 'react-native';
+import { FlatList, Pressable, TextInput as RNTextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,12 +15,11 @@ import Loading from '@/components/Loading';
 const MAX_RECENT = 10;
 const RECENT_SEARCHES_KEY = '@bingket/recent-searches';
 
-const Separator = () => <View className="h-px bg-gray-300 dark:bg-gray-700" />;
+const Separator = () => <View className="h-px bg-gray-300  " />;
 
 export default function CommunitySearchScreen() {
   const router = useRouter();
-  const isDark = useColorScheme() === 'dark';
-  const iconColor = isDark ? '#F6F7F7' /* gray-100 */ : '#4C5252'; /* gray-700 */
+  const iconColor = '#4C5252'; /* gray-700 */
   const inputRef = useRef<RNTextInput>(null);
 
   const [value, setValue] = useState('');
@@ -68,13 +67,13 @@ export default function CommunitySearchScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white  " edges={['top']}>
       {/* 헤더 */}
-      <View className="flex-row items-center h-[60px] px-4 gap-3 border-b border-gray-300 dark:border-gray-700">
+      <View className="flex-row items-center h-[60px] px-4 gap-3 border-b border-gray-300  ">
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <ArrowBackIcon width={24} height={24} color={iconColor} />
         </Pressable>
-        <View className="flex-1 flex-row items-center h-10 px-3 rounded-full bg-gray-200 dark:bg-gray-800 gap-2">
+        <View className="flex-1 flex-row items-center h-10 px-3 rounded-full bg-gray-200   gap-2">
           <SearchIcon width={20} height={20} color="#929898" /* gray-500 */ />
           <RNTextInput
             ref={inputRef}
@@ -92,7 +91,7 @@ export default function CommunitySearchScreen() {
               flex: 1,
               fontSize: 14,
               lineHeight: 18,
-              color: isDark ? '#F6F7F7' /* gray-100 */ : '#181C1C' /* gray-900 */,
+              color: '#181C1C' /* gray-900 */,
             }}
           />
           {value.length > 0 && (

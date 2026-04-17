@@ -8,7 +8,6 @@ import {
   ScrollView,
   TextInput as RNTextInput,
   View,
-  useColorScheme,
 } from 'react-native';
 import { AutoHeightImage } from '@/components/AutoHeightImage';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -113,8 +112,7 @@ export default function CommunityWriteScreen() {
   const isEditMode = !!params.postId;
 
   const insets = useSafeAreaInsets();
-  const isDark = useColorScheme() === 'dark';
-  const iconColor = isDark ? '#F6F7F7' /* gray-100 */ : '#4C5252'; /* gray-700 */
+  const iconColor = '#4C5252'; /* gray-700 */
 
   const [type, setType] = useState<PostCategory | null>(
     (params.initCategory as PostCategory | undefined) ?? null,
@@ -251,10 +249,10 @@ export default function CommunityWriteScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white  " edges={['top']}>
       {/* 헤더 */}
       <View
-        className="flex-row items-center border-b border-gray-300 dark:border-gray-700"
+        className="flex-row items-center border-b border-gray-300  "
         style={{ height: HEADER_H }}
       >
         <View style={{ width: 56 }} className="pl-4">
@@ -283,7 +281,7 @@ export default function CommunityWriteScreen() {
         style={{ flex: 1 }}
       >
         {/* 제목 */}
-        <View className="border-b border-gray-300 dark:border-gray-700" style={{ height: TITLE_H }}>
+        <View className="border-b border-gray-300  " style={{ height: TITLE_H }}>
           <RNTextInput
             value={title}
             onChangeText={setTitle}
@@ -295,14 +293,14 @@ export default function CommunityWriteScreen() {
               fontSize: 18,
               fontWeight: '500',
               lineHeight: 24,
-              color: isDark ? '#F6F7F7' : '#181C1C',
+              color: '#181C1C',
             }}
           />
         </View>
 
         {/* 툴바 */}
         <View
-          className="flex-row items-center px-5 gap-4 border-b border-gray-300 dark:border-gray-700"
+          className="flex-row items-center px-5 gap-4 border-b border-gray-300  "
           style={{ height: TOOLBAR_H }}
         >
           <Pressable
@@ -436,7 +434,7 @@ export default function CommunityWriteScreen() {
               paddingTop: 16,
               fontSize: 16,
               lineHeight: 22,
-              color: isDark ? '#F6F7F7' : '#181C1C',
+              color: '#181C1C',
             }}
           />
           <View style={{ height: 80 }} />
@@ -451,7 +449,7 @@ export default function CommunityWriteScreen() {
             onPress={() => setShowTypeDropdown(false)}
           />
           <View
-            className="absolute bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700"
+            className="absolute bg-white   rounded-xl border border-gray-200  "
             style={{
               top: HEADER_H + TITLE_H + TOOLBAR_H,
               left: 20,
@@ -471,12 +469,12 @@ export default function CommunityWriteScreen() {
                   setType(option.value);
                   setShowTypeDropdown(false);
                 }}
-                className={`px-4 py-3${i < TYPE_OPTIONS.length - 1 ? ' border-b border-gray-100 dark:border-gray-700' : ''}`}
+                className={`px-4 py-3${i < TYPE_OPTIONS.length - 1 ? ' border-b border-gray-100  ' : ''}`}
               >
                 <Text
                   className="text-body-sm"
                   style={{
-                    color: type === option.value ? '#28C8DE' : isDark ? '#F6F7F7' : '#181C1C',
+                    color: type === option.value ? '#28C8DE' : '#181C1C',
                     fontWeight: type === option.value ? '600' : '400',
                   }}
                 >
@@ -499,17 +497,11 @@ export default function CommunityWriteScreen() {
           style={{ flex: 1, backgroundColor: 'rgba(115,115,115,0.5)' }}
           onPress={() => setShowCameraMenu(false)}
         />
-        <View
-          className="bg-white dark:bg-gray-900 rounded-t-3xl"
-          style={{ paddingBottom: insets.bottom + 16 }}
-        >
+        <View className="bg-white   rounded-t-3xl" style={{ paddingBottom: insets.bottom + 16 }}>
           <View className="items-center pt-3 pb-4">
-            <View className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+            <View className="w-10 h-1 rounded-full bg-gray-300  " />
           </View>
-          <Pressable
-            onPress={handleCameraCapture}
-            className="px-6 py-4 border-b border-gray-100 dark:border-gray-800"
-          >
+          <Pressable onPress={handleCameraCapture} className="px-6 py-4 border-b border-gray-100  ">
             <Text className="text-body-lg">카메라로 촬영하기</Text>
           </Pressable>
           <Pressable onPress={handleGalleryPick} className="px-6 py-4">
@@ -536,11 +528,11 @@ export default function CommunityWriteScreen() {
           onPress={() => setShowBingoModal(false)}
         />
         <View
-          className="bg-white dark:bg-gray-900 rounded-t-3xl"
+          className="bg-white   rounded-t-3xl"
           style={{ maxHeight: '60%', paddingBottom: insets.bottom + 16 }}
         >
           <View className="items-center pt-3 pb-1">
-            <View className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+            <View className="w-10 h-1 rounded-full bg-gray-300  " />
           </View>
           <View className="flex-row items-center justify-between px-5 py-3">
             <Text className="text-title-sm">내 빙고 선택</Text>
@@ -567,7 +559,7 @@ export default function CommunityWriteScreen() {
                   <Pressable
                     key={bingo.id}
                     onPress={() => handleSelectBingo(bingo)}
-                    className={`px-5 py-4 border-b border-gray-100 dark:border-gray-800 flex-row items-center justify-between${selected ? ' bg-green-50 dark:bg-gray-800' : ''}`}
+                    className={`px-5 py-4 border-b border-gray-100   flex-row items-center justify-between${selected ? ' bg-green-50  ' : ''}`}
                   >
                     <View>
                       <Text className="text-label-sm">{bingo.title}</Text>

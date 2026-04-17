@@ -11,7 +11,7 @@ interface Props {
 export function FriendList({ friends, handleDeleteFriend, handleBattleRequest }: Props) {
   return (
     <View>
-      <Text className="text-title-sm dark:text-gray-400 px-5 pt-4 pb-2">친구 {friends.length}</Text>
+      <Text className="text-title-sm   px-5 pt-4 pb-2">친구 {friends.length}</Text>
       {friends.length === 0 ? (
         <View className="py-10 items-center">
           <Text className="text-body-md text-gray-400">아직 친구가 없어요.</Text>
@@ -20,21 +20,19 @@ export function FriendList({ friends, handleDeleteFriend, handleBattleRequest }:
         friends.map((friend) => (
           <View
             key={friend.friendId}
-            className="flex-row items-center px-5 py-3 border-b border-gray-100 dark:border-gray-800"
+            className="flex-row items-center px-5 py-3 border-b border-gray-100  "
           >
             <ProfileAvatar avatarUrl={friend.avatarUrl} size={40} />
             <View className="flex-1 ml-3">
               <Text className="text-title-sm">{friend.displayName}</Text>
-              <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
-                @{friend.username}
-              </Text>
+              <Text className="text-caption-sm text-gray-500  ">@{friend.username}</Text>
             </View>
             <View className="flex-row gap-2">
               <Pressable
                 onPress={() => handleDeleteFriend(friend)}
-                className="px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+                className="px-4 py-2 rounded-full border border-gray-200   bg-white  "
               >
-                <Text className="text-caption-sm text-gray-700 dark:text-gray-300">삭제</Text>
+                <Text className="text-caption-sm text-gray-700  ">삭제</Text>
               </Pressable>
               <Pressable
                 onPress={() => handleBattleRequest(friend)}

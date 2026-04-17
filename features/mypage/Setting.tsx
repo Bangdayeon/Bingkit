@@ -106,7 +106,7 @@ export function SettingPage() {
   };
 
   return (
-    <ScrollView className="flex-1 mt-[52px] bg-white px-5 dark:bg-gray-900 md:self-center md:w-full md:max-w-[600px]">
+    <ScrollView className="flex-1 mt-[52px] bg-white px-5   md:self-center md:w-full md:max-w-[600px]">
       <View className="h-5" />
       {/* 프로필 영역 */}
       <View className="flex-row items-start mb-5  gap-4 h-[100px]">
@@ -141,7 +141,7 @@ export function SettingPage() {
         <Text className="text-caption-md">{profile?.bio || '아직 한 줄 다짐이 없어요.'}</Text>
       </View>
 
-      <View className="h-px bg-gray-200 dark:bg-gray-700" />
+      <View className="h-px bg-gray-200  " />
 
       <MenuItem
         imgSrc={Profile}
@@ -163,7 +163,7 @@ export function SettingPage() {
       />
       {/* <MenuItem imgSrc={Theme} label="앱 테마" onPress={() => router.push('/mypage/app-theme')} showArrow /> */}
 
-      <View className="h-px bg-gray-200 dark:bg-gray-700" />
+      <View className="h-px bg-gray-200  " />
 
       <MenuItem imgSrc={Review} label="앱 리뷰하러 하기" onPress={openReviewPage} />
       <MenuItem
@@ -210,7 +210,7 @@ export function SettingPage() {
       />
       <MenuItem label="개발자 이메일" onPress={() => {}} rightText="dybang00@gmail.com" />
 
-      <View className="h-px bg-gray-200 dark:bg-gray-700" />
+      <View className="h-px bg-gray-200  " />
 
       <MenuItem label="로그아웃" onPress={() => setShowLogoutModal(true)} />
       <View className="h-40" />
@@ -261,7 +261,7 @@ export function SettingPage() {
               className="min-h-[72px]"
               style={{ textAlignVertical: 'top' }}
             />
-            <Text className="text-caption-md text-gray-400 dark:text-gray-500 text-right mt-1">
+            <Text className="text-caption-md text-gray-400   text-right mt-1">
               {reportInputText.length}/500
             </Text>
           </View>

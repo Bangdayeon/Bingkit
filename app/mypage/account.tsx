@@ -1,7 +1,7 @@
 import IconButton from '@/components/IconButton';
 import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import { useRouter } from 'expo-router';
-import { ImageSourcePropType, Image, Pressable, View, useColorScheme } from 'react-native';
+import { ImageSourcePropType, Image, Pressable, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Modal } from '@/components/Modal';
@@ -42,8 +42,7 @@ interface RowItemProps {
 }
 
 function RowItem({ label, onPress }: RowItemProps) {
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#F6F7F7' : '#181C1C'; /* gray-100 : gray-900 */
+  const iconColor = '#181C1C'; /* gray-100 : gray-900 */
   return (
     <Pressable onPress={onPress} className="flex-row items-center justify-between px-5 py-4">
       <Text className="text-title-sm">{label}</Text>
@@ -98,9 +97,9 @@ export default function AccountScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}
@@ -122,7 +121,7 @@ export default function AccountScreen() {
             return (
               <View key={account.provider} className="flex-row items-center gap-3 mb-3">
                 <View
-                  className="w-6 h-6 rounded-md items-center justify-center border border-gray-200 dark:border-gray-700"
+                  className="w-6 h-6 rounded-md items-center justify-center border border-gray-200  "
                   style={{ backgroundColor: cfg?.bgColor ?? '#EEEEEE' }}
                 >
                   {cfg?.logo && (
@@ -134,7 +133,7 @@ export default function AccountScreen() {
                   )}
                 </View>
                 <Text className="text-title-sm">{cfg?.label ?? account.provider}</Text>
-                <Text className="text-title-sm text-gray-500 dark:text-gray-400 ml-auto">
+                <Text className="text-title-sm text-gray-500   ml-auto">
                   {account.email?.endsWith('@kakao.bingket') ? '' : (account.email ?? '')}
                 </Text>
               </View>
@@ -143,7 +142,7 @@ export default function AccountScreen() {
         )}
       </View>
 
-      <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
+      <View className="h-px bg-gray-200   mx-5 my-2" />
 
       {loading ? (
         <View className="py-6 items-center">

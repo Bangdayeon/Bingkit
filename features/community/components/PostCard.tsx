@@ -1,4 +1,4 @@
-import { useColorScheme, View } from 'react-native';
+import { View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from '@/components/Text';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
@@ -47,8 +47,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const isDark = useColorScheme() === 'dark';
-  const iconColor = isDark ? '#F6F7F7' : '#4C5252';
+  const iconColor = '#4C5252';
 
   // blocks 기반 첫 번째 미디어 탐색
   const blocks = parseBlocks(post.body);

@@ -15,7 +15,7 @@ export default function MyPageScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-white">
       <HeaderTabBar
         menus={['내 정보', '뱃지']}
         selectedIndex={tabIndex}

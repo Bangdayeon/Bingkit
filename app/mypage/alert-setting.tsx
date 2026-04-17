@@ -76,9 +76,9 @@ export default function AlertSettingScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}
@@ -92,7 +92,7 @@ export default function AlertSettingScreen() {
       <ScrollView className="flex-1">
         <ToggleRow label="전체 알림" value={allAlert} onValueChange={handleAllAlert} />
 
-        <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
+        <View className="h-px bg-gray-200   mx-5 my-2" />
 
         {/* 빙고 알림 */}
         <View className="px-5 pt-3 pb-1">
@@ -105,7 +105,7 @@ export default function AlertSettingScreen() {
           onValueChange={(v) => update({ bingoDeadline: v })}
         />
 
-        <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
+        <View className="h-px bg-gray-200   mx-5 my-2" />
 
         {/* 커뮤니티 알림 */}
         <View className="px-5 pt-3 pb-1">
@@ -130,7 +130,7 @@ export default function AlertSettingScreen() {
           onValueChange={(v) => update({ communityLike: v })}
         />
 
-        <View className="h-px bg-gray-200 dark:bg-gray-700 mx-5 my-2" />
+        <View className="h-px bg-gray-200   mx-5 my-2" />
 
         {/* 이벤트 및 혜택 알림 */}
         <View className="px-5 pt-3 pb-1">

@@ -99,7 +99,7 @@ export function GoogleButton({ requireAgreement }: GoogleButtonProps) {
     <TouchableOpacity
       onPress={handlePress}
       disabled={loading}
-      className="w-full h-14 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 items-center justify-center"
+      className="w-full h-14 rounded-xl border border-gray-200   bg-white   items-center justify-center"
     >
       {loading ? (
         <Loading color="#000000" />

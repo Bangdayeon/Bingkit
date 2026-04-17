@@ -98,7 +98,7 @@ export default function EmailLoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

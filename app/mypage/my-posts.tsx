@@ -3,7 +3,7 @@ import BackArrowIcon from '@/assets/icons/ic_arrow_back.svg';
 import SMSIcon from '@/assets/icons/ic_sms.svg';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, View, useColorScheme } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fetchMyPosts, MyPost } from '@/features/mypage/lib/mypage';
@@ -17,24 +17,21 @@ const CATEGORY_LABEL: Record<MyPost['category'], string> = {
 };
 
 function PostItem({ post, onPress }: { post: MyPost; onPress: () => void }) {
-  const isDark = useColorScheme() === 'dark';
-  const iconColor = isDark ? '#F6F7F7' /* gray-100 */ : '#4C5252'; /* gray-700 */
+  const iconColor = '#4C5252'; /* gray-700 */
 
   return (
     <Pressable onPress={onPress} className="px-5 pt-4 pb-4">
       <View className="flex-row items-center gap-2 mb-2">
-        <View className="bg-sky-100 dark:bg-sky-900 rounded-full px-2 py-0.5">
-          <Text className="text-caption-sm text-sky-600 dark:text-sky-300">
-            {CATEGORY_LABEL[post.category]}
-          </Text>
+        <View className="bg-sky-100   rounded-full px-2 py-0.5">
+          <Text className="text-caption-sm text-sky-600  ">{CATEGORY_LABEL[post.category]}</Text>
         </View>
-        <Text className="text-caption-sm text-gray-500 dark:text-gray-400">{post.createdAt}</Text>
+        <Text className="text-caption-sm text-gray-500  ">{post.createdAt}</Text>
       </View>
 
       <Text className="text-label-sm mb-1" numberOfLines={1}>
         {post.title}
       </Text>
-      <Text className="text-body-sm text-gray-500 dark:text-gray-400" numberOfLines={2}>
+      <Text className="text-body-sm text-gray-500  " numberOfLines={2}>
         {post.content}
       </Text>
 
@@ -69,9 +66,9 @@ export default function MyPostsScreen() {
   );
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}
@@ -88,9 +85,7 @@ export default function MyPostsScreen() {
         </View>
       ) : posts.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-title-md text-gray-400 dark:text-gray-500">
-            등록한 게시글이 없어요.
-          </Text>
+          <Text className="text-title-md text-gray-400  ">등록한 게시글이 없어요.</Text>
         </View>
       ) : (
         <ScrollView
@@ -99,7 +94,7 @@ export default function MyPostsScreen() {
         >
           {posts.map((post, index) => (
             <View key={post.id}>
-              {index > 0 && <View className="h-px bg-gray-200 dark:bg-gray-700" />}
+              {index > 0 && <View className="h-px bg-gray-200  " />}
               <PostItem post={post} onPress={() => router.push(`/community/${post.id}`)} />
             </View>
           ))}

@@ -79,9 +79,7 @@ export default function BattleSelectBoardScreen() {
       <Pressable
         onPress={() => setSelectedId(bingo.id)}
         className={`m-5 p-4 rounded-2xl border-2 ${
-          isSelected
-            ? 'border-green-400 bg-green-50 dark:bg-green-900'
-            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'
+          isSelected ? 'border-green-400 bg-green-50   ' : 'border-gray-200   bg-white  '
         }`}
       >
         <View className="flex items-center gap-4">
@@ -89,11 +87,9 @@ export default function BattleSelectBoardScreen() {
             <View className="flex-1 w-full">
               <Text className="text-title-sm mb-1">{bingo.title}</Text>
               {bingo.targetDate ? (
-                <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
-                  종료일: {bingo.targetDate}
-                </Text>
+                <Text className="text-caption-sm text-gray-500  ">종료일: {bingo.targetDate}</Text>
               ) : null}
-              <Text className="text-caption-sm text-gray-500 dark:text-gray-400 mt-1">
+              <Text className="text-caption-sm text-gray-500   mt-1">
                 {bingo.achievedCount}/{bingo.cells.length} 달성 · 빙고 {bingo.bingoCount}
               </Text>
             </View>
@@ -108,9 +104,9 @@ export default function BattleSelectBoardScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}

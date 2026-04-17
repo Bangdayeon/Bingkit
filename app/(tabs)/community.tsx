@@ -96,7 +96,7 @@ export default function CommunityScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <View className="flex-1 md:self-center md:w-full md:max-w-[600px]">
         <CommunityHeader />
         <CommunityFilter selectedIndex={filterIndex} onSelect={handleFilterSelect} color="blue" />

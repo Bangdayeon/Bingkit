@@ -20,10 +20,7 @@ interface PostHeaderProps {
 
 export function PostHeader({ type, iconColor, onBack, onMenuPress }: PostHeaderProps) {
   return (
-    <View
-      className="flex-row items-center border-b border-gray-300 dark:border-gray-700"
-      style={{ height: HEADER_H }}
-    >
+    <View className="flex-row items-center border-b border-gray-300  " style={{ height: HEADER_H }}>
       <View style={{ width: 56 }} className="pl-4">
         <Pressable onPress={onBack} hitSlop={8}>
           <ArrowBackIcon width={20} height={20} color={iconColor} />

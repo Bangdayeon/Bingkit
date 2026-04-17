@@ -11,7 +11,7 @@ interface FilterProps {
 
 export function CommunityFilter({ selectedIndex, onSelect, color = 'green' }: FilterProps) {
   return (
-    <View className="border-gray-300 dark:border-gray-700 h-[60px]">
+    <View className="border-gray-300   h-[60px]">
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

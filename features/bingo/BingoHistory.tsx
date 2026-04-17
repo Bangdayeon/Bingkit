@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, PanResponder, Pressable, ScrollView, View, useColorScheme } from 'react-native';
+import { Animated, PanResponder, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
 import DoneIcon from '@/assets/icons/ic_done.svg';
 import DraftIcon from '@/assets/icons/ic_draft.svg';
@@ -36,8 +36,7 @@ function Section({
   items: BingoItem[];
   onItemPress: (item: BingoItem) => void;
 }) {
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#F6F7F7' : '#181C1C'; /* gray-100 : gray-900 */
+  const iconColor = '#181C1C'; /* gray-100 : gray-900 */
 
   return (
     <View className="mb-4">
@@ -45,9 +44,7 @@ function Section({
         {icon}
         <Text className="text-title-md">{label}</Text>
       </View>
-      {items.length === 0 && (
-        <Text className="text-body-sm text-gray-400 dark:text-gray-500 py-2">없음</Text>
-      )}
+      {items.length === 0 && <Text className="text-body-sm text-gray-400   py-2">없음</Text>}
       {items.map((item) => (
         <Pressable
           key={item.id}
@@ -80,8 +77,7 @@ function DraggableInProgressSection({
   onItemPress: (item: BingoItem) => void;
   onOrderChange: (items: BingoItem[]) => void;
 }) {
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#F6F7F7' : '#181C1C'; /* gray-100 : gray-900 */
+  const iconColor = '#181C1C'; /* gray-100 : gray-900 */
 
   const [orderedItems, setOrderedItems] = useState(items);
   const orderedItemsRef = useRef(items);
@@ -174,9 +170,7 @@ function DraggableInProgressSection({
         {icon}
         <Text className="text-title-md">{label}</Text>
       </View>
-      {orderedItems.length === 0 && (
-        <Text className="text-body-sm text-gray-400 dark:text-gray-500 py-2">없음</Text>
-      )}
+      {orderedItems.length === 0 && <Text className="text-body-sm text-gray-400   py-2">없음</Text>}
       {orderedItems.map((item) => {
         const isDragging = draggingId === item.id;
         const panResponder = getOrCreatePanResponder(item.id);
@@ -188,8 +182,7 @@ function DraggableInProgressSection({
                 ? {
                     transform: [{ translateY }],
                     zIndex: 10,
-                    backgroundColor:
-                      colorScheme === 'dark' ? '#181C1C' : '#FDFDFD' /* gray-900 : white */,
+                    backgroundColor: '#FDFDFD' /* white */,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 3 },
                     shadowOpacity: 0.12,
@@ -283,17 +276,14 @@ export function BingoHistory({ isReorderMode }: { isReorderMode: boolean }) {
 
   if (loading) {
     return (
-      <View className="flex-1 mt-[80px] items-center justify-center bg-white dark:bg-gray-900">
+      <View className="flex-1 mt-[80px] items-center justify-center bg-white  ">
         <Loading color="6ADE50" />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      className="flex-1 mt-[70px] bg-white px-5 dark:bg-gray-900 mb-20"
-      scrollEnabled={!isReorderMode}
-    >
+    <ScrollView className="flex-1 mt-[70px] bg-white px-5   mb-20" scrollEnabled={!isReorderMode}>
       <Section
         icon={<DraftIcon />}
         label="제작 중"

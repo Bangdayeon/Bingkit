@@ -32,7 +32,7 @@ export function WriteBingo({
   onCellsChange,
 }: WriteBingoProps) {
   return (
-    <View className="px-5 py-6 border-t border-gray-100 dark:border-gray-800">
+    <View className="px-5 py-6 border-t border-gray-100  ">
       <Text className="text-title-md mb-4">빙고 작성</Text>
 
       {/* 칸 개수 */}
@@ -62,7 +62,7 @@ export function WriteBingo({
         <Text className="text-title-sm">수정 가능 횟수</Text>
         <Information content="처음 지정 후 수정이 불가능해요." />
       </View>
-      <Text className="text-body-sm text-gray-500 dark:text-gray-400 mb-3">
+      <Text className="text-body-sm text-gray-500   mb-3">
         빙고 항목을 수정할 수 있는 횟수를 선택해주세요.{'\n'}
         선택한 횟수만큼 원하는 항목을 바꿀 수 있어요.
       </Text>
@@ -100,7 +100,7 @@ export function WriteBingo({
 
       {/* 빙고 그리드 */}
       <Text className="text-title-sm mb-2">빙고 내용 작성하기</Text>
-      <Text className="text-body-sm text-gray-500 dark:text-gray-400 mb-3">
+      <Text className="text-body-sm text-gray-500   mb-3">
         아래에서 각 칸을 선택해서 빙고 내용을 채워주세요.
       </Text>
       <AddEachBingo

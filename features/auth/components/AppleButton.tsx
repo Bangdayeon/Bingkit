@@ -96,7 +96,7 @@ export function AppleButton({ requireAgreement }: AppleButtonProps) {
     <TouchableOpacity
       onPress={handlePress}
       disabled={loading}
-      className="w-full h-14 rounded-xl bg-gray-900 dark:bg-white items-center justify-center"
+      className="w-full h-14 rounded-xl bg-gray-900   items-center justify-center"
     >
       {loading ? (
         <Loading color="#ffffff" />

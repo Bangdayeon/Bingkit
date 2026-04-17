@@ -39,10 +39,7 @@ export function CommentInput({
   const [pressed, setPressed] = useState(false);
 
   return (
-    <View
-      className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-      style={{ paddingBottom }}
-    >
+    <View className="border-t border-gray-200   bg-white  " style={{ paddingBottom }}>
       {replyTo && (
         <View className="flex-row items-center justify-between px-5 py-2 bg-sky-100">
           <Text className="text-caption-sm text-gray-500">{replyTo.author}에게 답글 작성 중</Text>

@@ -96,7 +96,7 @@ export function BingoBattle() {
 
   return (
     <>
-      <ScrollView className="flex-1 mt-[70px] bg-white dark:bg-gray-900 mb-20">
+      <ScrollView className="flex-1 mt-[70px] bg-white   mb-20">
         {loading ? (
           <View className="py-10 items-center">
             <Loading color="6ADE50" />
@@ -123,7 +123,7 @@ export function BingoBattle() {
             <View className="mt-4 mx-5">
               <View className="flex-row gap-2 mb-2 items-center">
                 <BattleProgressIcon />
-                <Text className="text-title-md dark:text-gray-400">승부 중 대결</Text>
+                <Text className="text-title-md  ">승부 중 대결</Text>
               </View>
               {ongoing.length === 0 ? (
                 <Text className="text-body-md text-gray-400">진행 중인 대결이 없어요.</Text>
@@ -148,7 +148,7 @@ export function BingoBattle() {
             <View className="mt-8 mx-5 mb-4">
               <View className="flex-row gap-2 mb-2 items-center">
                 <BattleDoneIcon />
-                <Text className="text-title-md dark:text-gray-400">승부 난 대결</Text>
+                <Text className="text-title-md  ">승부 난 대결</Text>
               </View>
               {finished.length === 0 ? (
                 <Text className="text-body-md text-gray-400">종료된 대결이 없어요.</Text>

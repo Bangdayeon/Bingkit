@@ -6,7 +6,6 @@ import {
   Pressable,
   ScrollView,
   View,
-  useColorScheme,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -47,8 +46,7 @@ export default function CommunityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const isDark = useColorScheme() === 'dark';
-  const iconColor = isDark ? '#F6F7F7' /* gray-100 */ : '#4C5252'; /* gray-700 */
+  const iconColor = '#4C5252'; /* gray-700 */
 
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [post, setPost] = useState<CommunityPost | null>(null);
@@ -133,11 +131,8 @@ export default function CommunityDetailScreen() {
 
   if (postLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
-        <View
-          className="flex-row items-center border-b border-gray-300 dark:border-gray-700"
-          style={{ height: 60 }}
-        >
+      <SafeAreaView className="flex-1 bg-white  " edges={['top']}>
+        <View className="flex-row items-center border-b border-gray-300  " style={{ height: 60 }}>
           <View style={{ width: 56 }} className="pl-4">
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <ArrowBackIcon width={20} height={20} color={iconColor} />
@@ -153,11 +148,8 @@ export default function CommunityDetailScreen() {
 
   if (!post) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
-        <View
-          className="flex-row items-center border-b border-gray-300 dark:border-gray-700"
-          style={{ height: 60 }}
-        >
+      <SafeAreaView className="flex-1 bg-white  " edges={['top']}>
+        <View className="flex-row items-center border-b border-gray-300  " style={{ height: 60 }}>
           <View style={{ width: 56 }} className="pl-4">
             <Pressable onPress={() => router.back()} hitSlop={8}>
               <ArrowBackIcon width={20} height={20} color={iconColor} />
@@ -361,7 +353,7 @@ export default function CommunityDetailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white  " edges={['top']}>
       <PostHeader
         type={post.category}
         iconColor={iconColor}

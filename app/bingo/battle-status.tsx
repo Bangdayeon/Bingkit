@@ -95,7 +95,7 @@ export default function BattleStatusScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+      <View className="flex-1 items-center justify-center bg-white  ">
         <Loading color="6ADE50" />
       </View>
     );
@@ -104,9 +104,9 @@ export default function BattleStatusScreen() {
   const isCompleted = detail?.status === 'completed';
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}
@@ -134,7 +134,7 @@ export default function BattleStatusScreen() {
       />
 
       {!detail || !myBingo || !friendBingo ? (
-        <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+        <View className="flex-1 items-center justify-center bg-white  ">
           <Text className="text-body-md text-gray-400">대결 정보를 불러올 수 없어요.</Text>
         </View>
       ) : (
@@ -153,7 +153,7 @@ export default function BattleStatusScreen() {
           {detail.betText && (
             <View className="mx-5 mb-8">
               <Text className="text-title-md mb-1">내기 내용</Text>
-              <View className="p-4 bg-gray-100 dark:bg-gray-800 rounded-2xl">
+              <View className="p-4 bg-gray-100   rounded-2xl">
                 <Text className="text-body-md md:text-body-lg">{detail.betText}</Text>
               </View>
             </View>

@@ -69,7 +69,7 @@ export function BadgesPage() {
 
   return (
     <>
-      <ScrollView className="flex-1 mt-[80px] bg-white dark:bg-gray-900 mb-20">
+      <ScrollView className="flex-1 mt-[80px] bg-white   mb-20">
         {loading ? (
           <View className="flex-1 items-center justify-center py-20">
             <Loading color="6ADE50" />
@@ -98,7 +98,7 @@ export function BadgesPage() {
                       <View
                         key={`empty-${rowIndex}-${colIndex}`}
                         style={{ width: BADGE_SIZE, height: BADGE_SIZE, borderRadius: 20 }}
-                        className="bg-gray-200 dark:bg-gray-700"
+                        className="bg-gray-200  "
                       />
                     ),
                   )}

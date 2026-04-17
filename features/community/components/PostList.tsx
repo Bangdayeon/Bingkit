@@ -14,7 +14,7 @@ interface PostListProps {
   filterIndex: number;
 }
 
-const Separator = () => <View className="h-px bg-gray-300 dark:bg-gray-700" />;
+const Separator = () => <View className="h-px bg-gray-300  " />;
 
 export function PostList({
   posts,

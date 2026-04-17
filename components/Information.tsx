@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Modal, Pressable, View, useColorScheme } from 'react-native';
+import { Modal, Pressable, View } from 'react-native';
 import IcInfo from '@/assets/icons/ic_info.svg';
 import { Text } from '@/components/Text';
 
@@ -11,8 +11,7 @@ export function Information({ content }: InformationProps) {
   const [visible, setVisible] = useState(false);
   const [anchor, setAnchor] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const iconRef = useRef<View>(null);
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#E5E7EB' /* gray-200 */ : '#1F2937'; /* gray-800 */
+  const iconColor = '#1F2937'; /* gray-800 */
 
   const handlePress = () => {
     iconRef.current?.measureInWindow((x, y, width, height) => {

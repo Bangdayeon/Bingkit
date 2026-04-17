@@ -42,8 +42,8 @@ function NotificationItem({ item, onRead, onAction, onFriendResponse }: Notifica
 
   return (
     <Pressable
-      className={`border-t border-gray-300 dark:border-gray-700 px-4 py-4 justify-center ${
-        item.is_read ? 'bg-gray-100 dark:bg-gray-800' : 'bg-sky-100 dark:bg-sky-900'
+      className={`border-t border-gray-300   px-4 py-4 justify-center ${
+        item.is_read ? 'bg-gray-100  ' : 'bg-sky-100  '
       }`}
       onPress={handlePress}
     >
@@ -53,9 +53,7 @@ function NotificationItem({ item, onRead, onAction, onFriendResponse }: Notifica
           <ProfileAvatar avatarUrl={item.senderProfile.avatarUrl} size={40} />
           <View>
             <Text className="text-label-sm">{item.senderProfile.displayName}</Text>
-            <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
-              @{item.senderProfile.username}
-            </Text>
+            <Text className="text-caption-sm text-gray-500  ">@{item.senderProfile.username}</Text>
           </View>
         </View>
       )}
@@ -171,16 +169,16 @@ export default function NotificationsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-gray-900 items-center justify-center">
+      <SafeAreaView className="flex-1 bg-white   items-center justify-center">
         <Loading color="6ADE50" />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-white  ">
       {/* Header */}
-      <View className="h-[60px] flex-row items-center justify-between px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center justify-between px-4 border-b border-gray-300  ">
         <View className="w-20" />
         <Pressable onPress={markAllRead} className="items-end">
           <Text className="text-body-md">모두 읽음 처리</Text>

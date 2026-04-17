@@ -45,19 +45,17 @@ export function SearchList({
             const isSending = sending === item.id;
             const label = isFriend ? '친구' : isPending ? '재요청' : '친구 추가';
             const bgClass = isFriend
-              ? 'bg-sky-400 dark:bg-sky-200'
+              ? 'bg-sky-400  '
               : isPending
-                ? 'bg-gray-200 dark:bg-gray-700'
+                ? 'bg-gray-200  '
                 : 'bg-green-400';
 
             return (
-              <View className="flex-row items-center px-5 py-3 border-b border-gray-100 dark:border-gray-800">
+              <View className="flex-row items-center px-5 py-3 border-b border-gray-100  ">
                 <ProfileAvatar avatarUrl={item.avatar_url} size={40} />
                 <View className="flex-1 ml-3">
                   <Text className="text-title-sm">{item.display_name}</Text>
-                  <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
-                    @{item.username}
-                  </Text>
+                  <Text className="text-caption-sm text-gray-500  ">@{item.username}</Text>
                 </View>
                 <Pressable
                   disabled={isFriend || isSending}

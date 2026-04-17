@@ -9,8 +9,8 @@ interface Props extends TextInputProps {
 }
 
 const variantStyles: Record<Variant, string> = {
-  default: 'bg-gray-100 dark:bg-gray-800',
-  community: 'bg-sky-100 dark:bg-sky-900',
+  default: 'bg-gray-100  ',
+  community: 'bg-sky-100  ',
 };
 
 export const TextInput = forwardRef<RNTextInput, Props>(function TextInput(
@@ -33,7 +33,7 @@ export const TextInput = forwardRef<RNTextInput, Props>(function TextInput(
       <RNTextInput
         ref={ref}
         placeholderTextColor="#929898"
-        className="text-body-sm text-gray-900 dark:text-gray-100"
+        className="text-body-sm text-gray-900  "
         style={style}
         multiline={isMultiline}
         scrollEnabled={maxHeight !== undefined}

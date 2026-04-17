@@ -94,16 +94,16 @@ export default function BattleScreen() {
 
   if (loadingBingo) {
     return (
-      <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
+      <View className="flex-1 items-center justify-center bg-white  ">
         <Loading color="6ADE50" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white  " style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300 dark:border-gray-700">
+      <View className="h-[60px] flex-row items-center px-4 border-b border-gray-300  ">
         <IconButton
           variant="ghost"
           size={32}
@@ -119,7 +119,7 @@ export default function BattleScreen() {
         contentContainerStyle={{ paddingTop: 24, paddingBottom: insets.bottom + 32 }}
       >
         {/* 빙고 선택 */}
-        <Text className="text-title-sm dark:text-gray-400 mb-2">대결할 빙고</Text>
+        <Text className="text-title-sm   mb-2">대결할 빙고</Text>
         {fromBingo ? (
           /* BingoAll에서 진입: 빙고 고정, 선택 불가 */
           <Text className="text-title-sm mb-12">{bingoTitle ?? ''}</Text>
@@ -148,7 +148,7 @@ export default function BattleScreen() {
         )}
 
         {/* 친구 선택 */}
-        <Text className="text-title-sm dark:text-gray-400 mb-2">대결할 친구</Text>
+        <Text className="text-title-sm   mb-2">대결할 친구</Text>
         {fromBingo ? (
           /* BingoAll에서 진입: 친구 선택 가능 */
           <Pressable
@@ -161,9 +161,7 @@ export default function BattleScreen() {
               {friend && <ProfileAvatar size={28} avatarUrl={friend?.avatarUrl} />}
               <Text className="text-body-md">{friend ? friend.displayName : '친구 선택하기'}</Text>
               {friend ? (
-                <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
-                  @{friend.username}
-                </Text>
+                <Text className="text-caption-sm text-gray-500  ">@{friend.username}</Text>
               ) : null}
             </View>
             <ForwardArrowIcon width={20} height={20} />
@@ -174,9 +172,7 @@ export default function BattleScreen() {
             <ProfileAvatar size={28} avatarUrl={friend?.avatarUrl} />
             <Text className="text-title-sm">{friend?.displayName ?? ''}</Text>
             {friend ? (
-              <Text className="text-caption-sm text-gray-500 dark:text-gray-400">
-                @{friend.username}
-              </Text>
+              <Text className="text-caption-sm text-gray-500  ">@{friend.username}</Text>
             ) : null}
           </View>
         )}

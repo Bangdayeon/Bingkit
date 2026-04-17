@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, View, useColorScheme } from 'react-native';
+import { Animated, Pressable, View } from 'react-native';
 import { Text } from './Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,7 +17,6 @@ export function HeaderTabBar({
   onTabChange,
 }: HeaderTabBarProps) {
   const insets = useSafeAreaInsets();
-  const isDark = useColorScheme() === 'dark';
   const [selectedIndex, setSelectedIndex] = useState(externalIndex ?? defaultIndex);
   const [tabWidths, setTabWidths] = useState<number[]>([]);
   const [tabOffsets, setTabOffsets] = useState<number[]>([]);
@@ -50,7 +49,7 @@ export function HeaderTabBar({
 
   return (
     <View
-      className="bg-white dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 w-full absolute top-0"
+      className="bg-white   border-b border-gray-300   w-full absolute top-0"
       style={{ height: TOTAL_HEIGHT, paddingTop: insets.top, zIndex: 50 }}
     >
       <View className="flex-row h-[60px] items-center">
@@ -77,7 +76,7 @@ export function HeaderTabBar({
             <Text
               className="text-title-lg"
               style={{
-                color: selectedIndex === index ? (isDark ? '#F6F7F7' : '#181C1C') : '#929898',
+                color: selectedIndex === index ? '#181C1C' : '#929898',
               }}
             >
               {menu}
@@ -89,7 +88,7 @@ export function HeaderTabBar({
       {tabOffsets.length === menus.length && (
         <Animated.View
           style={{ transform: [{ translateX: slideAnim }], bottom: -0.5 }}
-          className="absolute w-10 h-[3px] bg-gray-900 dark:bg-gray-100 rounded-full"
+          className="absolute w-10 h-[3px] bg-gray-900   rounded-full"
         />
       )}
     </View>

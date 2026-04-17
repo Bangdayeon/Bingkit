@@ -1,6 +1,6 @@
 import { Chip } from '@/components/Chip';
 import Calendar from '@/assets/icons/ic_calendar.svg';
-import { Pressable, ScrollView, View, useColorScheme } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { Information } from '@/components/Information';
 
@@ -30,10 +30,9 @@ export function BingoGoal({
   onOpenStartPicker,
   onOpenEndPicker,
 }: BingoGoalProps) {
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#F6F7F7' : '#181C1C'; /* gray-100 : gray-900 */
+  const iconColor = '#181C1C'; /* gray-100 : gray-900 */
   return (
-    <View className="px-5 py-6 border-t border-gray-100 dark:border-gray-800">
+    <View className="px-5 py-6 border-t border-gray-100  ">
       <View className="flex-row items-center gap-2 mb-4">
         <Text className="text-title-md">목표 기간</Text>
         <Information content="처음 지정 후 수정이 불가능해요." />
@@ -59,10 +58,10 @@ export function BingoGoal({
           <Text className="text-title-sm mb-2">시작일</Text>
           <Pressable
             onPress={onOpenStartPicker}
-            className="flex-row items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-full px-3 h-10"
+            className="flex-row items-center gap-1 bg-gray-100   rounded-full px-3 h-10"
           >
             <Calendar width={16} height={16} color={iconColor} />
-            <Text className="text-body-sm text-gray-700 dark:text-gray-400">
+            <Text className="text-body-sm text-gray-700  ">
               {formatDate(startDate) || '선택하기'}
             </Text>
           </Pressable>
@@ -72,11 +71,11 @@ export function BingoGoal({
           <Text className="text-title-sm mb-2">종료일</Text>
           <Pressable
             onPress={!isEndDateDisabled ? onOpenEndPicker : undefined}
-            className="flex-row items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-full px-3 h-10"
+            className="flex-row items-center gap-1 bg-gray-100   rounded-full px-3 h-10"
             style={{ opacity: isEndDateDisabled ? 0.6 : 1 }}
           >
             <Calendar width={16} height={16} color={iconColor} />
-            <Text className="text-body-md text-gray-500 dark:text-gray-400">
+            <Text className="text-body-md text-gray-500  ">
               {formatDate(endDate) || '선택하기'}
             </Text>
           </Pressable>

@@ -10,7 +10,6 @@ import {
   Pressable,
   TextInput as RNTextInput,
   View,
-  useColorScheme,
   useWindowDimensions,
 } from 'react-native';
 import { TABLET_MAX_CONTENT_WIDTH } from '@/lib/use-responsive';
@@ -57,7 +56,6 @@ export function BingoCellModal({
   readOnly = false,
 }: BingoCellModalProps) {
   const insets = useSafeAreaInsets();
-  const isDark = useColorScheme() === 'dark';
   const { width } = useWindowDimensions();
   const CARD_WIDTH = Math.min(width, TABLET_MAX_CONTENT_WIDTH) - PEEK * 2;
   const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN * 2;
@@ -252,7 +250,7 @@ export function BingoCellModal({
           <View
             className={`
             absolute bottom-0 left-0 right-0
-            ${isDark ? 'bg-gray-900' : 'bg-white'}
+            bg-white
             rounded-t-[16px]
             px-5 pt-4
             pb-[${insets.bottom + 16}px]
@@ -277,7 +275,7 @@ export function BingoCellModal({
                   if (date) setTempDate(date);
                 }}
                 locale="ko-KR"
-                textColor={isDark ? '#F6F7F7' : '#181C1C'} /* gray-100 : gray-900 */
+                textColor="#181C1C" /* gray-100 : gray-900 */
                 style={{ flex: 1 }}
               />
             </View>
