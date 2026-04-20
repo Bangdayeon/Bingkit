@@ -210,7 +210,7 @@ export function SettingPage() {
         <MenuItem
           label="버전 정보"
           onPress={() => {}}
-          rightText={`v ${Constants.expoConfig?.version ?? '1.0.1'}`}
+          rightText={`v ${Constants.expoConfig?.version ?? '1.0.2'}`}
         />
         <MenuItem
           label="개발자 이메일"
